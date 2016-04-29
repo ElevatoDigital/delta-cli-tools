@@ -3,6 +3,7 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Exception\UnrecognizedStepInput;
+use DeltaCli\Script as ScriptObject;
 
 class StepFactory
 {
@@ -19,6 +20,8 @@ class StepFactory
             return $this->createShellCommand($args[1], $args[0]);
         } else if ($this->isUnnamedShellCommand($args)) {
             return $this->createShellCommand($args[0]);
+        } else if ($this->isScriptObject($args)) {
+            return new Script($args[0]);
         } else if ($this->isStepObject($args)) {
             return $args[0];
         } else {
@@ -58,6 +61,11 @@ class StepFactory
         $step = new ShellCommand($command);
         $step->setName($name);
         return $step;
+    }
+
+    protected function isScriptObject(array $args)
+    {
+        return isset($args[0]) && $args[0] instanceof ScriptObject;
     }
 
     protected function isStepObject(array $args)

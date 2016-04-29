@@ -48,3 +48,11 @@ $project->createScript('custom-script', 'Just an example custom script.')
             echo "Hey!  It's custom!\n";
         }
     );
+
+$project->createScript('composing-scripts', 'An example of calling one script from another.')
+    ->addStep(
+        function () {
+            echo 'Doing things!';
+        }
+    )
+    ->addStep($project->getScript('custom-script'));

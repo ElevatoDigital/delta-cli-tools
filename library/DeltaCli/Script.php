@@ -3,6 +3,7 @@
 namespace DeltaCli;
 
 use DeltaCli\Script\Step\DryRunInterface;
+use DeltaCli\Script\Step\EnvironmentAwareInterface;
 use DeltaCli\Script\Step\Result;
 use DeltaCli\Script\Step\StepFactory;
 use DeltaCli\Script\Step\StepInterface;
@@ -81,7 +82,7 @@ class Script extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->project->loadConfigFile();
-        
+
         $this->environment  = $this->project->getEnvironment($input->getArgument('environment'));
         $this->skippedSteps = $input->getOption('skip-step');
 
@@ -92,6 +93,20 @@ class Script extends Command
         } else {
             $this->runSteps($output);
         }
+    }
+
+    public function setEnvironment(Environment $environment)
+    {
+        $this->environment = $environment;
+
+        return $this;
+    }
+
+    public function setSkippedSteps(array $skippedSteps)
+    {
+        $this->skippedSteps = $skippedSteps;
+
+        return $this;
     }
 
     public function addStep()
@@ -110,10 +125,13 @@ class Script extends Command
 
     public function runSteps(OutputInterface $output)
     {
+        $scriptResult = Result::SUCCESS;
+
         /* @var $step StepInterface */
         foreach ($this->getStepsForEnvironment() as $step) {
             if ($this->stepShouldBeSkipped($step)) {
                 $result = new Result($step, Result::SKIPPED);
+                $result->setExplanation("at the user's request");
             } else {
                 $result = $step->run();
 
@@ -125,6 +143,8 @@ class Script extends Command
             $result->render($output);
 
             if ($this->stopOnFailure && $result->isFailure()) {
+                $scriptResult = Result::FAILURE;
+
                 $output->writeln(
                     [
                         '',
@@ -134,6 +154,8 @@ class Script extends Command
                 break;
             }
         }
+
+        return $scriptResult;
     }
 
     public function dryRun(OutputInterface $output)
@@ -206,9 +228,13 @@ class Script extends Command
     {
         $stepsForEnvironment = [];
 
-        /* @var $step StepInterface */
+        /* @var $step StepInterface|EnvironmentAwareInterface */
         foreach ($this->steps as $step) {
             if ($step->appliesToEnvironment($this->environment)) {
+                if ($step instanceof EnvironmentAwareInterface) {
+                    $step->setSelectedEnvironment($this->environment);
+                }
+
                 $stepsForEnvironment[] = $step;
             }
         }
