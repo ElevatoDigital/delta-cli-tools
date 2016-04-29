@@ -3,16 +3,26 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use DeltaCli\Command\CreateEnvironment;
-use DeltaCli\Command\Deploy;
+use DeltaCli\Project;
+use DeltaCli\Exception\ConsoleOutputInterface;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
-$application = new Application();
-$application->setName('Delta Systems CLI Tools');
-$application->addCommands(
-    [
-        new CreateEnvironment(),
-        new Deploy()
-    ]
-);
-$application->run();
+try {
+    $output      = new ConsoleOutput();
+    $application = new Application();
+    $project     = Project::fromConfigFile();
+
+    $application->setCatchExceptions(false);
+    $application->setName($project->getName());
+    $application->addCommands($project->getScripts());
+    $application->run(null, $output);
+} catch (Exception $e) {
+    $output->writeln('<error>' . get_class($e) . '</error>');
+
+    if ($e instanceof ConsoleOutputInterface) {
+        $e->outputToConsole($output);
+    } else {
+        $output->writeln($e->getMessage());
+    }
+}
