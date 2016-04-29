@@ -27,6 +27,11 @@ class Rsync extends StepAbstract implements DryRunInterface, EnvironmentAwareInt
     private $remotePath;
 
     /**
+     * @var bool
+     */
+    private $delete = false;
+
+    /**
      * @var array
      */
     private $excludes = [];
@@ -37,6 +42,13 @@ class Rsync extends StepAbstract implements DryRunInterface, EnvironmentAwareInt
         $this->remotePath = $remotePath;
     }
 
+    public function delete()
+    {
+        $this->delete = true;
+
+        return $this;
+    }
+
     public function exclude($path)
     {
         $this->excludes[] = $path;
@@ -45,6 +57,36 @@ class Rsync extends StepAbstract implements DryRunInterface, EnvironmentAwareInt
     }
 
     public function run()
+    {
+        return $this->runWithMode(self::LIVE);
+    }
+
+    public function dryRun()
+    {
+        return $this->runWithMode(self::DRY_RUN);
+    }
+
+    public function getName()
+    {
+        if ($this->name) {
+            return $this->name;
+        } else {
+            return sprintf(
+                'rsync-%s-to-%s',
+                basename(realpath($this->localPath)),
+                (basename($this->remotePath) ?: 'remote')
+            );
+        }
+    }
+
+    public function setSelectedEnvironment(Environment $environment)
+    {
+        $this->environment = $environment;
+
+        return $this;
+    }
+
+    private function runWithMode($mode)
     {
         $output = [];
 
@@ -58,7 +100,7 @@ class Rsync extends StepAbstract implements DryRunInterface, EnvironmentAwareInt
                 continue;
             }
 
-            list($hostOutput, $exitStatus) = $this->rsync($host, self::LIVE);
+            list($hostOutput, $exitStatus) = $this->rsync($host, $mode);
 
             if ($exitStatus) {
                 $failedHosts[] = $host;
@@ -73,7 +115,10 @@ class Rsync extends StepAbstract implements DryRunInterface, EnvironmentAwareInt
 
         if (count($this->environment->getHosts()) && !count($failedHosts) && !count($misconfiguredHosts)) {
             $result = new Result($this, Result::SUCCESS, $output);
-            $result->setExplanation('on all ' . count($this->environment->getHosts()) . ' host(s)');
+            $result->setExplanation(
+                'on all ' . count($this->environment->getHosts()) . ' host(s)' .
+                (self::DRY_RUN === $mode ? ' in dry run mode' : '')
+            );
         } else {
             $result = new Result($this, Result::FAILURE, $output);
 
@@ -97,37 +142,13 @@ class Rsync extends StepAbstract implements DryRunInterface, EnvironmentAwareInt
         return $result;
     }
 
-    public function dryRun()
-    {
-
-    }
-
-    public function getName()
-    {
-        if ($this->name) {
-            return $this->name;
-        } else {
-            return sprintf(
-                'rsync-%s-to-%s',
-                basename(realpath($this->localPath)),
-                (basename($this->remotePath) ?: 'remote')
-            );
-        }
-    }
-
-    public function setSelectedEnvironment(Environment $environment)
-    {
-        $this->environment = $environment;
-
-        return $this;
-    }
-
     private function rsync(Host $host, $mode)
     {
         $command = sprintf(
-            'rsync %s %s -az -i -e %s %s %s@%s:%s 2>&1',
+            'rsync %s %s %s -az -i -e %s %s %s@%s:%s 2>&1',
             (self::DRY_RUN === $mode ? '--dry-run' : ''),
             $this->assembleExcludeArgs(),
+            ($this->delete ? '--delete' : ''),
             escapeshellarg(sprintf('ssh -i %s -p %d', $host->getSshPrivateKey(), $host->getSshPort())),
             escapeshellarg($this->normalizePath($this->localPath)),
             escapeshellarg($host->getUsername()),
