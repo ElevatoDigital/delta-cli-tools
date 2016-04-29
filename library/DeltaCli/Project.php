@@ -9,6 +9,8 @@ use DeltaCli\Script\Step\Rsync as RsyncStep;
 use DeltaCli\Script\Step\Scp as ScpStep;
 use DeltaCli\Script\Step\Ssh as SshStep;
 use DeltaCli\Script\SshInstallKey as SshInstallKeyScript;
+use DeltaCli\Template\TemplateInterface;
+use DeltaCli\Template\WordPress as WordPressTemplate;
 
 class Project
 {
@@ -63,6 +65,18 @@ class Project
     public function writeConfig($contents)
     {
         file_put_contents(getcwd() . '/delta-cli.php', $contents, LOCK_EX);
+    }
+
+    public function applyTemplate(TemplateInterface $template)
+    {
+        $template->apply($this);
+
+        return $this;
+    }
+
+    public function wordPressTemplate()
+    {
+        return new WordpressTemplate();
     }
 
     public function setName($name)
