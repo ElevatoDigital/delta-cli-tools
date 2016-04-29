@@ -25,10 +25,25 @@ class PhpCallable extends StepAbstract
     public function run()
     {
         try {
+            ob_start();
             call_user_func($this->callable);
-        } catch (Exception $e) {
+            $output = ob_get_clean();
 
+            $result = new Result($this, Result::SUCCESS, $output);
+        } catch (Exception $e) {
+            $exceptionClass = get_class($e);
+
+            $result = new Result(
+                $this,
+                Result::FAILURE,
+                [
+                    "An uncaught {$exceptionClass} was thrown.",
+                    $e->getMessage()
+                ]
+            );
         }
+
+        return $result;
     }
 
     public function setName($name)

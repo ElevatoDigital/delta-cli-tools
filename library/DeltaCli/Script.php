@@ -2,6 +2,7 @@
 
 namespace DeltaCli;
 
+use DeltaCli\Script\Step\Result;
 use DeltaCli\Script\Step\StepFactory;
 use DeltaCli\Script\Step\StepInterface;
 use Symfony\Component\Console\Command\Command;
@@ -26,6 +27,11 @@ class Script extends Command
      * @var array
      */
     private $steps = [];
+
+    /**
+     * @var array
+     */
+    private $skippedSteps = [];
 
     /**
      * @var StepFactory
@@ -68,14 +74,15 @@ class Script extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->environment = $this->project->getEnvironment($input->getArgument('environment'));
+        $this->environment  = $this->project->getEnvironment($input->getArgument('environment'));
+        $this->skippedSteps = $input->getOption('skip-step');
 
         if ($input->getOption('dry-run')) {
             $this->dryRun();
         } else if ($input->getOption('list-steps')) {
             $this->listSteps();
         } else {
-            $this->runSteps();
+            $this->runSteps($output);
         }
     }
 
@@ -106,11 +113,21 @@ class Script extends Command
         return $this;
     }
 
-    public function runSteps()
+    public function runSteps(OutputInterface $output)
     {
         /* @var $step StepInterface */
         foreach ($this->getStepsForEnvironment() as $step) {
-            $step->run();
+            if ($this->stepShouldBeSkipped($step)) {
+                $result = new Result($step, Result::SKIPPED);
+            } else {
+                $result = $step->run();
+
+                if (!$result instanceof Result) {
+                    $result = new Result($step, Result::INVALID);
+                }
+            }
+
+            $result->render($output);
         }
     }
 
@@ -122,6 +139,11 @@ class Script extends Command
     public function listSteps()
     {
 
+    }
+
+    private function stepShouldBeSkipped(StepInterface $step)
+    {
+        return in_array($step->getName(), $this->skippedSteps);
     }
 
     private function getStepsForEnvironment()

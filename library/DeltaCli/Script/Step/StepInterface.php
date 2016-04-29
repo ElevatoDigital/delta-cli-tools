@@ -8,6 +8,9 @@ interface StepInterface
 {
     public function setEnvironments(array $environments);
 
+    /**
+     * @return Result
+     */
     public function run();
 
     public function getName();

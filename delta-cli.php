@@ -20,4 +20,10 @@ $project->getDeployScript()
         function () {
             echo 'Working hard!' . PHP_EOL;
         }
+    )
+    ->addStep(
+        'uh-oh',
+        function () {
+            throw new \Exception('A PHP step failed!');
+        }
     );
