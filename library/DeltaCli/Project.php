@@ -130,8 +130,9 @@ class Project
 
     public function createEnvironment($name)
     {
-        $this->environments[$name] = new Environment($name);
-        return $this;
+        $environment = new Environment($name);
+        $this->environments[$name] = $environment;
+        return $environment;
     }
 
     public function addEnvironment(Environment $environment)

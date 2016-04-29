@@ -4,9 +4,8 @@
 
 $project->setName('Delta CLI Tools Example');
 
-$project
-    ->createEnvironment('production')
-    ->createEnvironment('staging');
+$project->createEnvironment('production');
+$project->createEnvironment('staging');
 
 $project->getDeployScript()
     ->addStep(
