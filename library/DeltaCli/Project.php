@@ -60,6 +60,11 @@ class Project
         return $this->scripts;
     }
 
+    /**
+     * @param $name
+     * @return Script
+     * @throws ScriptNotFound
+     */
     public function getScript($name)
     {
         if (!array_key_exists($name, $this->scripts)) {
@@ -80,6 +85,10 @@ class Project
         return $this->addScript(new Script($this, $name, $description));
     }
 
+    /**
+     * @return Script
+     * @throws ScriptNotFound
+     */
     public function getDeployScript()
     {
         return $this->getScript('deploy');

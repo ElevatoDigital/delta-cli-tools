@@ -26,4 +26,11 @@ $project->getDeployScript()
         function () {
             throw new \Exception('A PHP step failed!');
         }
+    )
+    ->addEnvironmentSpecificStep(
+        'staging',
+        'only-on-staging',
+        function () {
+            echo 'You must be deploying to staging!' . PHP_EOL;
+        }
     );

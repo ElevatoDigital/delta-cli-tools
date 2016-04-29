@@ -2,6 +2,7 @@
 
 namespace DeltaCli;
 
+use DeltaCli\Script\Step\DryRunInterface;
 use DeltaCli\Script\Step\Result;
 use DeltaCli\Script\Step\StepFactory;
 use DeltaCli\Script\Step\StepInterface;
@@ -37,6 +38,11 @@ class Script extends Command
      * @var StepFactory
      */
     private $stepFactory;
+
+    /**
+     * @var bool
+     */
+    private $stopOnFailure = true;
 
     public function __construct(Project $project, $name, $description, StepFactory $stepFactory = null)
     {
@@ -78,9 +84,9 @@ class Script extends Command
         $this->skippedSteps = $input->getOption('skip-step');
 
         if ($input->getOption('dry-run')) {
-            $this->dryRun();
+            $this->dryRun($output);
         } else if ($input->getOption('list-steps')) {
-            $this->listSteps();
+            $this->listSteps($output);
         } else {
             $this->runSteps($output);
         }
@@ -94,21 +100,8 @@ class Script extends Command
 
     public function addEnvironmentSpecificStep($environmentNames, $stepInput)
     {
-        $args = func_get_args();
-        array_shift($args);
-
-        if (!is_array($environmentNames)) {
-            $environmentNames = [$environmentNames];
-        }
-
-        $environments = [];
-
-        foreach ($environmentNames as $environmentName) {
-            $environments[] = $this->project->getEnvironment($environmentName);
-        }
-
-        $step = $this->stepFactory->factory($args);
-        $step->setEnvironments($environments);
+        $step = $this->stepFactory->factory(array_slice(func_get_args(), 1));
+        $step->setEnvironments($this->getEnvironmentsFromNames($environmentNames));
         $this->addStep($step);
         return $this;
     }
@@ -128,17 +121,78 @@ class Script extends Command
             }
 
             $result->render($output);
+
+            if ($this->stopOnFailure && $result->isFailure()) {
+                $output->writeln(
+                    [
+                        '',
+                        '<fg=white;bg=red>Halting script execution due to failure of previous step.</>'
+                    ]
+                );
+                break;
+            }
         }
     }
 
-    public function dryRun()
+    public function dryRun(OutputInterface $output)
     {
+        /* @var $step StepInterface|DryRunInterface */
+        foreach ($this->getStepsForEnvironment() as $step) {
+            if (!$step instanceof DryRunInterface) {
+                $result = new Result($step, Result::SKIPPED);
+                $result->setExplanation('because it does not support dry runs');
+            } else {
+                $result = $step->dryRun();
 
+                if (!$result instanceof Result) {
+                    $result = new Result($step, Result::INVALID);
+                }
+            }
+
+            $result->render($output);
+        }
     }
 
-    public function listSteps()
+    public function listSteps(OutputInterface $output)
     {
+        /* @var $step StepInterface */
+        foreach ($this->getStepsForEnvironment() as $step) {
+            $classSuffix = get_class($step);
 
+            if (false !== strpos('\\', $classSuffix)) {
+                $classSuffix = substr($classSuffix, strrpos($classSuffix, '\\') + 1);
+            }
+
+            $output->writeln(
+                sprintf(
+                    '%s (%s)',
+                    $step->getName(),
+                    $classSuffix
+                )
+            );
+        }
+    }
+
+    public function setStopOnFailure($stopOnFailure)
+    {
+        $this->stopOnFailure = $stopOnFailure;
+
+        return $this;
+    }
+
+    private function getEnvironmentsFromNames($environmentNames)
+    {
+        if (!is_array($environmentNames)) {
+            $environmentNames = [$environmentNames];
+        }
+
+        $environments = [];
+
+        foreach ($environmentNames as $environmentName) {
+            $environments[] = $this->project->getEnvironment($environmentName);
+        }
+
+        return $environments;
     }
 
     private function stepShouldBeSkipped(StepInterface $step)

@@ -6,11 +6,6 @@ use DeltaCli\Exception\UnrecognizedStepInput;
 
 class StepFactory
 {
-    public function __construct()
-    {
-
-    }
-
     /**
      * @return StepInterface
      */
@@ -20,6 +15,8 @@ class StepFactory
             return $this->createPhpCallable($args[1], $args[0]);
         } else if ($this->isUnnamedPhpCallable($args)) {
             return $this->createPhpCallable($args[0]);
+        } else if ($this->isStepObject($args)) {
+            return $args[0];
         } else {
             throw new UnrecognizedStepInput();
         }
@@ -40,5 +37,10 @@ class StepFactory
         $step = new PhpCallable($callable);
         $step->setName($name);
         return $step;
+    }
+
+    protected function isStepObject(array $args)
+    {
+        return isset($args[0]) && $args[0] instanceof StepInterface;
     }
 }

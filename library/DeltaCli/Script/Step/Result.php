@@ -32,6 +32,11 @@ class Result
      */
     private $output;
 
+    /**
+     * @var string
+     */
+    private $explanation;
+
     public function __construct(StepInterface $step, $status, $output = null)
     {
         if (!$this->statusIsValid($status)) {
@@ -51,14 +56,22 @@ class Result
         $this->output = $output;
     }
 
+    public function setExplanation($explanation)
+    {
+        $this->explanation = $explanation;
+
+        return $this;
+    }
+
     public function render(OutputInterface $output)
     {
         $output->writeln(
             sprintf(
-                '<fg=%s>%s %s.</>',
+                '<fg=%s>%s %s%s.</>',
                 $this->getStatusColor(),
                 $this->step->getName(),
-                $this->getStatusMessage()
+                $this->getStatusMessage(),
+                $this->explanation ? ' ' . $this->explanation : ''
             )
         );
 
@@ -72,6 +85,11 @@ class Result
 
             $output->writeln($indentedOutput);
         }
+    }
+
+    public function isFailure()
+    {
+        return self::INVALID === $this->status || self::FAILURE === $this->status;
     }
 
     private function getStatusColor()
