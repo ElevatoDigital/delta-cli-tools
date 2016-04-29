@@ -118,8 +118,9 @@ class Ssh extends StepAbstract implements EnvironmentAwareInterface
         }
 
         $command = sprintf(
-            'ssh %s %s@%s %s 2>&1',
+            'ssh %s -p %s %s@%s %s 2>&1',
             ($host->getSshPrivateKey() ? '-i ' . escapeshellarg($host->getSshPrivateKey()) : ''),
+            escapeshellarg($host->getSshPort()),
             escapeshellarg($host->getUsername()),
             escapeshellarg($host->getHostname()),
             escapeshellarg($sshCommand)
