@@ -8,6 +8,7 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 }
 
 use DeltaCli\Command\CreateProjectConfig;
+use DeltaCli\Command\SshKeyGen;
 use DeltaCli\Exception\ConsoleOutputInterface;
 use DeltaCli\Project;
 use Symfony\Component\Console\Application;
@@ -21,6 +22,7 @@ try {
     $application->setCatchExceptions(false);
     $application->setName($project->getName());
     $application->add(new CreateProjectConfig($project));
+    $application->add(new SshKeyGen());
     $application->addCommands($project->getScripts());
     $application->run(null, $output);
 } catch (Exception $e) {

@@ -23,6 +23,10 @@ class Script extends StepAbstract implements EnvironmentAwareInterface, DryRunIn
      */
     private $skippedSteps = [];
 
+    /**
+     * Script constructor.
+     * @param ScriptObject $script
+     */
     public function __construct(ScriptObject $script)
     {
         $this->script = $script;
