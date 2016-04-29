@@ -28,6 +28,7 @@ Some key concepts to note from the example:
 0. You can do the same with any valid PHP callable (an inline Closure or any class method, for example).
 0. You can specify some steps as being specific to only some of your environments.
 0. While the deploy script is built-in, you can add custom scripts with the same API.
+0. You can call one script from another script.  (See composing-scripts in the example.)
 
 Whenever you're running a CLI tools script, you have some options available to you that are worth
 noting:
