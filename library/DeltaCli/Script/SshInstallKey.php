@@ -7,6 +7,7 @@ use DeltaCli\Script;
 use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+
 class SshInstallKey extends Script
 {
     public function __construct(Project $project)
