@@ -77,8 +77,8 @@ class Rsync extends StepAbstract implements DryRunInterface, EnvironmentAwareInt
         } else {
             $result = new Result($this, Result::FAILURE, $output);
 
-            if (!count($failedHosts) && count($misconfiguredHosts)) {
-                $result->setExplanation('no hosts were added in the environment');
+            if (!count($this->environment->getHosts())) {
+                $result->setExplanation('because no hosts were added in the environment');
             } else {
                 $explanations = [];
 
@@ -90,7 +90,7 @@ class Rsync extends StepAbstract implements DryRunInterface, EnvironmentAwareInt
                     $explanations[] = count($misconfiguredHosts) . ' host(s) were not configured for SSH';
                 }
 
-                $result->setExplanation(implode(' and ', $explanations));
+                $result->setExplanation('because ' . implode(' and ', $explanations));
             }
         }
 
