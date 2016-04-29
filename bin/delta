@@ -3,18 +3,20 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
-use DeltaCli\Project;
+use DeltaCli\Command\CreateProjectConfig;
 use DeltaCli\Exception\ConsoleOutputInterface;
+use DeltaCli\Project;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 try {
     $output      = new ConsoleOutput();
     $application = new Application();
-    $project     = Project::fromConfigFile();
+    $project     = new Project();
 
     $application->setCatchExceptions(false);
     $application->setName($project->getName());
+    $application->add(new CreateProjectConfig($project));
     $application->addCommands($project->getScripts());
     $application->run(null, $output);
 } catch (Exception $e) {

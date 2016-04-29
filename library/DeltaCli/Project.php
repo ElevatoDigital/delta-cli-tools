@@ -23,6 +23,11 @@ class Project
      */
     private $scripts = [];
 
+    /**
+     * @var bool
+     */
+    private $configFileLoaded = false;
+
     public function __construct()
     {
         $this
@@ -30,17 +35,30 @@ class Project
             ->createScript('create-environment', 'Create databases and other resources needed for a new environment.');
     }
 
-    public static function fromConfigFile()
+    public function configFileExists()
     {
-        $cwd = getcwd();
+        return file_exists(getcwd() . '/delta-cli.php');
+    }
 
-        if (!file_exists($cwd . '/delta-cli.php')) {
-            throw new ProjectNotConfigured();
+    public function loadConfigFile()
+    {
+        if (!$this->configFileLoaded) {
+            $cwd = getcwd();
+
+            if (!file_exists($cwd . '/delta-cli.php')) {
+                throw new ProjectNotConfigured();
+            }
+
+            $project = $this;
+            require_once $cwd . '/delta-cli.php';
+
+            $this->configFileLoaded = true;
         }
+    }
 
-        $project = new Project();
-        require_once $cwd . '/delta-cli.php';
-        return $project;
+    public function writeConfig($contents)
+    {
+        file_put_contents(getcwd() . '/delta-cli.php', $contents, LOCK_EX);
     }
 
     public function setName($name)
@@ -52,11 +70,21 @@ class Project
 
     public function getName()
     {
+        // Load config file if available so we can get custom project name
+        if ($this->configFileExists()) {
+            $this->loadConfigFile();
+        }
+
         return $this->name;
     }
 
     public function getScripts()
     {
+        // Load config file if available so we can get custom scripts
+        if ($this->configFileExists()) {
+            $this->loadConfigFile();
+        }
+
         return $this->scripts;
     }
 

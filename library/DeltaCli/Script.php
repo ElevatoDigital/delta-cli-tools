@@ -80,6 +80,8 @@ class Script extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->project->loadConfigFile();
+        
         $this->environment  = $this->project->getEnvironment($input->getArgument('environment'));
         $this->skippedSteps = $input->getOption('skip-step');
 

@@ -41,3 +41,4 @@ $project->getDeployScript()
             echo 'You must be deploying to staging!' . PHP_EOL;
         }
     );
+
