@@ -7,6 +7,11 @@ use DeltaCli\Environment;
 abstract class StepAbstract implements StepInterface
 {
     /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * @var array
      */
     protected $environments = [];
@@ -20,6 +25,13 @@ abstract class StepAbstract implements StepInterface
     public function setEnvironments(array $environments)
     {
         $this->environments = $environments;
+
+        return $this;
+    }
+
+    public function setName($name)
+    {
+        $this->name = $name;
 
         return $this;
     }

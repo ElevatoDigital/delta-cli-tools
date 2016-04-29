@@ -22,6 +22,13 @@ $project->getDeployScript()
         }
     )
     ->addStep(
+        'ls -lh'
+    )
+    ->addStep(
+        'shell-command-with-name',
+        'ls /tmp'
+    )
+    ->addStep(
         'uh-oh',
         function () {
             throw new \Exception('A PHP step failed!');

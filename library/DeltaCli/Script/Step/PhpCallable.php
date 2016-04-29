@@ -12,11 +12,6 @@ class PhpCallable extends StepAbstract
      */
     private $callable;
 
-    /**
-     * @var string
-     */
-    private $name;
-
     public function __construct(callable $callable)
     {
         $this->callable = $callable;
@@ -44,13 +39,6 @@ class PhpCallable extends StepAbstract
         }
 
         return $result;
-    }
-
-    public function setName($name)
-    {
-        $this->name = $name;
-
-        return $this;
     }
 
     public function getName()
