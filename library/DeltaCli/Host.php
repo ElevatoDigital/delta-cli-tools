@@ -37,7 +37,7 @@ class Host
 
     public function hasRequirementsForSshUse()
     {
-        return $this->getUsername() && $this->getSshPrivateKey();
+        return $this->getUsername();
     }
 
     public function getHostname()

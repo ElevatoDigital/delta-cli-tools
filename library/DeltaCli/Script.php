@@ -51,8 +51,15 @@ class Script extends Command
 
         $this->setDescription($description);
 
-        $this->project     = $project;
+        $this->project = $project;
         $this->stepFactory = ($stepFactory ?: new StepFactory());
+
+        $this->init();
+    }
+
+    protected function init()
+    {
+
     }
 
     protected function configure()
@@ -83,16 +90,23 @@ class Script extends Command
     {
         $this->project->loadConfigFile();
 
-        $this->environment  = $this->project->getEnvironment($input->getArgument('environment'));
+        $this->environment = $this->project->getEnvironment($input->getArgument('environment'));
         $this->skippedSteps = $input->getOption('skip-step');
 
         if ($input->getOption('dry-run')) {
             $this->dryRun($output);
-        } else if ($input->getOption('list-steps')) {
-            $this->listSteps($output);
         } else {
-            $this->runSteps($output);
+            if ($input->getOption('list-steps')) {
+                $this->listSteps($output);
+            } else {
+                $this->runSteps($output);
+            }
         }
+    }
+
+    public function getProject()
+    {
+        return $this->project;
     }
 
     public function setEnvironment(Environment $environment)
@@ -100,6 +114,11 @@ class Script extends Command
         $this->environment = $environment;
 
         return $this;
+    }
+
+    public function getEnvironment()
+    {
+        return $this->environment;
     }
 
     public function setSkippedSteps(array $skippedSteps)

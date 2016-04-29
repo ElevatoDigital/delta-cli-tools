@@ -5,12 +5,8 @@ namespace DeltaCli\Script\Step;
 use DeltaCli\Environment;
 use DeltaCli\Host;
 
-class Ssh extends StepAbstract implements EnvironmentAwareInterface
+class Scp extends StepAbstract implements EnvironmentAwareInterface
 {
-    const INCLUDE_APPLICATION_ENV = true;
-
-    const OMIT_APPLICATION_ENV = false;
-
     /**
      * @var Environment
      */
@@ -19,21 +15,17 @@ class Ssh extends StepAbstract implements EnvironmentAwareInterface
     /**
      * @var string
      */
-    private $command;
+    private $localFile;
 
     /**
-     * @var bool
+     * @var string
      */
-    private $includeApplicationEnv = self::INCLUDE_APPLICATION_ENV;
+    private $remoteFile;
 
-    public function __construct($command, $includeApplicationEnv = null)
+    public function __construct($localFile, $remoteFile)
     {
-        if (null === $includeApplicationEnv) {
-            $includeApplicationEnv = self::INCLUDE_APPLICATION_ENV;
-        }
-
-        $this->command               = $command;
-        $this->includeApplicationEnv = $includeApplicationEnv;
+        $this->localFile  = $localFile;
+        $this->remoteFile = $remoteFile;
     }
 
     public function getName()
@@ -41,7 +33,10 @@ class Ssh extends StepAbstract implements EnvironmentAwareInterface
         if ($this->name) {
             return $this->name;
         } else {
-            return $this->command . ' over SSH';
+            return sprintf(
+                'scp-%s-to-remote',
+                basename($this->localFile)
+            );
         }
     }
 
@@ -66,7 +61,7 @@ class Ssh extends StepAbstract implements EnvironmentAwareInterface
                 continue;
             }
 
-            list($hostOutput, $exitStatus) = $this->ssh($host);
+            list($hostOutput, $exitStatus) = $this->scp($host);
 
             if ($exitStatus) {
                 $failedHosts[] = $host;
@@ -105,24 +100,17 @@ class Ssh extends StepAbstract implements EnvironmentAwareInterface
         return $result;
     }
 
-    private function ssh(Host $host)
+    private function scp(Host $host)
     {
-        $sshCommand = $this->command;
-
-        if ($this->includeApplicationEnv) {
-            $sshCommand = sprintf(
-                'APPLICATION_ENV=%s %s',
-                escapeshellarg($this->environment->getName()),
-                $this->command
-            );
-        }
-
         $command = sprintf(
-            'ssh %s %s@%s %s 2>&1',
+            'scp %s -P %s %s %s %s@%s:%s 2>&1',
             ($host->getSshPrivateKey() ? '-i ' . escapeshellarg($host->getSshPrivateKey()) : ''),
+            escapeshellarg($host->getSshPort()),
+            (is_dir($this->localFile) ? '-r' : ''),
+            escapeshellarg($this->localFile),
             escapeshellarg($host->getUsername()),
             escapeshellarg($host->getHostname()),
-            escapeshellarg($sshCommand)
+            escapeshellarg($this->remoteFile)
         );
 
         exec($command, $output, $exitStatus);

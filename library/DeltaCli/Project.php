@@ -6,7 +6,9 @@ use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\ProjectNotConfigured;
 use DeltaCli\Exception\ScriptNotFound;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
+use DeltaCli\Script\Step\Scp as ScpStep;
 use DeltaCli\Script\Step\Ssh as SshStep;
+use DeltaCli\Script\SshInstallKey as SshInstallKeyScript;
 
 class Project
 {
@@ -34,6 +36,7 @@ class Project
     {
         $this->createScript('deploy', 'Deploy this project.');
         $this->createScript('create-environment', 'Create databases and other resources needed for a new environment.');
+        $this->addScript(new SshInstallKeyScript($this));
     }
 
     public function configFileExists()
@@ -167,5 +170,10 @@ class Project
     public function ssh($command, $includeApplicationEnv = SshStep::INCLUDE_APPLICATION_ENV)
     {
         return new SshStep($command, $includeApplicationEnv);
+    }
+
+    public function scp($localFile, $remoteFile)
+    {
+        return new ScpStep($localFile, $remoteFile);
     }
 }

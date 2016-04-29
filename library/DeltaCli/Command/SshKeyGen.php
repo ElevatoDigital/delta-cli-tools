@@ -12,7 +12,7 @@ class SshKeyGen extends Command
     protected function configure()
     {
         $this
-            ->setName('ssh-key-gen')
+            ->setName('ssh:generate-key')
             ->setDescription('Generate SSH keys for this project.');
     }
 
