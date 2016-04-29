@@ -36,6 +36,7 @@ noting:
 0. --skip-step=[STEP-NAME]: Allows you to skip one or more steps in the script.
 0. --dry-run: Will attempt to perform a dry run.  Steps that don't support it will be skipped.
 0. --list-steps: Will just list the steps in a script rather than trying to run them.  (Helpful especially if many steps were added by a template rather than directly in your delta-cli.php.)
+
 ## What's next?
 
 The CLI tools project is still quite young.  In the near future, we'll be working on these additions:
