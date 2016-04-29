@@ -30,9 +30,8 @@ class Project
 
     public function __construct()
     {
-        $this
-            ->createScript('deploy', 'Deploy this project.')
-            ->createScript('create-environment', 'Create databases and other resources needed for a new environment.');
+        $this->createScript('deploy', 'Deploy this project.');
+        $this->createScript('create-environment', 'Create databases and other resources needed for a new environment.');
     }
 
     public function configFileExists()
@@ -108,9 +107,16 @@ class Project
         return $this;
     }
 
+    /**
+     * @param string $name
+     * @param string $description
+     * @return Script
+     */
     public function createScript($name, $description)
     {
-        return $this->addScript(new Script($this, $name, $description));
+        $script = new Script($this, $name, $description);
+        $this->addScript($script);
+        return $script;
     }
 
     /**

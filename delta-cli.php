@@ -42,3 +42,9 @@ $project->getDeployScript()
         }
     );
 
+$project->createScript('custom-script', 'Just an example custom script.')
+    ->addStep(
+        function () {
+            echo "Hey!  It's custom!\n";
+        }
+    );
