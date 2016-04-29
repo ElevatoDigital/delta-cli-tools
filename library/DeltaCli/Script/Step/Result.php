@@ -75,7 +75,7 @@ class Result
             )
         );
 
-        if (!$output->isQuiet() && count($this->output)) {
+        if (count($this->output)) {
             $indentedOutput = array_map(
                 function ($line) {
                     return '  ' . $line;

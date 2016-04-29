@@ -5,6 +5,7 @@ namespace DeltaCli;
 use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\ProjectNotConfigured;
 use DeltaCli\Exception\ScriptNotFound;
+use DeltaCli\Script\Step\Rsync as RsyncStep;
 
 class Project
 {
@@ -155,5 +156,10 @@ class Project
         }
 
         return $this->environments[$name];
+    }
+
+    public function rsync($localPath, $remotePath)
+    {
+        return new RsyncStep($localPath, $remotePath);
     }
 }

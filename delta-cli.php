@@ -5,7 +5,11 @@
 $project->setName('Delta CLI Tools Example');
 
 $project->createEnvironment('production');
-$project->createEnvironment('staging');
+
+$project->createEnvironment('staging')
+    ->setUsername('bgriffith')
+    ->setSshPrivateKey(__DIR__ . '/ssh-keys/id_rsa')
+    ->addHost('staging.deltasys.com');
 
 $project->getDeployScript()
     ->addStep(
@@ -46,6 +50,12 @@ $project->createScript('custom-script', 'Just an example custom script.')
         function () {
             echo "Hey!  It's custom!\n";
         }
+    )
+    ->addStep(
+        'failing-step',
+        function () {
+            throw new \Exception('Ooops!');
+        }
     );
 
 $project->createScript('composing-scripts', 'An example of calling one script from another.')
@@ -55,3 +65,10 @@ $project->createScript('composing-scripts', 'An example of calling one script fr
         }
     )
     ->addStep($project->getScript('custom-script'));
+
+$project->createScript('rsync-example', 'An example using rsync.')
+    ->addStep(
+        $project->rsync('library', 'delta-cli-library')
+            ->exclude('excluded-file')
+    );
+
