@@ -7,6 +7,10 @@ use DeltaCli\Host;
 
 class Ssh extends StepAbstract implements EnvironmentAwareInterface
 {
+    const INCLUDE_APPLICATION_ENV = true;
+
+    const OMIT_APPLICATION_ENV = false;
+
     /**
      * @var Environment
      */
@@ -17,9 +21,19 @@ class Ssh extends StepAbstract implements EnvironmentAwareInterface
      */
     private $command;
 
-    public function __construct($command)
+    /**
+     * @var bool
+     */
+    private $includeApplicationEnv = self::INCLUDE_APPLICATION_ENV;
+
+    public function __construct($command, $includeApplicationEnv = null)
     {
-        $this->command = $command;
+        if (null === $includeApplicationEnv) {
+            $includeApplicationEnv = self::INCLUDE_APPLICATION_ENV;
+        }
+
+        $this->command               = $command;
+        $this->includeApplicationEnv = $includeApplicationEnv;
     }
 
     public function getName()
@@ -93,12 +107,22 @@ class Ssh extends StepAbstract implements EnvironmentAwareInterface
 
     private function ssh(Host $host)
     {
+        $sshCommand = $this->command;
+
+        if ($this->includeApplicationEnv) {
+            $sshCommand = sprintf(
+                'APPLICATION_ENV=%s %s',
+                escapeshellarg($this->environment->getName()),
+                $this->command
+            );
+        }
+
         $command = sprintf(
             'ssh -i %s %s@%s %s 2>&1',
             escapeshellarg($host->getSshPrivateKey()),
             escapeshellarg($host->getUsername()),
             escapeshellarg($host->getHostname()),
-            escapeshellarg($this->command)
+            escapeshellarg($sshCommand)
         );
 
         exec($command, $output, $exitStatus);

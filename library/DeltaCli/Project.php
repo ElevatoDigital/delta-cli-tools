@@ -164,8 +164,8 @@ class Project
         return new RsyncStep($localPath, $remotePath);
     }
 
-    public function ssh($command)
+    public function ssh($command, $includeApplicationEnv = SshStep::INCLUDE_APPLICATION_ENV)
     {
-        return new SshStep($command);
+        return new SshStep($command, $includeApplicationEnv);
     }
 }
