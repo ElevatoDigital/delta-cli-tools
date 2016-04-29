@@ -6,6 +6,7 @@ use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\ProjectNotConfigured;
 use DeltaCli\Exception\ScriptNotFound;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
+use DeltaCli\Script\Step\Ssh as SshStep;
 
 class Project
 {
@@ -161,5 +162,10 @@ class Project
     public function rsync($localPath, $remotePath)
     {
         return new RsyncStep($localPath, $remotePath);
+    }
+
+    public function ssh($command)
+    {
+        return new SshStep($command);
     }
 }

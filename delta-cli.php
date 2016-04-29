@@ -72,3 +72,5 @@ $project->createScript('rsync-example', 'An example using rsync.')
             ->exclude('excluded-file')
     );
 
+$project->createScript('ssh-example', 'An example using SSH.')
+    ->addStep($project->ssh('ls ~'));
