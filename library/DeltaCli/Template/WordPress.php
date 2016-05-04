@@ -18,13 +18,23 @@ class WordPress implements TemplateInterface
 
     public function apply(Project $project)
     {
+        if (null === $this->localWordPressRoot) {
+            $cwd = getcwd();
+
+            if (file_exists($cwd . '/src')) {
+                $this->localWordPressRoot = $cwd . '/src';
+            } else {
+                $this->localWordPressRoot = $cwd;
+            }
+        }
+
         /*
         $project->createScript('wp:copy-uploads-folder', 'Copy the uploads folder from a remote environment.')
             ->addStep(
 
             );
         */
-        
+
         if ('deploy' !== $this->deployScriptName) {
             $deployScript = $project->createScript($this->deployScriptName, 'Deploy your WP project.');
         } else {
@@ -69,6 +79,20 @@ class WordPress implements TemplateInterface
     public function addSyncedPlugin($syncedPlugin)
     {
         $this->syncedPlugins[] = $syncedPlugin;
+
+        return $this;
+    }
+
+    public function setLocalWordPressRoot($localWordPressRoot)
+    {
+        $this->localWordPressRoot = $localWordPressRoot;
+
+        return $this;
+    }
+
+    public function setRemoteWordPressRoot($remoteWordPressRoot)
+    {
+        $this->remoteWordPressRoot = $remoteWordPressRoot;
 
         return $this;
     }

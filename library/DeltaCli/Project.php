@@ -2,15 +2,18 @@
 
 namespace DeltaCli;
 
+use DeltaCli\Console\Output\Banner;
 use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\ProjectNotConfigured;
 use DeltaCli\Exception\ScriptNotFound;
+use DeltaCli\Extension\Vagrant as VagrantExtension;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
 use DeltaCli\Script\Step\Scp as ScpStep;
 use DeltaCli\Script\Step\Ssh as SshStep;
 use DeltaCli\Script\SshInstallKey as SshInstallKeyScript;
 use DeltaCli\Template\TemplateInterface;
 use DeltaCli\Template\WordPress as WordPressTemplate;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Project
 {
@@ -36,9 +39,12 @@ class Project
 
     public function __construct()
     {
-        $this->createScript('deploy', 'Deploy this project.');
-        $this->createScript('create-environment', 'Create databases and other resources needed for a new environment.');
+        $this->createScript('deploy', 'Deploy this project.')
+            ->setPlaceholderCallback($this->getDeployScriptPlaceholderCallback());
         $this->addScript(new SshInstallKeyScript($this));
+
+        $vagrantExtension = new VagrantExtension();
+        $vagrantExtension->extend($this);
     }
 
     public function configFileExists()
@@ -139,12 +145,24 @@ class Project
     }
 
     /**
+     * @param string $name
+     * @param string $description
+     * @return Script
+     */
+    public function createEnvironmentScript($name, $description)
+    {
+        return $this->createScript($name, $description)
+            ->requireEnvironment();
+    }
+
+    /**
      * @return Script
      * @throws ScriptNotFound
      */
     public function getDeployScript()
     {
-        return $this->getScript('deploy');
+        return $this->getScript('deploy')
+            ->requireEnvironment();
     }
 
     public function createEnvironment($name)
@@ -189,5 +207,21 @@ class Project
     public function scp($localFile, $remoteFile)
     {
         return new ScpStep($localFile, $remoteFile);
+    }
+
+    private function getDeployScriptPlaceholderCallback()
+    {
+        return function (OutputInterface $output) {
+            $banner = new Banner($output);
+            $banner->setBackground('cyan');
+            $banner->render('A deploy script has not yet been created for this project.');
+
+            $output->writeln(
+                [
+                    'Learn more about how to write a good deploy script for your project on Github at:',
+                    '<fg=blue;options=underscore>https://github.com/DeltaSystems/delta-cli-tools</>'
+                ]
+            );
+        };
     }
 }

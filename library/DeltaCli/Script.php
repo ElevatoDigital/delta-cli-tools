@@ -2,8 +2,12 @@
 
 namespace DeltaCli;
 
+use DeltaCli\Console\Output\Banner;
+use DeltaCli\Exception\EnvironmentNotAvailableForStep;
+use DeltaCli\Exception\SetterNotPresentForScriptOption;
 use DeltaCli\Script\Step\DryRunInterface;
 use DeltaCli\Script\Step\EnvironmentAwareInterface;
+use DeltaCli\Script\Step\EnvironmentOptionalInterface;
 use DeltaCli\Script\Step\Result;
 use DeltaCli\Script\Step\StepFactory;
 use DeltaCli\Script\Step\StepInterface;
@@ -45,6 +49,23 @@ class Script extends Command
      */
     private $stopOnFailure = true;
 
+    /**
+     * @var array
+     */
+    private $setterOptions = [];
+
+    /**
+     * @var callable
+     */
+    private $placeholderCallback;
+
+    /**
+     * Script constructor.
+     * @param Project $project
+     * @param $name
+     * @param $description
+     * @param StepFactory|null $stepFactory
+     */
     public function __construct(Project $project, $name, $description, StepFactory $stepFactory = null)
     {
         parent::__construct($name);
@@ -62,10 +83,15 @@ class Script extends Command
 
     }
 
+    public function requireEnvironment()
+    {
+        $this->addArgument('environment', InputArgument::REQUIRED);
+        return $this;
+    }
+
     protected function configure()
     {
         $this
-            ->addArgument('environment', InputArgument::REQUIRED)
             ->addOption(
                 'skip-step',
                 null,
@@ -86,21 +112,48 @@ class Script extends Command
             );
     }
 
+    protected function addSetterOption($name, $shortcut = null, $mode = null, $description = '', $default = null)
+    {
+        $setter = $this->inflectSetterFromOptionName($name);
+
+        if (!method_exists($this, $setter)) {
+            $scriptClass = get_class($this);
+            throw new SetterNotPresentForScriptOption("{$name} has no associated setter on {$scriptClass}.");
+        }
+
+        $this->addOption($name, $shortcut, $mode, $description, $default);
+
+        $this->setterOptions[$name] = $setter;
+
+        return $this;
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->project->loadConfigFile();
 
-        $this->environment = $this->project->getEnvironment($input->getArgument('environment'));
+        if (!count($this->steps) && $this->placeholderCallback) {
+            $placeholderCallback = $this->placeholderCallback;
+            $placeholderCallback($output);
+            exit;
+        }
+
+        if ($input->hasArgument('environment')) {
+            $this->setEnvironment($input->getArgument('environment'));
+        }
+
         $this->skippedSteps = $input->getOption('skip-step');
+
+        foreach ($this->setterOptions as $option => $setterMethod) {
+            $this->$setterMethod($input->getOption($option));
+        }
 
         if ($input->getOption('dry-run')) {
             $this->dryRun($output);
+        } else if ($input->getOption('list-steps')) {
+            $this->listSteps($output);
         } else {
-            if ($input->getOption('list-steps')) {
-                $this->listSteps($output);
-            } else {
-                $this->runSteps($output);
-            }
+            $this->runSteps($output);
         }
     }
 
@@ -109,8 +162,12 @@ class Script extends Command
         return $this->project;
     }
 
-    public function setEnvironment(Environment $environment)
+    public function setEnvironment($environment)
     {
+        if (is_string($environment)) {
+            $environment = $this->project->getEnvironment($environment);
+        }
+
         $this->environment = $environment;
 
         return $this;
@@ -119,6 +176,13 @@ class Script extends Command
     public function getEnvironment()
     {
         return $this->environment;
+    }
+
+    public function setPlaceholderCallback(callable $placeholderCallback)
+    {
+        $this->placeholderCallback = $placeholderCallback;
+
+        return $this;
     }
 
     public function setSkippedSteps(array $skippedSteps)
@@ -164,12 +228,11 @@ class Script extends Command
             if ($this->stopOnFailure && $result->isFailure()) {
                 $scriptResult = Result::FAILURE;
 
-                $output->writeln(
-                    [
-                        '',
-                        '<fg=white;bg=red>Halting script execution due to failure of previous step.</>'
-                    ]
-                );
+                $output->writeln('');
+
+                $banner = new Banner($output);
+                $banner->setBackground('red');
+                $banner->render('Halting script execution due to failure of previous step.');
                 break;
             }
         }
@@ -249,15 +312,51 @@ class Script extends Command
 
         /* @var $step StepInterface|EnvironmentAwareInterface */
         foreach ($this->steps as $step) {
-            if ($step->appliesToEnvironment($this->environment)) {
-                if ($step instanceof EnvironmentAwareInterface) {
-                    $step->setSelectedEnvironment($this->environment);
+            if ($this->environment && !$step->appliesToEnvironment($this->environment)) {
+                continue;
+            }
+
+            if ($step instanceof EnvironmentAwareInterface) {
+                if (!$this->environment) {
+                    $stepClass   = get_class($step);
+                    $scriptClass = get_class($this);
+
+                    throw new EnvironmentNotAvailableForStep(
+                        "{$stepClass} needs an environment but {$this->getName()} ({$scriptClass}) "
+                        . 'does not have one set.'
+                    );
                 }
 
-                $stepsForEnvironment[] = $step;
+                $step->setSelectedEnvironment($this->environment);
             }
+
+            if ($this->environment && $step instanceof EnvironmentOptionalInterface) {
+                $step->setSelectedEnvironment($this->environment);
+            }
+
+            $stepsForEnvironment[] = $step;
         }
 
         return $stepsForEnvironment;
+    }
+
+    private function inflectSetterFromOptionName($name)
+    {
+        if (preg_match_all('/\/(.?)/', $name, $got)) {
+            foreach ($got[1] as $k => $v) {
+                $got[1][$k] = '::'.strtoupper($v);
+            }
+            $name = str_replace($got[0], $got[1], $name);
+        }
+
+        $camelized = str_replace(
+            ' ',
+            '',
+            ucwords(
+                preg_replace('/[^A-Z^a-z^0-9^:]+/', ' ', $name)
+            )
+        );
+
+        return 'set' . $camelized;
     }
 }

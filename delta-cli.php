@@ -66,11 +66,11 @@ $project->createScript('composing-scripts', 'An example of calling one script fr
     )
     ->addStep($project->getScript('custom-script'));
 
-$project->createScript('rsync-example', 'An example using rsync.')
+$project->createEnvironmentScript('rsync-example', 'An example using rsync.')
     ->addStep(
         $project->rsync('library', 'delta-cli-library')
             ->exclude('excluded-file')
     );
 
-$project->createScript('ssh-example', 'An example using SSH.')
+$project->createEnvironmentScript('ssh-example', 'An example using SSH.')
     ->addStep($project->ssh('ls ~'));

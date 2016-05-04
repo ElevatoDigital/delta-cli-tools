@@ -24,6 +24,7 @@ class SshInstallKey extends Script
         $publicKey = getcwd() . '/ssh-keys/id_rsa.pub';
 
         $this
+            ->requireEnvironment()
             ->addStep(
                 'check-for-public-key',
                 function () use ($publicKey) {
