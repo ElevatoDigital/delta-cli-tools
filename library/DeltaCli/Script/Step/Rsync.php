@@ -2,19 +2,13 @@
 
 namespace DeltaCli\Script\Step;
 
-use DeltaCli\Environment;
 use DeltaCli\Host;
 
-class Rsync extends StepAbstract implements DryRunInterface, EnvironmentAwareInterface
+class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
 {
     const LIVE = 'live';
 
     const DRY_RUN = 'dry-run';
-
-    /**
-     * @var Environment
-     */
-    private $environment;
 
     /**
      * @var string
@@ -35,6 +29,11 @@ class Rsync extends StepAbstract implements DryRunInterface, EnvironmentAwareInt
      * @var array
      */
     private $excludes = [];
+
+    /**
+     * @var string
+     */
+    private $mode = self::LIVE;
 
     public function __construct($localPath, $remotePath)
     {
@@ -58,12 +57,14 @@ class Rsync extends StepAbstract implements DryRunInterface, EnvironmentAwareInt
 
     public function run()
     {
-        return $this->runWithMode(self::LIVE);
+        $this->mode = self::LIVE;
+        return $this->runOnAllHosts();
     }
 
     public function dryRun()
     {
-        return $this->runWithMode(self::DRY_RUN);
+        $this->mode = self::DRY_RUN;
+        return $this->runOnAllHosts();
     }
 
     public function getName()
@@ -79,74 +80,11 @@ class Rsync extends StepAbstract implements DryRunInterface, EnvironmentAwareInt
         }
     }
 
-    public function setSelectedEnvironment(Environment $environment)
-    {
-        $this->environment = $environment;
-
-        return $this;
-    }
-
-    private function runWithMode($mode)
-    {
-        $output = [];
-
-        $failedHosts        = [];
-        $misconfiguredHosts = [];
-
-        /* @var $host Host */
-        foreach ($this->environment->getHosts() as $host) {
-            if (!$host->hasRequirementsForSshUse()) {
-                $misconfiguredHosts[] = $host;
-                continue;
-            }
-
-            list($hostOutput, $exitStatus) = $this->rsync($host, $mode);
-
-            if ($exitStatus) {
-                $failedHosts[] = $host;
-            }
-
-            $output[] = $host->getHostname();
-
-            foreach ($hostOutput as $line) {
-                $output[] = '  ' . $line;
-            }
-        }
-
-        if (count($this->environment->getHosts()) && !count($failedHosts) && !count($misconfiguredHosts)) {
-            $result = new Result($this, Result::SUCCESS, $output);
-            $result->setExplanation(
-                'on all ' . count($this->environment->getHosts()) . ' host(s)' .
-                (self::DRY_RUN === $mode ? ' in dry run mode' : '')
-            );
-        } else {
-            $result = new Result($this, Result::FAILURE, $output);
-
-            if (!count($this->environment->getHosts())) {
-                $result->setExplanation('because no hosts were added in the environment');
-            } else {
-                $explanations = [];
-
-                if (count($failedHosts)) {
-                    $explanations[] = count($failedHosts) . ' host(s) failed';
-                }
-
-                if (count($misconfiguredHosts)) {
-                    $explanations[] = count($misconfiguredHosts) . ' host(s) were not configured for SSH';
-                }
-
-                $result->setExplanation('because ' . implode(' and ', $explanations));
-            }
-        }
-
-        return $result;
-    }
-
-    private function rsync(Host $host, $mode)
+    public function runOnHost(Host $host)
     {
         $command = sprintf(
             'rsync %s %s %s -az -i -e %s %s %s@%s:%s 2>&1',
-            (self::DRY_RUN === $mode ? '--dry-run' : ''),
+            (self::DRY_RUN === $this->mode ? '--dry-run' : ''),
             $this->assembleExcludeArgs(),
             ($this->delete ? '--delete' : ''),
             escapeshellarg(sprintf('ssh -i %s -p %d', $host->getSshPrivateKey(), $host->getSshPort())),

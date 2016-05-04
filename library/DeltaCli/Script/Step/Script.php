@@ -6,7 +6,7 @@ use DeltaCli\Environment;
 use DeltaCli\Script as ScriptObject;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-class Script extends StepAbstract implements EnvironmentAwareInterface, DryRunInterface
+class Script extends StepAbstract implements EnvironmentOptionalInterface, DryRunInterface
 {
     /**
      * @var ScriptObject

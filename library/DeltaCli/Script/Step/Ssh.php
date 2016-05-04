@@ -2,19 +2,13 @@
 
 namespace DeltaCli\Script\Step;
 
-use DeltaCli\Environment;
 use DeltaCli\Host;
 
-class Ssh extends StepAbstract implements EnvironmentAwareInterface
+class Ssh extends EnvironmentHostsStepAbstract
 {
     const INCLUDE_APPLICATION_ENV = true;
 
     const OMIT_APPLICATION_ENV = false;
-
-    /**
-     * @var Environment
-     */
-    private $environment;
 
     /**
      * @var string
@@ -45,67 +39,7 @@ class Ssh extends StepAbstract implements EnvironmentAwareInterface
         }
     }
 
-    public function setSelectedEnvironment(Environment $environment)
-    {
-        $this->environment = $environment;
-
-        return $this;
-    }
-
-    public function run()
-    {
-        $output = [];
-
-        $failedHosts        = [];
-        $misconfiguredHosts = [];
-
-        /* @var $host Host */
-        foreach ($this->environment->getHosts() as $host) {
-            if (!$host->hasRequirementsForSshUse()) {
-                $misconfiguredHosts[] = $host;
-                continue;
-            }
-
-            list($hostOutput, $exitStatus) = $this->ssh($host);
-
-            if ($exitStatus) {
-                $failedHosts[] = $host;
-            }
-
-            $output[] = $host->getHostname();
-
-            foreach ($hostOutput as $line) {
-                $output[] = '  ' . $line;
-            }
-        }
-
-        if (count($this->environment->getHosts()) && !count($failedHosts) && !count($misconfiguredHosts)) {
-            $result = new Result($this, Result::SUCCESS, $output);
-            $result->setExplanation('on all ' . count($this->environment->getHosts()) . ' host(s)');
-        } else {
-            $result = new Result($this, Result::FAILURE, $output);
-
-            if (!count($this->environment->getHosts())) {
-                $result->setExplanation('because no hosts were added in the environment');
-            } else {
-                $explanations = [];
-
-                if (count($failedHosts)) {
-                    $explanations[] = count($failedHosts) . ' host(s) failed';
-                }
-
-                if (count($misconfiguredHosts)) {
-                    $explanations[] = count($misconfiguredHosts) . ' host(s) were not configured for SSH';
-                }
-
-                $result->setExplanation('because ' . implode(' and ', $explanations));
-            }
-        }
-
-        return $result;
-    }
-
-    private function ssh(Host $host)
+    public function runOnHost(Host $host)
     {
         $sshCommand = $this->command;
 
