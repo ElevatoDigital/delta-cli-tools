@@ -9,6 +9,7 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 
 use DeltaCli\Command\CreateProjectConfig;
 use DeltaCli\Command\SshKeyGen;
+use DeltaCli\Console\Output\Banner;
 use DeltaCli\Exception\ConsoleOutputInterface;
 use DeltaCli\Project;
 use Symfony\Component\Console\Application;
@@ -26,7 +27,9 @@ try {
     $application->addCommands($project->getScripts());
     $application->run(null, $output);
 } catch (Exception $e) {
-    $output->writeln('<error>' . get_class($e) . '</error>');
+    $banner = new Banner($output);
+    $banner->setBackground('red');
+    $banner->render(get_class($e));
 
     if ($e instanceof ConsoleOutputInterface) {
         $e->outputToConsole($output);
