@@ -151,7 +151,16 @@ class WordPress implements TemplateInterface
 
         $question->setMultiselect(true);
 
-        return $questionHelper->ask($input, $output, $question);
+        /* @var $selected array */
+        $selected = $questionHelper->ask($input, $output, $question);
+
+        foreach ($selected as $index => $name) {
+            if ('none' === $name) {
+                unset($selected[$index]);
+            }
+        }
+
+        return $selected;
     }
 
     private function getInstallerChoices($wpContentFolderName)
@@ -163,7 +172,7 @@ class WordPress implements TemplateInterface
         }
 
         $folder  = opendir($path);
-        $options = [];
+        $options = [0 => 'none'];
 
         while ($themeFolder = readdir($folder)) {
             if (0 !== strpos($themeFolder, '.') && is_dir("{$path}/{$themeFolder}")) {
