@@ -99,6 +99,13 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
         return [$output, $exitStatus];
     }
 
+    protected function getSuccessfulResultExplanation(array $hosts)
+    {
+        $message = parent::getSuccessfulResultExplanation($hosts);
+        $message .= (self::DRY_RUN === $this->mode ? ' in dry run mode' : '');
+        return $message;
+    }
+
     private function normalizePath($path)
     {
         return rtrim($path, '/') . '/';

@@ -60,7 +60,7 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
     {
         if (count($this->environment->getHosts()) && !count($failedHosts) && !count($misconfiguredHosts)) {
             $result = new Result($this, Result::SUCCESS, $output);
-            $result->setExplanation('on all ' . count($this->environment->getHosts()) . ' host(s)');
+            $result->setExplanation($this->getSuccessfulResultExplanation($this->environment->getHosts()));
         } else {
             $result = new Result($this, Result::FAILURE, $output);
 
@@ -82,5 +82,16 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
         }
 
         return $result;
+    }
+
+    protected function getSuccessfulResultExplanation(array $hosts)
+    {
+        if (1 !== count($hosts)) {
+            return sprintf('on all %d hosts', count($hosts));
+        } else {
+            /* @var $host Host */
+            $host = current($hosts);
+            return sprintf('on %s', $host->getHostname());
+        }
     }
 }
