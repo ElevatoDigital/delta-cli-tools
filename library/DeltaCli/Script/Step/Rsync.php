@@ -34,6 +34,11 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
      * @var string
      */
     private $mode = self::LIVE;
+    
+    /**
+     * @var string
+     */
+    private $flags = 'azi';
 
     public function __construct($localPath, $remotePath)
     {
@@ -79,14 +84,20 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
             );
         }
     }
+    
+    public function setFlags($flags)
+    {
+        $this->flags = $flags;
+    }
 
     public function runOnHost(Host $host)
     {
         $command = sprintf(
-            'rsync %s %s %s -az --no-p -i -e %s %s %s@%s:%s 2>&1',
+            'rsync %s %s %s %s --no-p -e %s %s %s@%s:%s 2>&1',
             (self::DRY_RUN === $this->mode ? '--dry-run' : ''),
             $this->assembleExcludeArgs(),
             ($this->delete ? '--delete' : ''),
+            ($this->flags ? '-'.escapeshellarg($this->flags) : ''),
             escapeshellarg(sprintf('ssh -i %s -p %d', $host->getSshPrivateKey(), $host->getSshPort())),
             escapeshellarg($this->normalizePath($this->localPath)),
             escapeshellarg($host->getUsername()),
