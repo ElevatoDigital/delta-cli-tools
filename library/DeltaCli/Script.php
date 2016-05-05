@@ -37,6 +37,11 @@ class Script extends Command
     /**
      * @var array
      */
+    private $defaultSteps = [];
+
+    /**
+     * @var array
+     */
     private $skippedSteps = [];
 
     /**
@@ -194,7 +199,19 @@ class Script extends Command
 
     public function addStep()
     {
+        if (0 === count($this->steps)) {
+            foreach ($this->defaultSteps as $step) {
+                $this->steps[] = $step;
+            }
+        }
+        
         $this->steps[] = $this->stepFactory->factory(func_get_args());
+        return $this;
+    }
+
+    public function addDefaultStep()
+    {
+        $this->defaultSteps[] = $this->stepFactory->factory(func_get_args());
         return $this;
     }
 

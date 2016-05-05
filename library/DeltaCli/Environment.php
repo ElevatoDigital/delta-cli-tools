@@ -24,6 +24,11 @@ class Environment
      */
     private $hosts = [];
 
+    /**
+     * @var string
+     */
+    private $gitBranch;
+
     public function __construct($name)
     {
         $this->name = $name;
@@ -74,5 +79,17 @@ class Environment
     public function getHosts()
     {
         return $this->hosts;
+    }
+
+    public function setGitBranch($gitBranch)
+    {
+        $this->gitBranch = $gitBranch;
+        
+        return $this;
+    }
+
+    public function getGitBranch()
+    {
+        return $this->gitBranch;
     }
 }
