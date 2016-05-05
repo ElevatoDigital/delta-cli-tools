@@ -5,7 +5,7 @@ Command-line tools used at Delta Systems for common development workflow needs.
 ## Installation
 
 0. Install Composer globally (https://getcomposer.org/doc/00-intro.md#globally).
-0. Add ~/.composer/vendor/bin/ to your $PATH.
+0. Add $HOME/.composer/vendor/bin/ to your $PATH.
 0. Install the Delta CLI tools by running `composer global require deltasystems/delta-cli`
 0. Change to your project's directory and run `delta` to get started.
 
