@@ -197,6 +197,18 @@ class Script extends Command
         return $this;
     }
 
+    public function getStep($name)
+    {
+        /* @var $step StepInterface */
+        foreach ($this->steps as $step) {
+            if ($step->getName() === $name) {
+                return $step;
+            }
+        }
+
+        return false;
+    }
+
     public function addStep()
     {
         if (0 === count($this->steps)) {
@@ -204,7 +216,7 @@ class Script extends Command
                 $this->steps[] = $step;
             }
         }
-        
+
         $this->steps[] = $this->stepFactory->factory(func_get_args());
         return $this;
     }

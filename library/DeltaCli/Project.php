@@ -7,6 +7,7 @@ use DeltaCli\Exception\ProjectNotConfigured;
 use DeltaCli\Exception\ScriptNotFound;
 use DeltaCli\Extension\DefaultScripts as DefaultScriptsExtension;
 use DeltaCli\Extension\Vagrant as VagrantExtension;
+use DeltaCli\Script\Step\AllowWritesToRemoteFolder as AllowWritesToRemoteFolderStep;
 use DeltaCli\Script\Step\GitBranchMatchesEnvironment as GitBranchMatchesEnvironmentStep;
 use DeltaCli\Script\Step\GitStatusIsClean as GitStatusIsCleanStep;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
@@ -195,6 +196,11 @@ class Project
         }
 
         return $this->environments[$name];
+    }
+
+    public function allowWritesToRemoteFolder($remoteFolder)
+    {
+        return new AllowWritesToRemoteFolderStep($remoteFolder);
     }
 
     public function gitStatusIsClean()
