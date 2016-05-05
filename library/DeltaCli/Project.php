@@ -2,20 +2,18 @@
 
 namespace DeltaCli;
 
-use DeltaCli\Console\Output\Banner;
 use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\ProjectNotConfigured;
 use DeltaCli\Exception\ScriptNotFound;
+use DeltaCli\Extension\DefaultScripts as DefaultScriptsExtension;
 use DeltaCli\Extension\Vagrant as VagrantExtension;
 use DeltaCli\Script\Step\GitBranchMatchesEnvironment as GitBranchMatchesEnvironmentStep;
 use DeltaCli\Script\Step\GitStatusIsClean as GitStatusIsCleanStep;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
 use DeltaCli\Script\Step\Scp as ScpStep;
 use DeltaCli\Script\Step\Ssh as SshStep;
-use DeltaCli\Script\SshInstallKey as SshInstallKeyScript;
 use DeltaCli\Template\TemplateInterface;
 use DeltaCli\Template\WordPress as WordPressTemplate;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class Project
 {
@@ -41,26 +39,8 @@ class Project
 
     public function __construct()
     {
-        $this->createScript('deploy', 'Deploy this project.')
-            ->requireEnvironment()
-            ->addDefaultStep($this->gitStatusIsClean())
-            ->addDefaultStep($this->gitBranchMatchesEnvironment())
-            ->setPlaceholderCallback(
-                function (OutputInterface $output) {
-                    $banner = new Banner($output);
-                    $banner->setBackground('cyan');
-                    $banner->render('A deploy script has not yet been created for this project.');
-
-                    $output->writeln(
-                        [
-                            'Learn more about how to write a good deploy script for your project on Github at:',
-                            '<fg=blue;options=underscore>https://github.com/DeltaSystems/delta-cli-tools</>'
-                        ]
-                    );
-                }
-            );
-
-        $this->addScript(new SshInstallKeyScript($this));
+        $defaultScriptsExtension = new DefaultScriptsExtension();
+        $defaultScriptsExtension->extend($this);
 
         $vagrantExtension = new VagrantExtension();
         $vagrantExtension->extend($this);
@@ -181,6 +161,11 @@ class Project
     public function getDeployScript()
     {
         return $this->getScript('deploy');
+    }
+
+    public function getEnvironments()
+    {
+        return $this->environments;
     }
 
     public function createEnvironment($name)
