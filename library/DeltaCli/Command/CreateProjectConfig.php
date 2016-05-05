@@ -51,7 +51,7 @@ class CreateProjectConfig extends Command
         $this
             ->askNameQuestion($configTemplate, $questionHelper, $input, $output)
             ->askSshKeyQuestion($questionHelper, $input, $output)
-            ->askTemplateQuestion($questionHelper, $input, $output);
+            ->askTemplateQuestion($configTemplate, $questionHelper, $input, $output);
 
         $this->project->writeConfig($configTemplate->getContents());
     }
@@ -95,8 +95,12 @@ class CreateProjectConfig extends Command
         return $this;
     }
 
-    private function askTemplateQuestion(QuestionHelper $questionHelper, InputInterface $input, OutputInterface $output)
-    {
+    private function askTemplateQuestion(
+        ConfigTemplate $configTemplate,
+        QuestionHelper $questionHelper,
+        InputInterface $input,
+        OutputInterface $output
+    ) {
         $templateSet = new TemplateSet();
 
         $template = $templateSet->getTemplateByInstallerChoiceKey(
@@ -110,7 +114,7 @@ class CreateProjectConfig extends Command
             )
         );
 
-        $template->install($questionHelper, $input, $output);
+        $configTemplate->setProjectTemplateContent($template->install($questionHelper, $input, $output));
 
         return $this;
     }

@@ -34,12 +34,11 @@ class WordPress implements TemplateInterface
     public function install(QuestionHelper $questionHelper, InputInterface $input, OutputInterface $output)
     {
         $themes  = $this->askInstallerSyncedFolderQuestion($questionHelper, 'themes', $input, $output);
-        $plugins = $this->getInstallerChoices('plugins');
+        $plugins = $this->askInstallerSyncedFolderQuestion($questionHelper, 'plugins', $input, $output);
 
-        echo 'WordPress template is still a work in progress.  Check back shortly.' . PHP_EOL;
-        
-        var_dump($themes);
-        exit;
+        ob_start();
+        require __DIR__ . '/_delta-cli-templates/word-press.php';
+        return ob_get_clean();
     }
 
     public function apply(Project $project)
@@ -150,17 +149,9 @@ class WordPress implements TemplateInterface
             $choices
         );
 
-        $templateSet = new TemplateSet();
+        $question->setMultiselect(true);
 
-        $selected = $templateSet->getTemplateByInstallerChoiceKey(
-            $questionHelper->ask(
-                $input,
-                $output,
-                $question
-            )
-        );
-
-        return $selected;
+        return $questionHelper->ask($input, $output, $question);
     }
 
     private function getInstallerChoices($wpContentFolderName)
