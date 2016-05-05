@@ -11,7 +11,7 @@ $project->createEnvironment('staging')
     ->setSshPrivateKey(__DIR__ . '/ssh-keys/id_rsa')
     ->addHost('staging.deltasys.com');
 
-$project->getDeployScript()
+$project->getScript('deploy')
     ->addStep(
         'do-stuff',
         function () {
