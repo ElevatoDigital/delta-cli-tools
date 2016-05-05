@@ -19,12 +19,17 @@ class SshInstallKey extends Script
         );
     }
 
+    protected function configure()
+    {
+        $this->requireEnvironment();
+        parent::configure();
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $publicKey = getcwd() . '/ssh-keys/id_rsa.pub';
 
         $this
-            ->requireEnvironment()
             ->addStep(
                 'check-for-public-key',
                 function () use ($publicKey) {
@@ -47,6 +52,7 @@ class SshInstallKey extends Script
             )
             ->addStep($this->getProject()->scp($publicKey, ''))
             ->addStep($this->getProject()->ssh('mkdir -p .ssh')->setName('create-ssh-folder'))
+            ->addStep($this->getProject()->ssh('chmod +w .ssh/authorized_keys'))
             ->addStep($this->getProject()->ssh('cat id_rsa.pub >> .ssh/authorized_keys')->setName('add-key'))
             ->addStep(
                 $this->getProject()->ssh('chmod 400 .ssh/authorized_keys')
