@@ -5,8 +5,6 @@ namespace DeltaCli\Extension\Vagrant\Script;
 use DeltaCli\Extension\Vagrant\Exception;
 use DeltaCli\Project;
 use DeltaCli\Script;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class CheckEnvironment extends Script
 {
@@ -19,7 +17,7 @@ class CheckEnvironment extends Script
         );
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function addSteps()
     {
         $this
             ->addStep(
@@ -76,7 +74,5 @@ class CheckEnvironment extends Script
                     }
                 }
             );
-
-        return parent::execute($input, $output);
     }
 }
