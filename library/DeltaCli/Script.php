@@ -45,6 +45,11 @@ class Script extends Command
     private $skippedSteps = [];
 
     /**
+     * @var bool
+     */
+    private $addStepsRun = false;
+
+    /**
      * @var StepFactory
      */
     private $stepFactory;
@@ -83,12 +88,17 @@ class Script extends Command
         $this->setDescription($description);
 
         $this->project = $project;
-        $this->stepFactory = ($stepFactory ?: new StepFactory());
+        $this->stepFactory = ($stepFactory ?: new StepFactory($this->project->getInput()));
 
         $this->init();
     }
 
     protected function init()
+    {
+
+    }
+
+    protected function addSteps()
     {
 
     }
@@ -367,6 +377,11 @@ class Script extends Command
 
     private function getStepsForEnvironment()
     {
+        if (!$this->addStepsRun) {
+            $this->addSteps();
+            $this->addStepsRun = true;
+        }
+
         $stepsForEnvironment = [];
 
         /* @var $step StepInterface|EnvironmentAwareInterface */

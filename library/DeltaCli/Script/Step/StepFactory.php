@@ -4,9 +4,20 @@ namespace DeltaCli\Script\Step;
 
 use DeltaCli\Exception\UnrecognizedStepInput;
 use DeltaCli\Script as ScriptObject;
+use Symfony\Component\Console\Input\InputInterface;
 
 class StepFactory
 {
+    /**
+     * @var InputInterface
+     */
+    private $input;
+
+    public function __construct(InputInterface $input)
+    {
+        $this->input = $input;
+    }
+
     /**
      * @return StepInterface
      */
@@ -21,7 +32,7 @@ class StepFactory
         } else if ($this->isUnnamedShellCommand($args)) {
             return $this->createShellCommand($args[0]);
         } else if ($this->isScriptObject($args)) {
-            return new Script($args[0]);
+            return new Script($args[0], $this->input);
         } else if ($this->isStepObject($args)) {
             return $args[0];
         } else {

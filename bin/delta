@@ -13,13 +13,15 @@ use DeltaCli\Command\SshKeyGen;
 use DeltaCli\Console\Output\Banner;
 use DeltaCli\Exception\ConsoleOutputInterface;
 use DeltaCli\Project;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 try {
+    $input       = new ArgvInput();
     $output      = new ConsoleOutput();
     $application = new Application();
-    $project     = new Project();
+    $project     = new Project($input, $output);
 
     $application->setCatchExceptions(false);
     $application->setName($project->getName());
@@ -27,7 +29,7 @@ try {
     $application->add(new ListEnvironments($project));
     $application->add(new SshKeyGen());
     $application->addCommands($project->getScripts());
-    $application->run(null, $output);
+    $application->run($input, $output);
 } catch (Exception $e) {
     $banner = new Banner($output);
     $banner->setBackground('red');

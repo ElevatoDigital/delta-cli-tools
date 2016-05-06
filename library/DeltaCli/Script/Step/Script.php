@@ -4,6 +4,7 @@ namespace DeltaCli\Script\Step;
 
 use DeltaCli\Environment;
 use DeltaCli\Script as ScriptObject;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class Script extends StepAbstract implements EnvironmentOptionalInterface, DryRunInterface
@@ -12,6 +13,11 @@ class Script extends StepAbstract implements EnvironmentOptionalInterface, DryRu
      * @var ScriptObject
      */
     private $script;
+
+    /**
+     * @var InputInterface
+     */
+    private $input;
 
     /**
      * @var Environment
@@ -27,9 +33,10 @@ class Script extends StepAbstract implements EnvironmentOptionalInterface, DryRu
      * Script constructor.
      * @param ScriptObject $script
      */
-    public function __construct(ScriptObject $script)
+    public function __construct(ScriptObject $script, InputInterface $input)
     {
         $this->script = $script;
+        $this->input  = $input;
     }
 
     public function getName()

@@ -8,9 +8,7 @@ use DeltaCli\FileTemplate;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class CreateVhost extends Script
 {
@@ -68,7 +66,7 @@ class CreateVhost extends Script
             ->addSetterOption('application-env', null, InputOption::VALUE_OPTIONAL);
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function addSteps()
     {
         $apachePath = $this->path . '/' . $this->hostname . '.conf';
         $nginxPath  = $this->path . '/nginx/' . $this->hostname . '.conf';
@@ -119,7 +117,9 @@ class CreateVhost extends Script
             ->addStep($this->getProject()->getScript('vagrant:restart-services'))
             ->addStep(
                 'display-hosts-file-help',
-                function () use ($output) {
+                function () {
+                    $output = $this->getProject()->getOutput();
+
                     $banner = new Banner($output);
                     $banner->setBackground('cyan');
                     $banner->render("Add {$this->hostname} to your host operating system's hosts file.");
@@ -140,7 +140,5 @@ class CreateVhost extends Script
                     );
                 }
             );
-
-        return parent::execute($input, $output);
     }
 }

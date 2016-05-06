@@ -15,6 +15,8 @@ use DeltaCli\Script\Step\Scp as ScpStep;
 use DeltaCli\Script\Step\Ssh as SshStep;
 use DeltaCli\Template\TemplateInterface;
 use DeltaCli\Template\WordPress as WordPressTemplate;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Project
 {
@@ -34,17 +36,40 @@ class Project
     private $scripts = [];
 
     /**
+     * @var InputInterface
+     */
+    private $input;
+
+    /**
+     * @var OutputInterface
+     */
+    private $output;
+
+    /**
      * @var bool
      */
     private $configFileLoaded = false;
 
-    public function __construct()
+    public function __construct(InputInterface $input, OutputInterface $output)
     {
+        $this->input  = $input;
+        $this->output = $output;
+
         $defaultScriptsExtension = new DefaultScriptsExtension();
         $defaultScriptsExtension->extend($this);
 
         $vagrantExtension = new VagrantExtension();
         $vagrantExtension->extend($this);
+    }
+
+    public function getInput()
+    {
+        return $this->input;
+    }
+
+    public function getOutput()
+    {
+        return $this->output;
     }
 
     public function configFileExists()
