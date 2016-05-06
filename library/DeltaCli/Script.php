@@ -57,6 +57,11 @@ class Script extends Command
     /**
      * @var array
      */
+    private $setterArguments = [];
+
+    /**
+     * @var array
+     */
     private $setterOptions = [];
 
     /**
@@ -117,6 +122,22 @@ class Script extends Command
             );
     }
 
+    protected function addSetterArgument($name, $mode = null, $description = '', $default = null)
+    {
+        $setter = $this->inflectSetterFromOptionName($name);
+
+        if (!method_exists($this, $setter)) {
+            $scriptClass = get_class($this);
+            throw new SetterNotPresentForScriptOption("{$name} has no associated setter on {$scriptClass}.");
+        }
+
+        $this->addArgument($name, $mode, $description, $default);
+
+        $this->setterArguments[$name] = $setter;
+
+        return $this;
+    }
+
     protected function addSetterOption($name, $shortcut = null, $mode = null, $description = '', $default = null)
     {
         $setter = $this->inflectSetterFromOptionName($name);
@@ -133,25 +154,34 @@ class Script extends Command
         return $this;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function interact(InputInterface $input, OutputInterface $output)
     {
         $this->project->loadConfigFile();
 
+        if ($input->hasArgument('environment')) {
+            $this->setEnvironment($input->getArgument('environment'));
+        }
+
+        foreach ($this->setterArguments as $argument => $setterMethod) {
+            $this->$setterMethod($input->getArgument($argument));
+        }
+
+        foreach ($this->setterOptions as $option => $setterMethod) {
+            if ($input->getOption($option)) {
+                $this->$setterMethod($input->getOption($option));
+            }
+        }
+    }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
         if (!count($this->steps) && $this->placeholderCallback) {
             $placeholderCallback = $this->placeholderCallback;
             $placeholderCallback($output);
             exit;
         }
 
-        if ($input->hasArgument('environment')) {
-            $this->setEnvironment($input->getArgument('environment'));
-        }
-
         $this->skippedSteps = $input->getOption('skip-step');
-
-        foreach ($this->setterOptions as $option => $setterMethod) {
-            $this->$setterMethod($input->getOption($option));
-        }
 
         if ($input->getOption('dry-run')) {
             $this->dryRun($output);
