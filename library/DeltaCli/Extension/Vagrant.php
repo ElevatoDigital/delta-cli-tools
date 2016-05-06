@@ -4,6 +4,7 @@ namespace DeltaCli\Extension;
 
 use DeltaCli\Extension\Vagrant\Script\CheckEnvironment;
 use DeltaCli\Extension\Vagrant\Script\CreateVhost;
+use DeltaCli\Extension\Vagrant\Script\Postgres\Create as CreatePostgres;
 use DeltaCli\Project;
 
 class Vagrant implements ExtensionInterface
@@ -20,5 +21,6 @@ class Vagrant implements ExtensionInterface
             ->addStep('restart-mysql', 'sudo /etc/init.d/mysqld restart');
 
         $project->addScript(new CreateVhost($project));
+        $project->addScript(new CreatePostgres($project));
     }
 }
