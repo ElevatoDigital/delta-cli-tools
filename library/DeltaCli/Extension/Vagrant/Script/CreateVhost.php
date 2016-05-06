@@ -64,7 +64,7 @@ class CreateVhost extends Script
 
         $this
             ->addSetterArgument('hostname', InputArgument::REQUIRED, 'The host/domain name for this virtual host.')
-            ->addSetterArgument('document-root', InputArgument::REQUIRED, 'The root folder to server for this host.')
+            ->addSetterArgument('document-root', InputArgument::REQUIRED, 'The root folder to serve for this host.')
             ->addSetterOption('application-env', null, InputOption::VALUE_OPTIONAL);
     }
 
