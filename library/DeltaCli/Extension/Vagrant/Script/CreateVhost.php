@@ -126,6 +126,14 @@ class CreateVhost extends Script
 
                     $output->writeln(
                         [
+                            'On OS X or Linux, you can run the following command:',
+                            "sudo bash -c \"echo '127.0.0.1 {$this->hostname}' >> /etc/hosts\"",
+                            ''
+                        ]
+                    );
+
+                    $output->writeln(
+                        [
                             'Learn more about adding entries to your hosts file or using dnsmasq on Github at:',
                             '<fg=blue;options=underscore>http://bit.ly/delta-cli-hosts-file</>'
                         ]
