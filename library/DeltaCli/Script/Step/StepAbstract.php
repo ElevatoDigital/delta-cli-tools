@@ -44,7 +44,9 @@ abstract class StepAbstract implements StepInterface
 
         /* @var $environment Environment */
         foreach ($this->environments as $environment) {
-            if ($environment->getName() === $selectedEnvironment->getName()) {
+            $environmentName = (is_string($environment) ? $environment : $environment->getName());
+
+            if ($environmentName === $selectedEnvironment->getName()) {
                 return true;
             }
         }

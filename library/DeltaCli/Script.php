@@ -239,6 +239,8 @@ class Script extends Command
 
     public function getStep($name)
     {
+        $this->addDefaultSteps();
+
         /* @var $step StepInterface */
         foreach ($this->steps as $step) {
             if ($step->getName() === $name) {
@@ -251,12 +253,7 @@ class Script extends Command
 
     public function addStep()
     {
-        if (0 === count($this->steps)) {
-            foreach ($this->defaultSteps as $step) {
-                $this->steps[] = $step;
-            }
-        }
-
+        $this->addDefaultSteps();
         $this->steps[] = $this->stepFactory->factory(func_get_args());
         return $this;
     }
@@ -353,6 +350,15 @@ class Script extends Command
         $this->stopOnFailure = $stopOnFailure;
 
         return $this;
+    }
+
+    private function addDefaultSteps()
+    {
+        if (0 === count($this->steps)) {
+            foreach ($this->defaultSteps as $step) {
+                $this->steps[] = $step;
+            }
+        }
     }
 
     private function getEnvironmentsFromNames($environmentNames)

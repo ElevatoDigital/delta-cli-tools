@@ -10,6 +10,7 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 use DeltaCli\Command\CreateProjectConfig;
 use DeltaCli\Command\ListEnvironments;
 use DeltaCli\Command\SshKeyGen;
+use DeltaCli\Command\SshShell;
 use DeltaCli\Console\Output\Banner;
 use DeltaCli\Exception\ConsoleOutputInterface;
 use DeltaCli\Project;
@@ -28,6 +29,7 @@ try {
     $application->add(new CreateProjectConfig($project));
     $application->add(new ListEnvironments($project));
     $application->add(new SshKeyGen());
+    $application->add(new SshShell($project));
     $application->addCommands($project->getScripts());
     $application->run($input, $output);
 } catch (Exception $e) {
