@@ -52,7 +52,10 @@ class SshInstallKey extends Script
             )
             ->addStep($this->getProject()->scp($publicKey, ''))
             ->addStep($this->getProject()->ssh('mkdir -p .ssh')->setName('create-ssh-folder'))
-            ->addStep($this->getProject()->ssh('chmod +w .ssh/authorized_keys'))
+            ->addStep(
+                $this->getProject()->ssh('touch .ssh/authorized_keys && chmod +w .ssh/authorized_keys')
+                    ->setName('allow-authorized-keys-writes')
+            )
             ->addStep($this->getProject()->ssh('cat id_rsa.pub >> .ssh/authorized_keys')->setName('add-key'))
             ->addStep(
                 $this->getProject()->ssh('chmod 400 .ssh/authorized_keys')
