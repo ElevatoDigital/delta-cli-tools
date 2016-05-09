@@ -25,7 +25,9 @@ class AllowWritesToRemoteFolder extends EnvironmentHostsStepAbstract
             )
         );
 
-        $ssh->setName($this->name);
+        $ssh
+            ->setSelectedEnvironment($this->environment)
+            ->setName($this->name);
 
         return $ssh->runOnHost($host);
     }
