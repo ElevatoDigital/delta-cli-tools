@@ -151,7 +151,7 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
         foreach ($rawOutput as $line) {
             $change = $this->parseChangeFromLine($line);
 
-            if ($this->outputChangeIsOnlyTimeChange($change)) {
+            if ($this->outputChangeIsOnlyTimeChange($change) || $this->outputChangeIsSymlink($change)) {
                 continue;
             } elseif ($this->outputChangeIsNewFile($change)) {
                 $filteredOutput[] = $this->replaceChangeWithNewPrefixOnLine($line, 'New File');
@@ -202,6 +202,11 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
     private function outputChangeIsOnlyTimeChange($change)
     {
         return 'd..t....' === $change || 'f..t....' === $change;
+    }
+
+    private function outputChangeIsSymlink($change)
+    {
+        return 'L' === substr($change, 1, 1);
     }
 
     private function outputChangeIsNewFile($change)

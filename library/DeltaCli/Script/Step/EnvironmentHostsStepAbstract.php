@@ -46,10 +46,12 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
                 $failedHosts[] = $host;
             }
 
-            $output[] = $host->getHostname();
+            if (count($hostOutput)) {
+                $output[] = '<comment>' . $host->getHostname() . '</comment>';
 
-            foreach ($hostOutput as $line) {
-                $output[] = '  ' . $line;
+                foreach ($hostOutput as $line) {
+                    $output[] = '  ' . $line;
+                }
             }
         }
 
