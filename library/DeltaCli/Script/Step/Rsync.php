@@ -96,7 +96,7 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
 
         exec($command, $output, $exitStatus);
 
-        return [$output, $exitStatus];
+        return [$this->filterItemizedOutput($output), $exitStatus];
     }
 
     protected function getSuccessfulResultExplanation(array $hosts)
@@ -104,6 +104,30 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
         $message = parent::getSuccessfulResultExplanation($hosts);
         $message .= (self::DRY_RUN === $this->mode ? ' in dry run mode' : '');
         return $message;
+    }
+
+    private function filterItemizedOutput(array $rawOutput)
+    {
+        $filteredOutput = [];
+
+        foreach ($rawOutput as $line) {
+            $change = $this->parseChangeFromLine($line);
+
+            if ($this->outputChangeIsOnlyTimeChange($change)) {
+                continue;
+            } elseif ($this->outputChangeIsNewFile($change)) {
+                $filteredOutput[] = $this->replaceChangeWithNewPrefixOnLine($line, 'New File');
+            } elseif ($this->outputChangeIsNewDirectory($change)) {
+                $filteredOutput[] = $this->replaceChangeWithNewPrefixOnLine($line, 'New Dir');
+            } elseif ($this->outputChangeIsFileUpdate($change)) {
+                $filteredOutput[] = $this->replaceChangeWithNewPrefixOnLine($line, 'Update');
+            } else {
+                $filteredOutput[] = $line;
+
+            }
+        }
+
+        return $filteredOutput;
     }
 
     private function normalizePath($path)
@@ -120,5 +144,48 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
         }
 
         return implode(' ', $args);
+    }
+
+    private function outputChangeIsOnlyTimeChange($change)
+    {
+        return 'd..t....' === $change || 'f..t....' === $change;
+    }
+
+    private function outputChangeIsNewFile($change)
+    {
+        return 'f+++++++' === $change;
+    }
+
+    private function outputChangeIsNewDirectory($change)
+    {
+        return 'd+++++++' === $change;
+    }
+
+    private function outputChangeIsFileUpdate($change)
+    {
+        return 'f.s' === substr($change, 0, 3);
+    }
+
+    private function parseChangeFromLine($line, $includeDirection = false)
+    {
+        $line   = trim($line);
+        $change = substr($line, 0, strpos($line, ' '));
+
+        if (!$includeDirection) {
+            $change = substr($change, 1);
+        }
+
+        return $change;
+    }
+
+    private function replaceChangeWithNewPrefixOnLine($line, $newPrefix)
+    {
+        $dividerPosition = strpos($line, ' ');
+
+        return sprintf(
+            '%-8s %s',
+            substr($newPrefix, 0, $dividerPosition),
+            substr($line, $dividerPosition)
+        );
     }
 }
