@@ -2,10 +2,10 @@
 
 namespace DeltaCli\Command;
 
+use DeltaCli\Environment;
 use DeltaCli\Exception\MustSpecifyHostnameForShell;
 use DeltaCli\Host;
 use DeltaCli\Project;
-use DeltaCli\Script\SshFixKeyPermissions;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,23 +32,44 @@ class SshShell extends Command
             ->setName('ssh:shell')
             ->setDescription('Open a remote SSH shell.')
             ->addArgument('environment', InputArgument::REQUIRED, 'The environment where you want to open a shell.')
-            ->addOption('hostname', null, InputOption::VALUE_REQUIRED, 'The specific hostname you want to connect to.');
+            ->addOption('hostname', null, InputOption::VALUE_REQUIRED, 'The specific hostname you want to connect to.')
+            ->addOption('tunnel-via', null, InputOption::VALUE_REQUIRED, 'An environment via which to tunnel.')
+            ->addOption('tunnel-via-hostname', null, InputOption::VALUE_REQUIRED, 'The specific hostname to tunnel via.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $environment = $this->project->getEnvironment($input->getArgument('environment'));
-        $hosts       = $environment->getHosts();
-        $selected    = null;
+        $host = $this->getHostForEnvironment(
+            $input->getArgument('environment'),
+            $input->getOption('hostname')
+        );
 
         $permissionsStep = $this->project->fixSshKeyPermissions();
         $permissionsStep->run();
-        
+
+        $command = $this->assembleCommand($host);
+
+        if ($input->getOption('tunnel-via')) {
+            $tunnelHost = $this->getHostForEnvironment(
+                $input->getArgument('tunnel-via'),
+                $input->getOption('tunnel-via-hostname')
+            );
+
+            $command = $this->assembleCommand($tunnelHost, '-t', $command);
+        }
+
+        passthru($command);
+    }
+
+    private function getHostForEnvironment($environmentName, $hostname)
+    {
+        $selected    = null;
+        $environment = $this->project->getEnvironment($environmentName);
+        $hosts       = $environment->getHosts();
+
         if (1 === count($hosts)) {
             $selected = current($hosts);
         } else {
-            $hostname = $input->getOption('hostname');
-
             if (!$hostname) {
                 throw new MustSpecifyHostnameForShell(
                     "The {$environment->getName()} environment has {$hostCount} hosts, so you must"
@@ -77,14 +98,19 @@ class SshShell extends Command
             );
         }
 
-        passthru(
-            sprintf(
-                'ssh -p %s %s %s@%s',
-                escapeshellarg($selected->getSshPort()),
-                ($selected->getSshPrivateKey() ? '-i ' . escapeshellarg($selected->getSshPrivateKey()) : ''),
-                escapeshellarg($selected->getUsername()),
-                escapeshellarg($selected->getHostname())
-            )
+        return $selected;
+    }
+
+    private function assembleCommand(Host $host, $additionalFlags = '', $command = null)
+    {
+        return sprintf(
+            'ssh -p %s %s %s %s@%s %s',
+            escapeshellarg($host->getSshPort()),
+            $additionalFlags,
+            ($host->getSshPrivateKey() ? '-i ' . escapeshellarg($host->getSshPrivateKey()) : ''),
+            escapeshellarg($host->getUsername()),
+            escapeshellarg($host->getHostname()),
+            (null === $command ? '' : escapeshellarg($command))
         );
     }
 }
