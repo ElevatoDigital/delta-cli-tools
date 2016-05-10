@@ -70,7 +70,8 @@ $project->createEnvironmentScript('rsync-example', 'An example using rsync.')
     ->addStep(
         $project->rsync('library', 'delta-cli-library')
             ->exclude('excluded-file')
-    );
+    )
+    ->addStep($project->allowWritesToRemoteFolder('.'));
 
 $project->createEnvironmentScript('ssh-example', 'An example using SSH.')
     ->addStep($project->ssh('ls ~'));

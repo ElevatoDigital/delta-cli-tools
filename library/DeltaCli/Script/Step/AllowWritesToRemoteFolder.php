@@ -20,8 +20,9 @@ class AllowWritesToRemoteFolder extends EnvironmentHostsStepAbstract
     {
         $ssh = new Ssh(
             sprintf(
-                'find %s -type d -exec chmod 777 {} \\;',
-                escapeshellarg($this->remoteFolder)
+                'find %s -user %d -type d -exec chmod 777 {} \\;',
+                escapeshellarg($this->remoteFolder),
+                escapeshellarg($host->getUsername())
             )
         );
 
@@ -37,9 +38,15 @@ class AllowWritesToRemoteFolder extends EnvironmentHostsStepAbstract
         if ($this->name) {
             return $this->name;
         } else {
+            $folderName = $this->remoteFolder;
+
+            if ('.' === $folderName) {
+                $folderName = null;
+            }
+
             return sprintf(
                 'allow-writes-to-%s',
-                basename($this->remoteFolder) ?: 'remote-folder'
+                basename($folderName) ?: 'remote-folder'
             );
         }
     }
