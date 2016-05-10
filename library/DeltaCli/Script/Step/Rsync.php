@@ -35,6 +35,16 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
      */
     private $mode = self::LIVE;
 
+    /**
+     * @var bool
+     */
+    private $excludeVcs = true;
+
+    /**
+     * @var bool
+     */
+    private $excludeOsCruft = true;
+
     public function __construct($localPath, $remotePath)
     {
         $this->localPath  = $localPath;
@@ -51,6 +61,34 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
     public function exclude($path)
     {
         $this->excludes[] = $path;
+
+        return $this;
+    }
+
+    public function includeVcs()
+    {
+        $this->excludeVcs = false;
+
+        return $this;
+    }
+
+    public function excludeVcs()
+    {
+        $this->excludeVcs = true;
+
+        return $this;
+    }
+
+    public function includeOsCruft()
+    {
+        $this->excludeOsCruft = false;
+
+        return $this;
+    }
+
+    public function excludeOsCruft()
+    {
+        $this->excludeOsCruft = true;
 
         return $this;
     }
@@ -138,6 +176,19 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
     private function assembleExcludeArgs()
     {
         $args = [];
+
+        if ($this->excludeVcs) {
+            $args[] = '--cvs-exclude';
+            $args[] = '--exclude=.git';
+        }
+
+        if ($this->excludeOsCruft) {
+            $args[] = '--exclude=.DS_Store';
+            $args[] = '--exclude=.Spotlight-V100';
+            $args[] = '--exclude=.Trashes';
+            $args[] = '--exclude=ehthumbs.db';
+            $args[] = '--exclude=Thumbs.db';
+        }
 
         foreach ($this->excludes as $exclude) {
             $args[] = sprintf('--exclude=%s', escapeshellarg($exclude));
