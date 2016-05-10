@@ -51,7 +51,7 @@ class SshShell extends Command
 
         if ($input->getOption('tunnel-via')) {
             $tunnelHost = $this->getHostForEnvironment(
-                $input->getArgument('tunnel-via'),
+                $input->getOption('tunnel-via'),
                 $input->getOption('tunnel-via-hostname')
             );
 

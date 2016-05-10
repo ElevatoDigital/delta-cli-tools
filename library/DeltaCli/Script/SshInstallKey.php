@@ -39,10 +39,12 @@ class SshInstallKey extends Script
                     /* @var $host \DeltaCli\Host */
                     foreach ($this->getEnvironment()->getHosts() as $host) {
                         $this->getProject()->getOutput()->writeln(
-                            '<comment>You will be prompted for the SSH password for %s@%s several times during the '
-                            . 'installation.</comment>',
-                            $host->getUsername(),
-                            $host->getHostname()
+                            sprintf(
+                                '<comment>You will be prompted for the SSH password for %s@%s several times during the '
+                                . 'installation.</comment>',
+                                $host->getUsername(),
+                                $host->getHostname()
+                            )
                         );
                     }
                 }
