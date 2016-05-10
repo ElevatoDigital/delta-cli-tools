@@ -159,6 +159,8 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
                 $filteredOutput[] = $this->replaceChangeWithNewPrefixOnLine($line, 'New Dir');
             } elseif ($this->outputChangeIsFileUpdate($change)) {
                 $filteredOutput[] = $this->replaceChangeWithNewPrefixOnLine($line, 'Update');
+            } elseif ($this->outputChangeIsDeletion($change)) {
+                $filteredOutput[] = $this->replaceChangeWithNewPrefixOnLine($line, 'Delete');
             } else {
                 $filteredOutput[] = $line;
 
@@ -215,6 +217,11 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
     private function outputChangeIsFileUpdate($change)
     {
         return 'f.s' === substr($change, 0, 3);
+    }
+
+    private function outputChangeIsDeletion($change)
+    {
+        return 'deleting' === $change;
     }
 
     private function parseChangeFromLine($line, $includeDirection = false)
