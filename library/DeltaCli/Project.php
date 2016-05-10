@@ -8,6 +8,7 @@ use DeltaCli\Exception\ScriptNotFound;
 use DeltaCli\Extension\DefaultScripts as DefaultScriptsExtension;
 use DeltaCli\Extension\Vagrant as VagrantExtension;
 use DeltaCli\Script\Step\AllowWritesToRemoteFolder as AllowWritesToRemoteFolderStep;
+use DeltaCli\Script\Step\FixSshKeyPermissions as FixSshKeyPermissionsStep;
 use DeltaCli\Script\Step\GitBranchMatchesEnvironment as GitBranchMatchesEnvironmentStep;
 use DeltaCli\Script\Step\GitStatusIsClean as GitStatusIsCleanStep;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
@@ -251,5 +252,10 @@ class Project
     public function scp($localFile, $remoteFile)
     {
         return new ScpStep($localFile, $remoteFile);
+    }
+
+    public function fixSshKeyPermissions()
+    {
+        return new FixSshKeyPermissionsStep();
     }
 }

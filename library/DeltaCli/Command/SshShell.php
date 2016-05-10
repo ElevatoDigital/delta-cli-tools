@@ -5,6 +5,7 @@ namespace DeltaCli\Command;
 use DeltaCli\Exception\MustSpecifyHostnameForShell;
 use DeltaCli\Host;
 use DeltaCli\Project;
+use DeltaCli\Script\SshFixKeyPermissions;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -40,6 +41,9 @@ class SshShell extends Command
         $hosts       = $environment->getHosts();
         $selected    = null;
 
+        $permissionsStep = $this->project->fixSshKeyPermissions();
+        $permissionsStep->run();
+        
         if (1 === count($hosts)) {
             $selected = current($hosts);
         } else {

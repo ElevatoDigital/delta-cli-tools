@@ -5,8 +5,6 @@ namespace DeltaCli\Script;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use Exception;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class SshInstallKey extends Script
 {
@@ -25,11 +23,12 @@ class SshInstallKey extends Script
         parent::configure();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function addSteps()
     {
         $publicKey = getcwd() . '/ssh-keys/id_rsa.pub';
 
         $this
+            ->addStep($this->getProject()->getScript('ssh:fix-key-permissions'))
             ->addStep(
                 'check-for-public-key',
                 function () use ($publicKey) {
@@ -37,13 +36,11 @@ class SshInstallKey extends Script
                         throw new Exception('SSH keys have not been generated.  Run ssh:generate-keys.');
                     }
 
-                    echo 'Public key file found.' . PHP_EOL;
-
                     /* @var $host \DeltaCli\Host */
                     foreach ($this->getEnvironment()->getHosts() as $host) {
-                        printf(
-                            'You will be prompted for the SSH password for %s@%s several times during the '
-                            . 'installation.' . PHP_EOL,
+                        $this->getProject()->getOutput()->writeln(
+                            '<comment>You will be prompted for the SSH password for %s@%s several times during the '
+                            . 'installation.</comment>',
                             $host->getUsername(),
                             $host->getHostname()
                         );
@@ -65,7 +62,5 @@ class SshInstallKey extends Script
                 $this->getProject()->ssh('chmod 700 .ssh')
                     ->setName('change-ssh-folder-permissions')
             );
-
-        return parent::execute($input, $output);
     }
 }

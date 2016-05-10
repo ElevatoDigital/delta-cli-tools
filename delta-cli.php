@@ -11,9 +11,6 @@ $project->createEnvironment('staging')
     ->setSshPrivateKey(__DIR__ . '/ssh-keys/id_rsa')
     ->addHost('staging.deltasys.com');
 
-$project->getScript('deploy')->getStep('git-status-is-clean')
-    ->setEnvironments([$project->getEnvironment('production')]);
-
 $project->getScript('deploy')
     ->addStep(
         'do-stuff',

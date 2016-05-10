@@ -4,6 +4,7 @@ namespace DeltaCli\Extension;
 
 use DeltaCli\Console\Output\Banner;
 use DeltaCli\Project;
+use DeltaCli\Script\SshFixKeyPermissions as SshFixKeyPermissionsScript;
 use DeltaCli\Script\SshInstallKey as SshInstallKeyScript;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -11,10 +12,14 @@ class DefaultScripts implements ExtensionInterface
 {
     public function extend(Project $project)
     {
+        $project->addScript(new SshFixKeyPermissionsScript($project));
+        $project->addScript(new SshInstallKeyScript($project));
+
         $project->createScript('deploy', 'Deploy this project.')
             ->requireEnvironment()
             ->addDefaultStep($project->gitStatusIsClean())
             ->addDefaultStep($project->gitBranchMatchesEnvironment())
+            ->addDefaultStep($project->fixSshKeyPermissions())
             ->setPlaceholderCallback(
                 function (OutputInterface $output) {
                     $banner = new Banner($output);
@@ -29,7 +34,5 @@ class DefaultScripts implements ExtensionInterface
                     );
                 }
             );
-
-        $project->addScript(new SshInstallKeyScript($project));
     }
 }
