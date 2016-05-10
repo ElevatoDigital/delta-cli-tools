@@ -2,7 +2,6 @@
 
 namespace DeltaCli\Command;
 
-use DeltaCli\Environment;
 use DeltaCli\Exception\MustSpecifyHostnameForShell;
 use DeltaCli\Host;
 use DeltaCli\Project;
@@ -71,6 +70,8 @@ class SshShell extends Command
             $selected = current($hosts);
         } else {
             if (!$hostname) {
+                $hostCount = count($hosts);
+                
                 throw new MustSpecifyHostnameForShell(
                     "The {$environment->getName()} environment has {$hostCount} hosts, so you must"
                     . "specify which host you'd like to shell into with the hostname option."
