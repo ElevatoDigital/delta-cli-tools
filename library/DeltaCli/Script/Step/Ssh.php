@@ -45,7 +45,7 @@ class Ssh extends EnvironmentHostsStepAbstract
 
         if ($this->includeApplicationEnv) {
             $sshCommand = sprintf(
-                'APPLICATION_ENV=%s %s',
+                'export APPLICATION_ENV=%s; %s',
                 escapeshellarg($this->environment->getName()),
                 $this->command
             );
