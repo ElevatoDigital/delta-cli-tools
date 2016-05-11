@@ -15,5 +15,11 @@ interface StepInterface
 
     public function getName();
 
+    /**
+     * @param string $name
+     * @return $this
+     */
+    public function setName($name);
+
     public function appliesToEnvironment(Environment $environment);
 }

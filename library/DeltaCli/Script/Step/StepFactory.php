@@ -23,7 +23,15 @@ class StepFactory
      */
     public function factory(array $args)
     {
-        if ($this->isNamedPhpCallable($args)) {
+
+        if ($this->isNamedStepObject($args)) {
+            /* @var $step StepInterface */
+            $step = $args[1];
+            $step->setName($args[0]);
+            return $step;
+        } else if ($this->isUnnamedStepObject($args)) {
+            return $args[0];
+        } else if ($this->isNamedPhpCallable($args)) {
             return $this->createPhpCallable($args[1], $args[0]);
         } else if ($this->isUnnamedPhpCallable($args)) {
             return $this->createPhpCallable($args[0]);
@@ -33,8 +41,6 @@ class StepFactory
             return $this->createShellCommand($args[0]);
         } else if ($this->isScriptObject($args)) {
             return new Script($args[0], $this->input);
-        } else if ($this->isStepObject($args)) {
-            return $args[0];
         } else {
             throw new UnrecognizedStepInput();
         }
@@ -79,7 +85,12 @@ class StepFactory
         return isset($args[0]) && $args[0] instanceof ScriptObject;
     }
 
-    protected function isStepObject(array $args)
+    protected function isNamedStepObject(array $args)
+    {
+        return isset($args[0]) && is_string($args[0]) && isset($args[1]) && $args[1] instanceof StepInterface;
+    }
+
+    protected function isUnnamedStepObject(array $args)
     {
         return isset($args[0]) && $args[0] instanceof StepInterface;
     }
