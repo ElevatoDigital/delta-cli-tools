@@ -44,7 +44,7 @@ noting:
 
 The CLI tools project is still quite young.  In the near future, we'll be working on these additions:
 
-0. More step types.  Currently, you can add PHP callbacks and shell commands to your scripts.  We plan to add specialized steps for ~~rsync~~, checking for common issues, etc.
-0. Templates for common environments like WordPress and Zend Framework.
+0. ~~More step types.  Currently, you can add PHP callbacks and shell commands to your scripts.  We plan to add specialized steps for rsync, checking for common issues, etc.~~
+0. Templates for common environments like ~~WordPress~~ and Zend Framework.
 0. ~~Build out the environment API.  We will add things like credentials and host names to the environment objects so that script steps don't have to be specified repeatedly.~~
 0. The ability to notify people after a script has been run.
