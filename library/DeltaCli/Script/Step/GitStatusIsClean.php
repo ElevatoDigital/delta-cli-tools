@@ -2,6 +2,8 @@
 
 namespace DeltaCli\Script\Step;
 
+use DeltaCli\Exec;
+
 class GitStatusIsClean extends StepAbstract implements DryRunInterface
 {
     public function getName()
@@ -11,7 +13,7 @@ class GitStatusIsClean extends StepAbstract implements DryRunInterface
 
     public function run()
     {
-        exec('git status --porcelain 2>&1', $output, $exitStatus);
+        Exec::run('git status --porcelain 2>&1', $output, $exitStatus);
 
         if ($exitStatus) {
             return new Result($this, Result::FAILURE, $output);

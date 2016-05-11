@@ -3,6 +3,7 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Environment;
+use DeltaCli\Exec;
 
 class GitBranchMatchesEnvironment extends StepAbstract implements DryRunInterface, EnvironmentAwareInterface
 {
@@ -30,7 +31,7 @@ class GitBranchMatchesEnvironment extends StepAbstract implements DryRunInterfac
             );
         }
 
-        exec('git status --porcelain -b 2>&1', $output, $exitStatus);
+        Exec::run('git status --porcelain -b 2>&1', $output, $exitStatus);
 
         if ($exitStatus) {
             return new Result($this, Result::FAILURE, $output);

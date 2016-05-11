@@ -2,6 +2,8 @@
 
 namespace DeltaCli\Script\Step;
 
+use DeltaCli\Exec;
+
 class FixSshKeyPermissions extends StepAbstract implements DryRunInterface
 {
     public function getName()
@@ -19,13 +21,13 @@ class FixSshKeyPermissions extends StepAbstract implements DryRunInterface
         } elseif (!file_exists($privateKey)) {
             return new Result($this, Result::FAILURE, 'SSH private key not found.  Run ssh:generate-key to create it.');
         } else {
-            exec(
+            Exec::run(
                 sprintf('chmod 0600 %s', escapeshellarg($privateKey)),
                 $output,
                 $keyExitStatus
             );
 
-            exec(
+            Exec::run(
                 sprintf('chmod 0700 %s', escapeshellarg($folder)),
                 $output,
                 $folderExitStatus

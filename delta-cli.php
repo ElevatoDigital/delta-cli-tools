@@ -11,6 +11,12 @@ $project->createEnvironment('staging')
     ->setSshPrivateKey(__DIR__ . '/ssh-keys/id_rsa')
     ->addHost('staging.deltasys.com');
 
+$project->createEnvironment('example')
+    ->setUsername('bgriffith')
+    ->setSshPrivateKey(__DIR__ . '/ssh-keys/id_rsa')
+    ->addHost('brad.plumbing')
+    ->tunnelSshVia('staging');
+
 $project->getScript('deploy')
     ->addStep(
         'do-stuff',

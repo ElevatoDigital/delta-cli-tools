@@ -197,7 +197,7 @@ class Project
 
     public function createEnvironment($name)
     {
-        $environment = new Environment($name);
+        $environment = new Environment($this, $name);
         $this->environments[$name] = $environment;
         return $environment;
     }
@@ -244,9 +244,9 @@ class Project
         return new RsyncStep($localPath, $remotePath);
     }
 
-    public function ssh($command, $includeApplicationEnv = SshStep::INCLUDE_APPLICATION_ENV)
+    public function ssh($command)
     {
-        return new SshStep($command, $includeApplicationEnv);
+        return new SshStep($command);
     }
 
     public function scp($localFile, $remoteFile)

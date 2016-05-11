@@ -29,10 +29,25 @@ class Host
      */
     private $sshPort = 22;
 
+    /**
+     * @var SshTunnel
+     */
+    private $sshTunnel;
+
+    /**
+     * @var Host
+     */
+    private $tunnelHost;
+
     public function __construct($hostname, Environment $environment)
     {
         $this->hostname    = $hostname;
         $this->environment = $environment;
+    }
+
+    public function getEnvironment()
+    {
+        return $this->environment;
     }
 
     public function hasRequirementsForSshUse()
@@ -79,5 +94,44 @@ class Host
     public function getSshPort()
     {
         return $this->sshPort;
+    }
+
+    public function getTunnelHost()
+    {
+        return $this->tunnelHost ?: $this->environment->getTunnelHost();
+    }
+
+    /**
+     * @param string|null $command
+     * @param string|null $additionalFlags
+     * @param bool $isTunnel
+     * @return SshCommand
+     */
+    public function assembleSshCommand(
+        $command = null,
+        $includeApplicationEnv = SshCommand::INCLUDE_APPLICATION_ENV,
+        $isTunnel = false
+    ) {
+        $sshCommand = new SshCommand($this);
+
+        $sshCommand
+            ->setCommand($command)
+            ->setIncludeApplicationEnv($includeApplicationEnv)
+            ->setIsTunnel($isTunnel);
+
+        if ($this->getTunnelHost()) {
+            $sshCommand->setTunnelHost($this->getTunnelHost());
+        }
+
+        return $sshCommand->getWrappedCommand();
+    }
+
+    public function getSshTunnel()
+    {
+        if (!$this->sshTunnel) {
+            $this->sshTunnel = new SshTunnel($this);
+        }
+
+        return $this->sshTunnel;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Command;
 
+use DeltaCli\Debug;
 use DeltaCli\Exception\MustSpecifyHostnameForShell;
 use DeltaCli\Host;
 use DeltaCli\Project;
@@ -31,9 +32,7 @@ class SshShell extends Command
             ->setName('ssh:shell')
             ->setDescription('Open a remote SSH shell.')
             ->addArgument('environment', InputArgument::REQUIRED, 'The environment where you want to open a shell.')
-            ->addOption('hostname', null, InputOption::VALUE_REQUIRED, 'The specific hostname you want to connect to.')
-            ->addOption('tunnel-via', null, InputOption::VALUE_REQUIRED, 'An environment via which to tunnel.')
-            ->addOption('tunnel-via-hostname', null, InputOption::VALUE_REQUIRED, 'The specific hostname to tunnel via.');
+            ->addOption('hostname', null, InputOption::VALUE_REQUIRED, 'The specific hostname you want to connect to.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -46,17 +45,8 @@ class SshShell extends Command
         $permissionsStep = $this->project->fixSshKeyPermissions();
         $permissionsStep->run();
 
-        $command = $this->assembleCommand($host);
-
-        if ($input->getOption('tunnel-via')) {
-            $tunnelHost = $this->getHostForEnvironment(
-                $input->getOption('tunnel-via'),
-                $input->getOption('tunnel-via-hostname')
-            );
-
-            $command = $this->assembleCommand($tunnelHost, '-t', $command);
-        }
-
+        $command = $host->assembleSshCommand(null)->setAdditionalFlags('-t');
+        Debug::log("Opening SSH shell with `{$command}`...");
         passthru($command);
     }
 
@@ -71,7 +61,7 @@ class SshShell extends Command
         } else {
             if (!$hostname) {
                 $hostCount = count($hosts);
-                
+
                 throw new MustSpecifyHostnameForShell(
                     "The {$environment->getName()} environment has {$hostCount} hosts, so you must"
                     . "specify which host you'd like to shell into with the hostname option."
@@ -100,18 +90,5 @@ class SshShell extends Command
         }
 
         return $selected;
-    }
-
-    private function assembleCommand(Host $host, $additionalFlags = '', $command = null)
-    {
-        return sprintf(
-            'ssh -p %s %s %s %s@%s %s',
-            escapeshellarg($host->getSshPort()),
-            $additionalFlags,
-            ($host->getSshPrivateKey() ? '-i ' . escapeshellarg($host->getSshPrivateKey()) : ''),
-            escapeshellarg($host->getUsername()),
-            escapeshellarg($host->getHostname()),
-            (null === $command ? '' : escapeshellarg($command))
-        );
     }
 }

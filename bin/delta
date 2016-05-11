@@ -16,6 +16,7 @@ use DeltaCli\Command\SshShell;
 use DeltaCli\ComposerVersion;
 use DeltaCli\Console\Output\Banner;
 use DeltaCli\Exception\ConsoleOutputInterface;
+use DeltaCli\Debug;
 use DeltaCli\Project;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Application;
@@ -29,6 +30,8 @@ try {
 
     $composerVersion = new ComposerVersion(VENDOR_PATH);
     $application->setVersion($composerVersion->getCurrentVersion());
+
+    Debug::createSingletonInstance($output);
 
     $application->setCatchExceptions(false);
     $application->setName($project->getName());

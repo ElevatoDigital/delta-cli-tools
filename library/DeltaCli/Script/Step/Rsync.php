@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Script\Step;
 
+use DeltaCli\Exec;
 use DeltaCli\Host;
 
 class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
@@ -120,19 +121,25 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
 
     public function runOnHost(Host $host)
     {
+        $tunnel = $host->getSshTunnel();
+
+        $tunnel->setUp();
+
         $command = sprintf(
             'rsync %s %s %s -az --no-p -i -e %s %s %s@%s:%s 2>&1',
             (self::DRY_RUN === $this->mode ? '--dry-run' : ''),
             $this->assembleExcludeArgs(),
             ($this->delete ? '--delete' : ''),
-            escapeshellarg(sprintf('ssh -i %s -p %d', $host->getSshPrivateKey(), $host->getSshPort())),
+            escapeshellarg($tunnel->getCommand()),
             escapeshellarg($this->normalizePath($this->localPath)),
-            escapeshellarg($host->getUsername()),
-            escapeshellarg($host->getHostname()),
+            escapeshellarg($tunnel->getUsername()),
+            escapeshellarg($tunnel->getHostname()),
             escapeshellarg($this->normalizePath($this->remotePath))
         );
 
-        exec($command, $output, $exitStatus);
+        Exec::run($command, $output, $exitStatus);
+
+        $tunnel->tearDown();
 
         return [$this->filterItemizedOutput($output), $exitStatus];
     }

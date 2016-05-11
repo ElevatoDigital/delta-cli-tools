@@ -2,6 +2,8 @@
 
 namespace DeltaCli\Script\Step;
 
+use DeltaCli\Exec;
+
 class ShellCommand extends StepAbstract
 {
     /**
@@ -43,7 +45,7 @@ class ShellCommand extends StepAbstract
             $command .= ' 2>&1';
         }
 
-        exec($command, $output, $exitStatus);
+        Exec::run($command, $output, $exitStatus);
 
         if (!$exitStatus) {
             return new Result($this, Result::SUCCESS, $output);

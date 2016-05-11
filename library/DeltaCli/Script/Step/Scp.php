@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Script\Step;
 
+use DeltaCli\Exec;
 use DeltaCli\Host;
 
 class Scp extends EnvironmentHostsStepAbstract
@@ -36,18 +37,20 @@ class Scp extends EnvironmentHostsStepAbstract
 
     public function runOnHost(Host $host)
     {
+        $tunnel = $host->getSshTunnel();
+
         $command = sprintf(
             'scp %s -P %s %s %s %s@%s:%s 2>&1',
             ($host->getSshPrivateKey() ? '-i ' . escapeshellarg($host->getSshPrivateKey()) : ''),
-            escapeshellarg($host->getSshPort()),
+            escapeshellarg($tunnel->getPort()),
             (is_dir($this->localFile) ? '-r' : ''),
             escapeshellarg($this->localFile),
-            escapeshellarg($host->getUsername()),
-            escapeshellarg($host->getHostname()),
+            escapeshellarg($tunnel->getUsername()),
+            escapeshellarg($tunnel->getHostname()),
             escapeshellarg($this->remoteFile)
         );
 
-        exec($command, $output, $exitStatus);
+        Exec::run($command, $output, $exitStatus);
 
         return [$output, $exitStatus];
     }
