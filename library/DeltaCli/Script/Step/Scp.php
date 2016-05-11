@@ -39,6 +39,8 @@ class Scp extends EnvironmentHostsStepAbstract
     {
         $tunnel = $host->getSshTunnel();
 
+        $tunnel->setUp();
+
         $command = sprintf(
             'scp %s -P %s %s %s %s %s@%s:%s 2>&1',
             ($host->getSshPrivateKey() ? '-i ' . escapeshellarg($host->getSshPrivateKey()) : ''),
@@ -53,6 +55,8 @@ class Scp extends EnvironmentHostsStepAbstract
 
         Exec::run($command, $output, $exitStatus);
 
+        $tunnel->tearDown();
+        
         return [$output, $exitStatus];
     }
 }

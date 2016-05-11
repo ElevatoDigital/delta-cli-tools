@@ -28,7 +28,11 @@ class Ssh extends EnvironmentHostsStepAbstract
 
     public function runOnHost(Host $host)
     {
-        Exec::run($host->assembleSshCommand($this->command), $output, $exitStatus);
+        $tunnel = $host->getSshTunnel();
+        $tunnel->setUp();
+        Exec::run($tunnel->assembleSshCommand($this->command), $output, $exitStatus);
+        $tunnel->tearDown();
+
         return [$output, $exitStatus];
     }
 }

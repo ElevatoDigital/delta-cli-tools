@@ -45,9 +45,14 @@ class SshShell extends Command
         $permissionsStep = $this->project->fixSshKeyPermissions();
         $permissionsStep->run();
 
-        $command = $host->assembleSshCommand(null)->setAdditionalFlags('-t');
+        $tunnel = $host->getSshTunnel();
+        $tunnel->setUp();
+
+        $command = $tunnel->assembleSshCommand(null, '-t');
         Debug::log("Opening SSH shell with `{$command}`...");
         passthru($command);
+
+        $tunnel->tearDown();
     }
 
     private function getHostForEnvironment($environmentName, $hostname)

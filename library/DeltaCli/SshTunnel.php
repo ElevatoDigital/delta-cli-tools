@@ -4,12 +4,6 @@ namespace DeltaCli;
 
 class SshTunnel
 {
-    private static $procOpenPipeDescriptors = [
-        0 => ['pipe', 'r'],
-        1 => ['pipe', 'w'],
-        2 => ['pipe', 'w']
-    ];
-
     /**
      * @var Host
      */
@@ -31,7 +25,7 @@ class SshTunnel
     private $tunnelPort;
 
     /**
-     * @var resource
+     * @var int
      */
     private $sshProcess;
 
@@ -47,8 +41,8 @@ class SshTunnel
 
     public function tunnelConnectionsForHost(Host $host, $tunnelUsername)
     {
-        $this->tunnelConnectionForHost = $host;
-        $this->tunnelUsername          = ($tunnelUsername ?: $host->getUsername());
+        $this->tunnelConnectionsForHost = $host;
+        $this->tunnelUsername           = ($tunnelUsername ?: $host->getUsername());
 
         return $this;
     }
@@ -92,7 +86,7 @@ class SshTunnel
     public function getSshOptions()
     {
         if ('localhost' === $this->getHostname()) {
-            return '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet';
+            return '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=error';
         } else {
             return '';
         }
@@ -109,8 +103,15 @@ class SshTunnel
         if ($this->tunnelConnectionsForHost) {
             $this->tunnelPort = $this->findAvailableLocalPort();
 
+            $keyFlag = '';
+
+            if ($this->host->getSshPrivateKey()) {
+                $keyFlag = '-i ' . escapeshellarg($this->host->getSshPrivateKey());
+            }
+
             $command = sprintf(
-                'ssh -f %s@%s -L %d:%s:22 -N',
+                'ssh %s %s@%s -L %d:%s:22 -N > /dev/null 2&>1 & echo $!',
+                $keyFlag,
                 escapeshellarg($this->host->getUsername()),
                 escapeshellarg($this->host->getHostname()),
                 $this->tunnelPort,
@@ -119,8 +120,9 @@ class SshTunnel
 
             Debug::log("Opening SSH tunnel with `{$command}`...");
 
-            $this->sshProcess = proc_open($command, self::$procOpenPipeDescriptors, $pipes);
-            $this->sshPipes   = $pipes;
+            $this->sshProcess = shell_exec($command);
+
+            $this->waitUntilTunnelIsOpen();
         }
     }
 
@@ -133,11 +135,55 @@ class SshTunnel
         if ($this->sshProcess) {
             Debug::log("Tearing down SSH tunnel for {$this->tunnelConnectionsForHost->getHostname()}.");
 
-            fclose($this->sshPipes[0]);
-            fclose($this->sshPipes[1]);
-            fclose($this->sshPipes[2]);
+            posix_kill($this->sshProcess, '-9');
+        }
+    }
 
-            proc_close($this->sshProcess);
+    public function assembleSshCommand($command = null, $additionalFlags = '', $includeApplicationEnv = true)
+    {
+        $keyFlag = '';
+
+        if ($this->host->getSshPrivateKey()) {
+            $keyFlag = '-i ' . escapeshellarg($this->host->getSshPrivateKey());
+        }
+
+        if (null !== $command) {
+            $command = sprintf(
+                '%s%s',
+                ($includeApplicationEnv ? $this->getApplicationEnvVar() : ''),
+                $command
+            );
+        }
+
+        return sprintf(
+            'ssh %s -p %s %s %s %s@%s %s',
+            $this->getSshOptions(),
+            escapeshellarg($this->getPort()),
+            $additionalFlags,
+            $keyFlag,
+            escapeshellarg($this->getUsername()),
+            escapeshellarg($this->getHostname()),
+            (null === $command ? '' : escapeshellarg($command))
+        );
+    }
+
+    public function getApplicationEnvVar()
+    {
+        return sprintf('export APPLICATION_ENV=%s; ', $this->host->getEnvironment()->getName());
+    }
+
+    private function waitUntilTunnelIsOpen()
+    {
+        $waitedIterations = 0;
+
+        while (!$this->someoneAlreadyListeningOnPort($this->tunnelPort)) {
+            usleep(500);
+
+            $waitedIterations += 1;
+
+            if (100 < $waitedIterations) {
+                break;
+            }
         }
     }
 
@@ -158,14 +204,14 @@ class SshTunnel
 
     private function someoneAlreadyListeningOnPort($portNumber)
     {
-        $connection = stream_socket_client("tcp://localhost:{$portNumber}", $errorNumber, $errorString);
+        $connection = @stream_socket_client("tcp://localhost:{$portNumber}", $errorNumber, $errorString);
 
         if ($errorString) {
-            return true;
+            return false;
         }
 
         fclose($connection);
 
-        return false;
+        return true;
     }
 }
