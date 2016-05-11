@@ -110,7 +110,7 @@ class SshTunnel
             }
 
             $command = sprintf(
-                'ssh %s %s@%s -L %d:%s:22 -N > /dev/null 2&>1 & echo $!',
+                'ssh %s %s@%s -L %d:%s:22 -N > /dev/null 2>&1 & echo $!',
                 $keyFlag,
                 escapeshellarg($this->host->getUsername()),
                 escapeshellarg($this->host->getHostname()),
