@@ -73,8 +73,13 @@ class SshTunnel
         if ($this->host->getTunnelHost()) {
             return $this->host->getTunnelHost()->getSshTunnel()->getCommand();
         } else {
-            return sprintf('ssh -p %d', $this->getPort());
+            return sprintf('ssh -p %d %s', $this->getPort(), $this->getSshOptions());
         }
+    }
+
+    public function getSshOptions()
+    {
+        return '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet';
     }
 
     public function setUp()

@@ -81,3 +81,6 @@ $project->createEnvironmentScript('rsync-example', 'An example using rsync.')
 
 $project->createEnvironmentScript('ssh-example', 'An example using SSH.')
     ->addStep($project->ssh('ls ~'));
+
+$project->createEnvironmentScript('scp-example', 'An example using scp.')
+    ->addStep($project->scp('delta-cli.php', 'delta-cli-via-scp.php'));

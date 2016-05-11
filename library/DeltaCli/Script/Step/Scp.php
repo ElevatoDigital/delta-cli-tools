@@ -40,10 +40,11 @@ class Scp extends EnvironmentHostsStepAbstract
         $tunnel = $host->getSshTunnel();
 
         $command = sprintf(
-            'scp %s -P %s %s %s %s@%s:%s 2>&1',
+            'scp %s -P %s %s %s %s %s@%s:%s 2>&1',
             ($host->getSshPrivateKey() ? '-i ' . escapeshellarg($host->getSshPrivateKey()) : ''),
             escapeshellarg($tunnel->getPort()),
             (is_dir($this->localFile) ? '-r' : ''),
+            $tunnel->getSshOptions(),
             escapeshellarg($this->localFile),
             escapeshellarg($tunnel->getUsername()),
             escapeshellarg($tunnel->getHostname()),
