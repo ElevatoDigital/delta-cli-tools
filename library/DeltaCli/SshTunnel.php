@@ -55,17 +55,29 @@ class SshTunnel
 
     public function getPort()
     {
-        return $this->tunnelPort ?: $this->host->getSshPort();
+        if ($this->host->getTunnelHost()) {
+            return $this->host->getTunnelHost()->getSshTunnel()->getPort();
+        } else {
+            return $this->tunnelPort ?: $this->host->getSshPort();
+        }
     }
 
     public function getUsername()
     {
-        return $this->tunnelUsername ?: $this->host->getUsername();
+        if ($this->host->getTunnelHost()) {
+            return $this->host->getTunnelHost()->getSshTunnel()->getUsername();
+        } else {
+            return $this->tunnelUsername ?: $this->host->getUsername();
+        }
     }
 
     public function getHostname()
     {
-        return $this->tunnelPort ? 'localhost' : $this->host->getHostname();
+        if ($this->host->getTunnelHost()) {
+            return $this->host->getTunnelHost()->getSshTunnel()->getHostname();
+        } else {
+            return $this->tunnelPort ? 'localhost' : $this->host->getHostname();
+        }
     }
 
     public function getCommand()
@@ -79,7 +91,11 @@ class SshTunnel
 
     public function getSshOptions()
     {
-        return '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet';
+        if ('localhost' === $this->getHostname()) {
+            return '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=quiet';
+        } else {
+            return '';
+        }
     }
 
     public function setUp()
