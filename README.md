@@ -2,6 +2,9 @@
 
 Command-line tools used at Delta Systems for common development workflow needs.
 
+Video introduction:
+https://www.youtube.com/watch?v=lm4iAuW4sIk&feature=youtu.be
+
 ## Installation
 
 Watch the brief installation tutorial video if you'd like a bit more help getting Composer installed globally and added to your shell's $PATH: https://youtu.be/JTM429G2fps.
