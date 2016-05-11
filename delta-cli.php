@@ -73,7 +73,8 @@ $project->createScript('composing-scripts', 'An example of calling one script fr
     ->addStep($project->getScript('custom-script'));
 
 $project->createEnvironmentScript('inline-naming-of-step', 'Shows naming a step via argument to addStep().')
-    ->addStep('custom-step-name', $project->ssh('ls'));
+    ->addStep('custom-step-name', $project->ssh('ls'))
+    ->addEnvironmentSpecificStep('example', 'for-environment-steps-too', $project->ssh('ls'));
 
 $project->createEnvironmentScript('rsync-example', 'An example using rsync.')
     ->addStep(
