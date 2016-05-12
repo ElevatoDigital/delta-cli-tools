@@ -29,11 +29,6 @@ class SshTunnel
      */
     private $sshProcess;
 
-    /**
-     * @var array
-     */
-    private $sshPipes;
-
     public function __construct(Host $host)
     {
         $this->host = $host;
@@ -79,7 +74,12 @@ class SshTunnel
         if ($this->host->getTunnelHost()) {
             return $this->host->getTunnelHost()->getSshTunnel()->getCommand();
         } else {
-            return sprintf('ssh -p %d %s', $this->getPort(), $this->getSshOptions());
+            return sprintf(
+                'ssh -p %d -i %s %s',
+                $this->getPort(),
+                escapeshellarg($this->host->getSshPrivateKey()),
+                $this->getSshOptions()
+            );
         }
     }
 
