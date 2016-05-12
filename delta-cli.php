@@ -14,8 +14,7 @@ $project->createEnvironment('staging')
 $project->createEnvironment('example')
     ->setUsername('bgriffith')
     ->setSshPrivateKey(__DIR__ . '/ssh-keys/id_rsa')
-    ->addHost('brad.plumbing')
-    ->tunnelSshVia('staging');
+    ->addHost('brad.plumbing');
 
 $project->getScript('deploy')
     ->addStep(
@@ -112,7 +111,7 @@ $project->createEnvironmentScript('rsync-example', 'An example using rsync.')
         $project->rsync('library', 'delta-cli-library')
             ->exclude('excluded-file')
     )
-    ->addStep($project->allowWritesToRemoteFolder('.'));
+    ->addStep($project->allowWritesToRemoteFolder('delta-cli-library'));
 
 $project->createEnvironmentScript('ssh-example', 'An example using SSH.')
     ->addStep($project->ssh('ls ~'));

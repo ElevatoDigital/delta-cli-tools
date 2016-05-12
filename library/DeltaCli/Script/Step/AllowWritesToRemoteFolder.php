@@ -20,7 +20,8 @@ class AllowWritesToRemoteFolder extends EnvironmentHostsStepAbstract
     {
         $ssh = new Ssh(
             sprintf(
-                'find %s -user %s -type d -exec chmod 777 {} \\; 2>&1',
+                'mkdir -p %s && find %s -user %s -type d -exec chmod 777 {} \\; 2>&1',
+                escapeshellarg($this->remoteFolder),
                 escapeshellarg($this->remoteFolder),
                 escapeshellarg($host->getUsername())
             )
