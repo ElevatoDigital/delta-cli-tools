@@ -84,4 +84,118 @@ class ProjectText extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('1.20.0', $this->project->getMinimumVersionRequired());
     }
+
+    public function testCanCreateAScriptAndThenRetrieveItFromTheProject()
+    {
+        $this->project->createScript('test', 'Test script description.')
+            ->addStep('add-step', 'ls');
+
+        $this->assertInstanceOf(
+            '\DeltaCli\Script\Step\ShellCommand',
+            $this->project->getScript('test')->getStep('add-step')
+        );
+    }
+
+    public function testCanSetAndGetProjectName()
+    {
+        $input  = new ArgvInput();
+        $output = new ConsoleOutput();
+
+        /* @var $project \PHPUnit_Framework_MockObject_MockObject|Project */
+        $project = $this->getMock(
+            '\DeltaCli\Project',
+            ['configFileExists'],
+            [$input, $output]
+        );
+
+        $project->expects($this->any())
+            ->method('configFileExists')
+            ->willReturn(false);
+
+        $project->setName('Test');
+        $this->assertEquals('Test', $project->getName());
+    }
+
+    public function testGetNameWillLoadProjectConfigFile()
+    {
+        $input  = new ArgvInput();
+        $output = new ConsoleOutput();
+
+        /* @var $project \PHPUnit_Framework_MockObject_MockObject|Project */
+        $project = $this->getMock(
+            '\DeltaCli\Project',
+            ['configFileExists', 'loadConfigFile'],
+            [$input, $output]
+        );
+
+        $project->expects($this->any())
+            ->method('configFileExists')
+            ->willReturn(true);
+
+        $project->expects($this->once())
+            ->method('loadConfigFile');
+
+        $project->getName();
+    }
+
+    public function testGetScriptsWillLoadProjectConfigFileAndReturnScriptsArray()
+    {
+        $input  = new ArgvInput();
+        $output = new ConsoleOutput();
+
+        /* @var $project \PHPUnit_Framework_MockObject_MockObject|Project */
+        $project = $this->getMock(
+            '\DeltaCli\Project',
+            ['configFileExists', 'loadConfigFile'],
+            [$input, $output]
+        );
+
+        $project->expects($this->any())
+            ->method('configFileExists')
+            ->willReturn(true);
+
+        $project->expects($this->once())
+            ->method('loadConfigFile');
+
+        $project->createScript('test', 'Script to test for.');
+
+        $scripts = $project->getScripts();
+
+        $this->assertTrue(is_array($scripts));
+
+        $foundTestScript = false;
+
+        /* @var $script Script */
+        foreach ($scripts as $script) {
+            if ('test' === $script->getName()) {
+                $foundTestScript = true;
+            }
+        }
+
+        $this->assertTrue($foundTestScript);
+    }
+
+    public function testCanCreateEnvironment()
+    {
+        $this->assertFalse($this->project->hasEnvironment('test'));
+        $this->assertInstanceOf('\DeltaCli\Environment', $this->project->createEnvironment('test'));
+        $this->assertTrue($this->project->hasEnvironment('test'));
+        $this->assertInstanceOf('\DeltaCli\Environment', $this->project->getEnvironment('test'));
+    }
+
+    /**
+     * @expectedException \DeltaCli\Exception\EnvironmentNotFound
+     */
+    public function testAttemptingToGetNonExistentEnvironmentThrowsException()
+    {
+        $this->project->getEnvironment('test');
+    }
+
+    /**
+     * @expectedException \DeltaCli\Exception\ScriptNotFound
+     */
+    public function testAttemptingToGetNonExistentScriptThrowsException()
+    {
+        $this->project->getScript('test');
+    }
 }
