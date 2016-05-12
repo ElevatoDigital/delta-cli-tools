@@ -51,6 +51,37 @@ $project->getScript('deploy')
         }
     );
 
+$project->createScript('dry-runs-for-php-and-shell-commands', 'Custom steps can also support dry runs.')
+    ->addStep(
+        'shell-command-with-dry-run',
+        $project->shellCommandSupportingDryRun(
+            // Perform actual work
+            'touch /tmp/important-file && cp /tmp/important-file /tmp/ultimate-destination',
+            // Do something non-destructive when in dry-run mode
+            'ls -l /tmp/important-file'
+        )
+    )
+    ->addStep(
+        'php-callable-with-dry-run',
+        $project->phpCallableSupportingDryRun(
+            // Perform actual work
+            function () {
+                file_put_contents(
+                    '/tmp/file-to-write',
+                    'Hey there!'
+                );
+            },
+            // Do something non-destructive when in dry-run mode
+            function () {
+                if (!file_exists('/tmp/file-to-write')) {
+                    echo 'file-to-write does not yet exist.' . PHP_EOL;
+                } else {
+                    echo 'file-to-write already exists.' . PHP_EOL;
+                }
+            }
+        )
+    );
+
 $project->createScript('custom-script', 'Just an example custom script.')
     ->addStep(
         function () {
