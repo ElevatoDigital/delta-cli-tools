@@ -1,3 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+define('VENDOR_PATH', realpath(__DIR__ . '/../vendor'));
+
+require_once VENDOR_PATH . '/autoload.php';
+
