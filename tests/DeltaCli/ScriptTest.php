@@ -4,10 +4,116 @@ namespace DeltaCli;
 
 use PHPUnit_Framework_TestCase;
 use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
+
 
 class ScriptTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var BufferedOutput
+     */
+    private $output;
+
+    /**
+     * @var Script
+     */
+    private $script;
+
+    /**
+     * @var Project
+     */
+    private $project;
+
+    public function setUp()
+    {
+        $input = new ArgvInput();
+
+        $this->output  = new BufferedOutput();
+        $this->project = new Project($input, $this->output);
+        $this->script  = new Script($this->project, 'Test', 'Test Script');
+    }
+
+    public function testDryRunSkipsStepsThatDoNotSupportIt()
+    {
+        $noDryRunSupport = false;
+
+        $this->script->addStep(
+            function () use (&$noDryRunSupported) {
+                $noDryRunSupported = true;
+            }
+        );
+
+        $this->script->dryRun($this->project->getOutput());
+
+        $this->assertFalse($noDryRunSupport);
+        $this->assertContains(Script::NO_DRY_RUN_SUPPORT_EXPLANATION, $this->output->fetch());
+    }
+
+    public function testDryRunMethodOfSupportedStepsIsCalledByScriptDryRun()
+    {
+        $mainCalled   = false;
+        $dryRunCalled = false;
+
+        $this->script->addStep(
+            $this->project->phpCallableSupportingDryRun(
+                function () use (&$mainCalled) {
+                    $mainCalled = true;
+                },
+                function () use (&$dryRunCalled) {
+                    $dryRunCalled = true;
+                }
+            )
+        );
+
+        $this->script->dryRun($this->project->getOutput());
+
+        $this->assertFalse($mainCalled);
+        $this->assertTrue($dryRunCalled);
+    }
+
+    public function testAllExecutionMethodsGetStepsForTheSelectedEnvironment()
+    {
+        /* @var $script Script|\PHPUnit_Framework_MockObject_MockObject */
+        $script = $this->getMock(
+            '\DeltaCli\Script',
+            ['getStepsForEnvironment'],
+            [$this->project, 'run', 'Runs steps.']
+        );
+
+        $script->expects($this->once())
+            ->method('getStepsForEnvironment')
+            ->will($this->returnValue([]));
+
+        $script->runSteps($this->output);
+
+        /* @var $script Script|\PHPUnit_Framework_MockObject_MockObject */
+        $script = $this->getMock(
+            '\DeltaCli\Script',
+            ['getStepsForEnvironment'],
+            [$this->project, 'dry-run', 'Does dry run.']
+        );
+
+        $script->expects($this->once())
+            ->method('getStepsForEnvironment')
+            ->will($this->returnValue([]));
+
+        $script->dryRun($this->output);
+
+        /* @var $script Script|\PHPUnit_Framework_MockObject_MockObject */
+        $script = $this->getMock(
+            '\DeltaCli\Script',
+            ['getStepsForEnvironment'],
+            [$this->project, 'list-steps', 'Lists steps.']
+        );
+
+        $script->expects($this->once())
+            ->method('getStepsForEnvironment')
+            ->will($this->returnValue([]));
+
+        $script->listSteps($this->output);
+    }
+
     /**
      * @expectedException \DeltaCli\Exception\RequiredVersionNotInstalled
      */
@@ -57,5 +163,177 @@ class ScriptTest extends PHPUnit_Framework_TestCase
         $script = new Script($project, 'Test', 'Test Script');
         $script->setComposerVersionReader($versionMock);
         $this->assertTrue($script->checkRequiredVersionForProject());
+    }
+
+    public function testCanSetEnvironmentUsingString()
+    {
+        $this->project->createEnvironment('test');
+        $this->script->setEnvironment('test');
+        $this->assertEquals('test', $this->script->getEnvironment()->getName());
+    }
+
+    public function testGetStepsForEnvironmentOnlyIncludesStepsForSelectedEnvironment()
+    {
+        $this->project->createEnvironment('test');
+        $this->project->createEnvironment('other-env');
+        $this->script->setEnvironment('test');
+
+        $this->script
+            ->addStep('global-step', 'fafafa')
+            ->addEnvironmentSpecificStep('test', 'environment-step', 'fafafa')
+            ->addEnvironmentSpecificStep('other-env', 'excluded-step', 'fafafa');
+
+        $globalStepFound      = false;
+        $excludedStepFound    = false;
+        $environmentStepFound = false;
+
+        /* @var $step \DeltaCli\Script\Step\StepInterface */
+        foreach ($this->script->getStepsForEnvironment() as $step) {
+            if ('global-step' === $step->getName()) {
+                $globalStepFound = true;
+            }
+
+            if ('environment-step' === $step->getName()) {
+                $environmentStepFound = true;
+            }
+
+            if ('excluded-step' === $step->getName()) {
+                $excludedStepFound = true;
+            }
+        }
+
+        $this->assertTrue($globalStepFound);
+        $this->assertFalse($excludedStepFound);
+        $this->assertTrue($environmentStepFound);
+    }
+
+    /**
+     * @expectedException \DeltaCli\Exception\EnvironmentNotAvailableForStep
+     */
+    public function testExceptionIsThrownIfStepRequiresEnvironmentAndNoneIsSet()
+    {
+        $this->script->addStep($this->project->ssh('ls'));
+        $this->script->getStepsForEnvironment();
+    }
+
+    public function testSelectedEnvironmentIsSetOnStepsThatAcceptIt()
+    {
+        $this->project->createEnvironment('test');
+        $this->script->setEnvironment('test');
+
+        $this->project->createScript('other-script', 'Other script for test.');
+
+        /* @var $requiredStep \DeltaCli\Script\Step\Ssh|\PHPUnit_Framework_MockObject_MockObject */
+        $requiredStep = $this->getMock(
+            '\DeltaCli\Script\Step\Ssh',
+            ['setSelectedEnvironment'],
+            ['ls']
+        );
+
+        $requiredStep->expects($this->once())
+            ->method('setSelectedEnvironment');
+
+        /* @var $requiredStep \DeltaCli\Script\Step\Ssh|\PHPUnit_Framework_MockObject_MockObject */
+        $optionalStep = $this->getMock(
+            '\DeltaCli\Script\Step\Script',
+            ['setSelectedEnvironment'],
+            [$this->project->getScript('other-script'), $this->project->getInput()]
+        );
+
+        $optionalStep->expects($this->once())
+            ->method('setSelectedEnvironment');
+
+        $this->script
+            ->addStep('required', $requiredStep)
+            ->addStep('optional', $optionalStep);
+
+        $this->script->getStepsForEnvironment();
+    }
+
+    public function testListStepsOnScriptListsAllStepNamesAndClasses()
+    {
+        $this->script
+            ->addStep('step-one', 'ls')
+            ->addStep(
+                'step-two',
+                function () {
+
+                }
+            );
+
+        $this->script->listSteps($this->output);
+
+        $output = $this->output->fetch();
+
+        $this->assertContains('step-one', $output);
+        $this->assertContains('step-two', $output);
+        $this->assertContains('ShellCommand', $output);
+        $this->assertContains('PhpCallable', $output);
+
+        // Full class name shouldn't be there.  Just the last segment of it.
+        $this->assertNotContains('DeltaCli\\Script\\Step', $output);
+    }
+
+    public function testExecutionWillStopAtFailedStepByDefault()
+    {
+        $firstStepCalled      = false;
+        $subsequentStepCalled = false;
+
+        $this->script
+            ->addStep(
+                'first-step',
+                function () use (&$firstStepCalled) {
+                    $firstStepCalled = true;
+                }
+            )
+            ->addStep(
+                'failing-step',
+                function () {
+                    throw new \Exception('Oops!');
+                }
+            )
+            ->addStep(
+                'next-step',
+                function () use (&$subsequentStepCalled) {
+                    $subsequentStepCalled = true;
+                }
+            );
+
+        $this->script->runSteps($this->output);
+
+        $this->assertTrue($firstStepCalled);
+        $this->assertFalse($subsequentStepCalled);
+    }
+
+    public function testExecutionWillContinueBeyondFailedStepIfSoConfigured()
+    {
+        $firstStepCalled      = false;
+        $subsequentStepCalled = false;
+
+        $this->script
+            ->setStopOnFailure(false)
+            ->addStep(
+                'first-step',
+                function () use (&$firstStepCalled) {
+                    $firstStepCalled = true;
+                }
+            )
+            ->addStep(
+                'failing-step',
+                function () {
+                    throw new \Exception('Oops!');
+                }
+            )
+            ->addStep(
+                'next-step',
+                function () use (&$subsequentStepCalled) {
+                    $subsequentStepCalled = true;
+                }
+            );
+
+        $this->script->runSteps($this->output);
+
+        $this->assertTrue($firstStepCalled);
+        $this->assertTrue($subsequentStepCalled);
     }
 }

@@ -20,6 +20,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Script extends Command
 {
+    const NO_DRY_RUN_SUPPORT_EXPLANATION = 'because it does not support dry runs';
+
     /**
      * @var Project
      */
@@ -223,6 +225,11 @@ class Script extends Command
         return $this->project;
     }
 
+    /**
+     * @param mixed $environment
+     * @return $this
+     * @throws Exception\EnvironmentNotFound
+     */
     public function setEnvironment($environment)
     {
         if (is_string($environment)) {
@@ -328,7 +335,7 @@ class Script extends Command
         foreach ($this->getStepsForEnvironment() as $step) {
             if (!$step instanceof DryRunInterface) {
                 $result = new Result($step, Result::SKIPPED);
-                $result->setExplanation('because it does not support dry runs');
+                $result->setExplanation(self::NO_DRY_RUN_SUPPORT_EXPLANATION);
             } else {
                 $result = $step->dryRun();
 
@@ -347,7 +354,7 @@ class Script extends Command
         foreach ($this->getStepsForEnvironment() as $step) {
             $classSuffix = get_class($step);
 
-            if (false !== strpos('\\', $classSuffix)) {
+            if (false !== strpos($classSuffix, '\\')) {
                 $classSuffix = substr($classSuffix, strrpos($classSuffix, '\\') + 1);
             }
 
@@ -366,6 +373,45 @@ class Script extends Command
         $this->stopOnFailure = $stopOnFailure;
 
         return $this;
+    }
+
+    public function getStepsForEnvironment()
+    {
+        if (!$this->addStepsRun) {
+            $this->addSteps();
+            $this->addStepsRun = true;
+        }
+
+        $stepsForEnvironment = [];
+
+        /* @var $step StepInterface|EnvironmentAwareInterface */
+        foreach ($this->steps as $step) {
+            if ($this->environment && !$step->appliesToEnvironment($this->environment)) {
+                continue;
+            }
+
+            if ($step instanceof EnvironmentAwareInterface) {
+                if (!$this->environment) {
+                    $stepClass   = get_class($step);
+                    $scriptClass = get_class($this);
+
+                    throw new EnvironmentNotAvailableForStep(
+                        "{$stepClass} needs an environment but {$this->getName()} ({$scriptClass}) "
+                        . 'does not have one set.'
+                    );
+                }
+
+                $step->setSelectedEnvironment($this->environment);
+            }
+
+            if ($this->environment && $step instanceof EnvironmentOptionalInterface) {
+                $step->setSelectedEnvironment($this->environment);
+            }
+
+            $stepsForEnvironment[] = $step;
+        }
+
+        return $stepsForEnvironment;
     }
 
     public function checkRequiredVersionForProject()
@@ -411,45 +457,6 @@ class Script extends Command
     private function stepShouldBeSkipped(StepInterface $step)
     {
         return in_array($step->getName(), $this->skippedSteps);
-    }
-
-    private function getStepsForEnvironment()
-    {
-        if (!$this->addStepsRun) {
-            $this->addSteps();
-            $this->addStepsRun = true;
-        }
-
-        $stepsForEnvironment = [];
-
-        /* @var $step StepInterface|EnvironmentAwareInterface */
-        foreach ($this->steps as $step) {
-            if ($this->environment && !$step->appliesToEnvironment($this->environment)) {
-                continue;
-            }
-
-            if ($step instanceof EnvironmentAwareInterface) {
-                if (!$this->environment) {
-                    $stepClass   = get_class($step);
-                    $scriptClass = get_class($this);
-
-                    throw new EnvironmentNotAvailableForStep(
-                        "{$stepClass} needs an environment but {$this->getName()} ({$scriptClass}) "
-                        . 'does not have one set.'
-                    );
-                }
-
-                $step->setSelectedEnvironment($this->environment);
-            }
-
-            if ($this->environment && $step instanceof EnvironmentOptionalInterface) {
-                $step->setSelectedEnvironment($this->environment);
-            }
-
-            $stepsForEnvironment[] = $step;
-        }
-
-        return $stepsForEnvironment;
     }
 
     private function inflectSetterFromOptionName($name)

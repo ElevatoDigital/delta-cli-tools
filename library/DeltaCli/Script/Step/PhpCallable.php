@@ -46,6 +46,9 @@ class PhpCallable extends StepAbstract
 
             $result = new Result($this, Result::SUCCESS, $output);
         } catch (Exception $e) {
+            // Close output buffer left open due to exception being thrown
+            ob_get_clean();
+
             $exceptionClass = get_class($e);
 
             $result = new Result(
