@@ -77,4 +77,11 @@ class ProjectText extends PHPUnit_Framework_TestCase
         $this->assertNotContains($mainCommand, $resultOutput);
         $this->assertContains($dryRunCommand, $resultOutput);
     }
+
+    public function testCanSpecifyRequiredVersion()
+    {
+        $this->project->requiresVersion('1.20.0');
+
+        $this->assertEquals('1.20.0', $this->project->getMinimumVersionRequired());
+    }
 }

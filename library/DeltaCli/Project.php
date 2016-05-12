@@ -53,6 +53,11 @@ class Project
      */
     private $configFileLoaded = false;
 
+    /**
+     * @var string
+     */
+    private $minimumVersionRequired;
+
     public function __construct(InputInterface $input, OutputInterface $output)
     {
         $this->input  = $input;
@@ -63,6 +68,18 @@ class Project
 
         $vagrantExtension = new VagrantExtension();
         $vagrantExtension->extend($this);
+    }
+
+    public function requiresVersion($minimumVersionRequired)
+    {
+        $this->minimumVersionRequired = $minimumVersionRequired;
+
+        return $this;
+    }
+
+    public function getMinimumVersionRequired()
+    {
+        return $this->minimumVersionRequired;
     }
 
     public function getInput()

@@ -4,6 +4,7 @@ namespace DeltaCli;
 
 use DeltaCli\Console\Output\Banner;
 use DeltaCli\Exception\EnvironmentNotAvailableForStep;
+use DeltaCli\Exception\RequiredVersionNotInstalled;
 use DeltaCli\Exception\SetterNotPresentForScriptOption;
 use DeltaCli\Script\Step\DryRunInterface;
 use DeltaCli\Script\Step\EnvironmentAwareInterface;
@@ -75,6 +76,11 @@ class Script extends Command
     private $placeholderCallback;
 
     /**
+     * @var ComposerVersion
+     */
+    private $composerVersionReader;
+
+    /**
      * Script constructor.
      * @param Project $project
      * @param $name
@@ -87,8 +93,9 @@ class Script extends Command
 
         $this->setDescription($description);
 
-        $this->project = $project;
-        $this->stepFactory = ($stepFactory ?: new StepFactory($this->project->getInput()));
+        $this->project               = $project;
+        $this->stepFactory           = ($stepFactory ?: new StepFactory($this->project->getInput()));
+        $this->composerVersionReader = new ComposerVersion();
 
         $this->init();
     }
@@ -101,6 +108,13 @@ class Script extends Command
     protected function addSteps()
     {
 
+    }
+
+    public function setComposerVersionReader(ComposerVersion $composerVersionReader)
+    {
+        $this->composerVersionReader = $composerVersionReader;
+
+        return $this;
     }
 
     public function requireEnvironment()
@@ -185,6 +199,8 @@ class Script extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->checkRequiredVersionForProject();
+
         if (!count($this->steps) && $this->placeholderCallback) {
             $placeholderCallback = $this->placeholderCallback;
             $placeholderCallback($output);
@@ -350,6 +366,22 @@ class Script extends Command
         $this->stopOnFailure = $stopOnFailure;
 
         return $this;
+    }
+
+    public function checkRequiredVersionForProject()
+    {
+        if ($this->project->getMinimumVersionRequired()) {
+            $requiredVersion = $this->project->getMinimumVersionRequired();
+            $currentVersion  = $this->composerVersionReader->getCurrentVersion();
+
+            if ('git' !== $currentVersion && version_compare($currentVersion, $requiredVersion, '<')) {
+                $exception = new RequiredVersionNotInstalled();
+                $exception->setRequiredVersion($requiredVersion);
+                throw $exception;
+            }
+        }
+
+        return true;
     }
 
     private function addDefaultSteps()

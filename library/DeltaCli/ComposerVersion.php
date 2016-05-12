@@ -6,8 +6,12 @@ class ComposerVersion
 {
     private $vendorPath;
 
-    public function __construct($vendorPath)
+    public function __construct($vendorPath = null)
     {
+        if (null === $vendorPath && defined('VENDOR_PATH')) {
+            $vendorPath = VENDOR_PATH;
+        }
+        
         $this->vendorPath = $vendorPath;
     }
 
