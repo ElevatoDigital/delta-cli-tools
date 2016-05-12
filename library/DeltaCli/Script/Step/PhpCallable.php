@@ -10,7 +10,7 @@ class PhpCallable extends StepAbstract
     /**
      * @var callable
      */
-    private $callable;
+    protected $callable;
 
     public function __construct(callable $callable)
     {
@@ -19,9 +19,29 @@ class PhpCallable extends StepAbstract
 
     public function run()
     {
+        return $this->runCallable($this->callable);
+    }
+
+    public function getName()
+    {
+        if ($this->name) {
+            return $this->name;
+        } else if (is_array($this->callable)) {
+            return $this->generateNameForArrayCallable($this->callable);
+        } else if (is_string($this->callable)) {
+            return $this->callable;
+        } else if ($this->callable instanceof Closure) {
+            return 'PHP Closure';
+        } else {
+            return 'PHP Callback';
+        }
+    }
+
+    protected function runCallable(callable $callable)
+    {
         try {
             ob_start();
-            call_user_func($this->callable);
+            call_user_func($callable);
             $output = ob_get_clean();
 
             $result = new Result($this, Result::SUCCESS, $output);
@@ -39,21 +59,6 @@ class PhpCallable extends StepAbstract
         }
 
         return $result;
-    }
-
-    public function getName()
-    {
-        if ($this->name) {
-            return $this->name;
-        } else if (is_array($this->callable)) {
-            return $this->generateNameForArrayCallable($this->callable);
-        } else if (is_string($this->callable)) {
-            return $this->callable;
-        } else if ($this->callable instanceof Closure) {
-            return 'PHP Closure';
-        } else {
-            return 'PHP Callback';
-        }
     }
 
     private function generateNameForArrayCallable(array $callable)

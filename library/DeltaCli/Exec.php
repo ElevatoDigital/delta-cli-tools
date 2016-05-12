@@ -20,7 +20,7 @@ class Exec
         self::$instance->runCommand($command, $output, $exitStatus);
     }
 
-    public function runCommand($command, &$output, $exitStatus)
+    public function runCommand($command, &$output, &$exitStatus)
     {
         Debug::log("Running `{$command}`...");
 

@@ -9,7 +9,7 @@ class ShellCommand extends StepAbstract
     /**
      * @var string
      */
-    private $command;
+    protected $command;
 
     /**
      * @var bool
@@ -39,14 +39,17 @@ class ShellCommand extends StepAbstract
 
     public function run()
     {
-        $command = $this->command;
+        return $this->runCommand($this->command);
+    }
 
+    protected function runCommand($command)
+    {
         if ($this->captureStdErr) {
             $command .= ' 2>&1';
         }
 
-        Exec::run($command, $output, $exitStatus);
-
+        $this->exec($command, $output, $exitStatus);
+        
         if (!$exitStatus) {
             return new Result($this, Result::SUCCESS, $output);
         } else {
@@ -54,5 +57,10 @@ class ShellCommand extends StepAbstract
             $result->setExplanation(" with an exit status of {$exitStatus}");
             return $result;
         }
+    }
+
+    protected function exec($command, &$output, &$exitStatus)
+    {
+        Exec::run($command, $output, $exitStatus);
     }
 }

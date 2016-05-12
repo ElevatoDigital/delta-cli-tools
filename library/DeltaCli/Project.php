@@ -11,8 +11,10 @@ use DeltaCli\Script\Step\AllowWritesToRemoteFolder as AllowWritesToRemoteFolderS
 use DeltaCli\Script\Step\FixSshKeyPermissions as FixSshKeyPermissionsStep;
 use DeltaCli\Script\Step\GitBranchMatchesEnvironment as GitBranchMatchesEnvironmentStep;
 use DeltaCli\Script\Step\GitStatusIsClean as GitStatusIsCleanStep;
+use DeltaCli\Script\Step\PhpCallableSupportingDryRun as PhpCallableSupportingDryRunStep;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
 use DeltaCli\Script\Step\Scp as ScpStep;
+use DeltaCli\Script\Step\ShellCommandSupportingDryRun as ShellCommandSupportingDryRunStep;
 use DeltaCli\Script\Step\Ssh as SshStep;
 use DeltaCli\Template\TemplateInterface;
 use DeltaCli\Template\WordPress as WordPressTemplate;
@@ -229,6 +231,11 @@ class Project
         return new AllowWritesToRemoteFolderStep($remoteFolder);
     }
 
+    public function fixSshKeyPermissions()
+    {
+        return new FixSshKeyPermissionsStep();
+    }
+
     public function gitStatusIsClean()
     {
         return new GitStatusIsCleanStep();
@@ -239,14 +246,24 @@ class Project
         return new GitBranchMatchesEnvironmentStep();
     }
 
+    public function phpCallableSupportingDryRun(callable $callable, callable $dryRunCallable)
+    {
+        return new PhpCallableSupportingDryRunStep($callable, $dryRunCallable);
+    }
+
+    public function phpCallbackSupportingDryRun(callable $callback, callable $dryRunCallback)
+    {
+        return $this->phpCallableSupportingDryRun($callback, $dryRunCallback);
+    }
+
     public function rsync($localPath, $remotePath)
     {
         return new RsyncStep($localPath, $remotePath);
     }
 
-    public function ssh($command)
+    public function shellCommandSupportingDryRun($command, $dryRunCommand)
     {
-        return new SshStep($command);
+        return new ShellCommandSupportingDryRunStep($command, $dryRunCommand);
     }
 
     public function scp($localFile, $remoteFile)
@@ -254,8 +271,8 @@ class Project
         return new ScpStep($localFile, $remoteFile);
     }
 
-    public function fixSshKeyPermissions()
+    public function ssh($command)
     {
-        return new FixSshKeyPermissionsStep();
+        return new SshStep($command);
     }
 }

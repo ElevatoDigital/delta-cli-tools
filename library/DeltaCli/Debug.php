@@ -28,6 +28,10 @@ class Debug
 
     public static function log($message)
     {
+        if (!self::$instance) {
+            return;
+        }
+
         self::$instance->writeLog($message);
     }
 
@@ -36,7 +40,7 @@ class Debug
         if ($this->output->getVerbosity() !== OutputInterface::VERBOSITY_DEBUG) {
             return;
         }
-        
+
         if (!is_array($message)) {
             $message = [$message];
         }
