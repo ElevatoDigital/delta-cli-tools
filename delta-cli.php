@@ -14,7 +14,8 @@ $project->createEnvironment('staging')
 $project->createEnvironment('example')
     ->setUsername('bgriffith')
     ->setSshPrivateKey(__DIR__ . '/ssh-keys/id_rsa')
-    ->addHost('brad.plumbing');
+    ->addHost('brad.plumbing')
+    ->tunnelSshVia('staging');
 
 $project->getScript('deploy')
     ->addStep(
