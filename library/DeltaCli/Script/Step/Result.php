@@ -67,11 +67,9 @@ class Result
     {
         $output->writeln(
             sprintf(
-                '<fg=%s>%s %s%s.</>',
+                '<fg=%s>%s</>',
                 $this->getStatusColor(),
-                $this->step->getName(),
-                $this->getStatusMessage(),
-                $this->explanation ? ' ' . $this->explanation : ''
+                $this->getMessageText()
             )
         );
 
@@ -85,6 +83,16 @@ class Result
 
             $output->writeln($indentedOutput);
         }
+    }
+
+    public function getMessageText()
+    {
+        return sprintf(
+            '%s %s%s.',
+            $this->step->getName(),
+            $this->getStatusMessage(),
+            $this->explanation ? ' ' . $this->explanation : ''
+        );
     }
 
     public function isFailure()

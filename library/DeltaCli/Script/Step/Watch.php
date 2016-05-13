@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Script\Step;
 
+use DeltaCli\Exec;
 use DeltaCli\Script as ScriptObject;
 use DeltaCli\Script\Step\Script as ScriptStep;
 use Symfony\Component\Console\Input\InputInterface;
@@ -59,7 +60,25 @@ class Watch extends StepAbstract
                 $path,
                 function () {
                     $scriptStep = new ScriptStep($this->script, $this->input);
-                    $scriptStep->run()->render($this->output);
+                    $result     = $scriptStep->run();
+
+                    $result->render($this->output);
+
+                    // Display notifications on OS X
+                    Exec::run(
+                        sprintf(
+                            'osascript -e %s',
+                            escapeshellarg(
+                                sprintf(
+                                    'display notification "%s" with title "%s"',
+                                    $result->getMessageText(),
+                                    $this->script->getName()
+                                )
+                            )
+                        ),
+                        $output,
+                        $exitStatus
+                    );
                 }
             );
         }
