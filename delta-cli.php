@@ -95,6 +95,15 @@ $project->createScript('custom-script', 'Just an example custom script.')
         }
     );
 
+$project->createScript('git-status', 'Run git status.')
+    ->addStep('git-status', 'git status');
+
+$project->createScript('watch', 'Watch for changes and run git status')
+    ->addStep(
+        $project->watch($project->getScript('git-status'))
+            ->addPath('library/DeltaCli')
+    );
+
 $project->createScript('composing-scripts', 'An example of calling one script from another.')
     ->addStep(
         function () {

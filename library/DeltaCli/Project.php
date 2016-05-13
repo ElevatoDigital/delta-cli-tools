@@ -16,6 +16,7 @@ use DeltaCli\Script\Step\Rsync as RsyncStep;
 use DeltaCli\Script\Step\Scp as ScpStep;
 use DeltaCli\Script\Step\ShellCommandSupportingDryRun as ShellCommandSupportingDryRunStep;
 use DeltaCli\Script\Step\Ssh as SshStep;
+use DeltaCli\Script\Step\Watch as WatchStep;
 use DeltaCli\Template\TemplateInterface;
 use DeltaCli\Template\WordPress as WordPressTemplate;
 use Symfony\Component\Console\Input\InputInterface;
@@ -291,5 +292,14 @@ class Project
     public function ssh($command)
     {
         return new SshStep($command);
+    }
+
+    public function watch($script)
+    {
+        if (is_string($script)) {
+            $script = $this->getScript($script);
+        }
+        
+        return new WatchStep($script, $this->input, $this->output);
     }
 }
