@@ -40,11 +40,7 @@ class InstallFsevents extends Script
             ->addStep(
                 'check-for-phpize',
                 function () {
-                    if (!file_exists('/usr/bin/phpize') || !is_executable('/usr/bin/phpize')) {
-                        throw new Exception(
-                            'phpize is required to build fsevents.  Run xcode-select --install to install it.'
-                        );
-                    }
+                    exec('xcode-select --install');
                 }
             )
             ->addStep(
