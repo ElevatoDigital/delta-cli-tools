@@ -4,6 +4,7 @@ namespace DeltaCli\Extension;
 
 use DeltaCli\Console\Output\Banner;
 use DeltaCli\Project;
+use DeltaCli\Script\InstallFsevents;
 use DeltaCli\Script\SshFixKeyPermissions as SshFixKeyPermissionsScript;
 use DeltaCli\Script\SshInstallKey as SshInstallKeyScript;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -12,6 +13,7 @@ class DefaultScripts implements ExtensionInterface
 {
     public function extend(Project $project)
     {
+        $project->addScript(new InstallFsevents($project));
         $project->addScript(new SshFixKeyPermissionsScript($project));
         $project->addScript(new SshInstallKeyScript($project));
 
