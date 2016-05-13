@@ -101,6 +101,7 @@ $project->createScript('run-tests', 'Run PHPUnit tests.')
 $project->createScript('watch-tests', 'Watch for changes and run git status')
     ->addStep(
         $project->watch($project->getScript('run-tests'))
+            ->setOnlyNotifyOnFailure(true)
             ->addPath('library/DeltaCli')
             ->addPath('tests')
     );
