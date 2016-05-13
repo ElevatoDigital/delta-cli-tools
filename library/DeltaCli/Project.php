@@ -299,7 +299,7 @@ class Project
         if (is_string($script)) {
             $script = $this->getScript($script);
         }
-        
-        return new WatchStep($script, $this->input, $this->output);
+
+        return new WatchStep($script);
     }
 }
