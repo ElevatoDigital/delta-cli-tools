@@ -60,6 +60,15 @@ class Watch extends StepAbstract
         return 'watch';
     }
 
+    public function addPaths(array $paths)
+    {
+        foreach ($paths as $path) {
+            $this->addPath($path);
+        }
+
+        return $this;
+    }
+
     public function addPath($path)
     {
         $this->paths[] = $path;

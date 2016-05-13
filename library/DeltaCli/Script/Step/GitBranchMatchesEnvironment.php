@@ -19,6 +19,12 @@ class GitBranchMatchesEnvironment extends StepAbstract implements DryRunInterfac
 
     public function run()
     {
+        if ($this->environment->isDevEnvironment()) {
+            $result = new Result($this, Result::SKIPPED);
+            $result->setExplanation("because {$this->environment->getName()} is a dev environment.");
+            return $result;
+        }
+
         if (!$this->environment->getGitBranch()) {
             return new Result(
                 $this,

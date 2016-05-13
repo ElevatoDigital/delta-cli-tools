@@ -43,6 +43,11 @@ class Environment
      */
     private $tunnelHost;
 
+    /**
+     * @var bool
+     */
+    private $isDevEnvironment = false;
+
     public function __construct(Project $project, $name)
     {
         $this->project = $project;
@@ -76,6 +81,23 @@ class Environment
     public function getSshPrivateKey()
     {
         return $this->sshPrivateKey;
+    }
+
+    public function setIsDevEnvironment($isDevEnvironment)
+    {
+        $this->isDevEnvironment = $isDevEnvironment;
+
+        return $this;
+    }
+
+    public function isDevEnvironment()
+    {
+        return $this->isDevEnvironment;
+    }
+
+    public function getIsDevEnvironment()
+    {
+        return $this->isDevEnvironment;
     }
 
     public function addHost($hostname, $username = null, $sshPrivateKey = null)

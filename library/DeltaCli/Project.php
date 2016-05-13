@@ -11,6 +11,7 @@ use DeltaCli\Script\Step\AllowWritesToRemoteFolder as AllowWritesToRemoteFolderS
 use DeltaCli\Script\Step\FixSshKeyPermissions as FixSshKeyPermissionsStep;
 use DeltaCli\Script\Step\GitBranchMatchesEnvironment as GitBranchMatchesEnvironmentStep;
 use DeltaCli\Script\Step\GitStatusIsClean as GitStatusIsCleanStep;
+use DeltaCli\Script\Step\IsDevEnvironment as IsDevEnvironmentStep;
 use DeltaCli\Script\Step\PhpCallableSupportingDryRun as PhpCallableSupportingDryRunStep;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
 use DeltaCli\Script\Step\Scp as ScpStep;
@@ -262,6 +263,11 @@ class Project
     public function gitBranchMatchesEnvironment()
     {
         return new GitBranchMatchesEnvironmentStep();
+    }
+
+    public function isDevEnvironment()
+    {
+        return new IsDevEnvironmentStep();
     }
 
     public function phpCallableSupportingDryRun(callable $callable, callable $dryRunCallable)

@@ -51,6 +51,8 @@ class WordPress implements TemplateInterface
             $deployScript = $project->getScript('deploy');
         }
 
+        $watchPaths = [];
+
         if ($project->hasEnvironment('production')) {
             $deployScript->addEnvironmentSpecificStep('production', $project->ssh('backup'));
         }
@@ -63,6 +65,8 @@ class WordPress implements TemplateInterface
                 $project->rsync($localPath, $remotePath)
                     ->setName("sync-{$theme}-theme")
             );
+
+            $watchPaths[] = $localPath;
         }
 
         foreach ($this->syncedPlugins as $plugin) {
@@ -73,12 +77,26 @@ class WordPress implements TemplateInterface
                 $project->rsync($localPath, $remotePath)
                     ->setName("sync-{$plugin}-plugin")
             );
+
+            $watchPaths[] = $localPath;
         }
 
         $deployScript->addStep(
             $project->allowWritesToRemoteFolder("{$this->remoteWordPressRoot}/wp-content/uploads")
                 ->setName('change-upload-folder-permissions')
         );
+
+        $watchScript = $project->createEnvironmentScript(
+            'watch-dev',
+            'Watch for changes in synced plugins and themes and automatically deploy to dev environments.'
+        );
+
+        $watchScript
+            ->addStep($project->isDevEnvironment())
+            ->addStep(
+                $project->watch($project->getScript('deploy'))
+                    ->addPaths($watchPaths)
+            );
     }
 
     public function getLocalWordPressRoot()
