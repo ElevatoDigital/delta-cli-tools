@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Script\Step;
 
+use DeltaCli\Environment;
 use DeltaCli\Exception\FseventsExtensionNotInstalled;
 use DeltaCli\Exec;
 use DeltaCli\Project;
@@ -10,7 +11,7 @@ use DeltaCli\Script\Step\Script as ScriptStep;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Watch extends StepAbstract
+class Watch extends StepAbstract implements EnvironmentOptionalInterface
 {
     /**
      * @var ScriptObject
@@ -47,6 +48,11 @@ class Watch extends StepAbstract
      */
     private $onlyNotifyOnFailure = false;
 
+    /**
+     * @var Environment
+     */
+    private $environment;
+
     public function __construct(ScriptObject $script)
     {
         $this->script  = $script;
@@ -58,6 +64,13 @@ class Watch extends StepAbstract
     public function getName()
     {
         return 'watch';
+    }
+
+    public function setSelectedEnvironment(Environment $environment)
+    {
+        $this->environment = $environment;
+
+        return $this;
     }
 
     public function addPaths(array $paths)
@@ -93,7 +106,7 @@ class Watch extends StepAbstract
     public function run()
     {
         if (!extension_loaded('fsevents')) {
-            throw new FseventsExtensionNotInstalled('fsevents module is required to watch for filesystem chagnes.');
+            throw new FseventsExtensionNotInstalled('fsevents module is required to watch for filesystem changes.');
         }
 
         $previousRunFailed = false;
@@ -102,8 +115,15 @@ class Watch extends StepAbstract
             fsevents_add_watch(
                 $path,
                 function () use (&$previousRunFailed) {
+                    $this->output->writeln("<comment>Running {$this->script->getName()} script...</comment>");
+
                     $scriptStep = new ScriptStep($this->script, $this->input);
-                    $result     = $scriptStep->run();
+
+                    if ($this->environment) {
+                        $scriptStep->setSelectedEnvironment($this->environment);
+                    }
+
+                    $result = $scriptStep->run();
 
                     $result->render($this->output);
 

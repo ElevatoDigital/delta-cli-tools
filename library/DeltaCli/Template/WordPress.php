@@ -90,7 +90,7 @@ class WordPress implements TemplateInterface
             'watch-dev',
             'Watch for changes in synced plugins and themes and automatically deploy to dev environments.'
         );
-
+        
         $watchScript
             ->addStep($project->isDevEnvironment())
             ->addStep(

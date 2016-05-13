@@ -28,7 +28,7 @@ class GitStatusIsClean extends StepAbstract implements DryRunInterface, Environm
     {
         if ($this->environment && $this->environment->isDevEnvironment()) {
             $result = new Result($this, Result::SKIPPED);
-            $result->setExplanation("because {$this->environment->getName()} is a dev environment.");
+            $result->setExplanation("because {$this->environment->getName()} is a dev environment");
             return $result;
         }
 
