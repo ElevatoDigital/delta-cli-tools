@@ -20,10 +20,17 @@ class RequiredVersionNotInstalled extends Exception implements ConsoleOutputInte
         return $this;
     }
 
+    public function hasBanner()
+    {
+        return true;
+    }
+
     public function outputToConsole(OutputInterface $output)
     {
         $banner = new Banner($output);
-        $banner->render('Required Delta CLI version not installed.');
+        $banner
+            ->setBackground('red')
+            ->render('Required Delta CLI version not installed.');
 
         $output->writeln(
             [

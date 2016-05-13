@@ -7,6 +7,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UnrecognizedStepInput extends Exception implements ConsoleOutputInterface
 {
+    public function hasBanner()
+    {
+        return false;
+    }
+    
     public function outputToConsole(OutputInterface $output)
     {
         $output->writeln(

@@ -42,9 +42,11 @@ try {
     $application->addCommands($project->getScripts());
     $application->run($input, $output);
 } catch (Exception $e) {
-    $banner = new Banner($output);
-    $banner->setBackground('red');
-    $banner->render(get_class($e));
+    if ($e instanceof ConsoleOutputInterface && !$e->hasBanner()) {
+        $banner = new Banner($output);
+        $banner->setBackground('red');
+        $banner->render(get_class($e));
+    }
 
     if ($e instanceof ConsoleOutputInterface) {
         $e->outputToConsole($output);

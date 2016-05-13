@@ -16,6 +16,11 @@ class EnvironmentNotFound extends Exception implements ConsoleOutputInterface
         return $this;
     }
 
+    public function hasBanner()
+    {
+        return false;
+    }
+
     public function outputToConsole(OutputInterface $output)
     {
         $output->writeln(
