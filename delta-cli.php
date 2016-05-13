@@ -95,13 +95,14 @@ $project->createScript('custom-script', 'Just an example custom script.')
         }
     );
 
-$project->createScript('git-status', 'Run git status.')
-    ->addStep('git-status', 'git status');
+$project->createScript('run-tests', 'Run PHPUnit tests.')
+    ->addStep('phpunit', 'phpunit -c tests/phpunit.xml tests/');
 
-$project->createScript('watch', 'Watch for changes and run git status')
+$project->createScript('watch-tests', 'Watch for changes and run git status')
     ->addStep(
-        $project->watch($project->getScript('git-status'))
+        $project->watch($project->getScript('run-tests'))
             ->addPath('library/DeltaCli')
+            ->addPath('tests')
     );
 
 $project->createScript('composing-scripts', 'An example of calling one script from another.')
