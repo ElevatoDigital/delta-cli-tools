@@ -336,4 +336,50 @@ class ScriptTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($firstStepCalled);
         $this->assertTrue($subsequentStepCalled);
     }
+
+    public function testPreRunHookIsCalledBeforeRunningSteps()
+    {
+        $step = $this->getMock('\DeltaCli\Script\Step\StepInterface');
+
+        $step->expects($this->once())
+            ->method('preRun');
+
+        $step->expects($this->once())
+            ->method('run');
+
+        $this->script->addStep($step);
+
+        $this->script->runSteps($this->script->getProject()->getOutput());
+    }
+
+    public function testPostRunHookIsCalledAfterRunningSteps()
+    {
+        $step = $this->getMock('\DeltaCli\Script\Step\StepInterface');
+
+        $step->expects($this->once())
+            ->method('run');
+
+        $step->expects($this->once())
+            ->method('postRun');
+
+        $this->script->addStep($step);
+
+        $this->script->runSteps($this->script->getProject()->getOutput());
+    }
+
+    public function testAddStepHookIsCalledWhenAddingAnotherStep()
+    {
+        $stepOne = $this->getMock('\DeltaCli\Script\Step\StepInterface');
+        $stepTwo = $this->getMock('\DeltaCli\Script\Step\StepInterface');
+
+        $stepOne->expects($this->once())
+            ->method('addStepToScript')
+            ->with($this->script, $stepTwo);
+
+        $this->script
+            ->addStep($stepOne)
+            ->addStep($stepTwo);
+
+        $this->script->runSteps($this->script->getProject()->getOutput());
+    }
 }
