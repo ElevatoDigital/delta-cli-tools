@@ -277,7 +277,16 @@ class Script extends Command
     public function addStep()
     {
         $this->addDefaultSteps();
-        $this->steps[] = $this->stepFactory->factory(func_get_args());
+
+        $newStep = $this->stepFactory->factory(func_get_args());
+
+        /* @var $step StepInterface */
+        foreach ($this->steps as $step) {
+            $step->addStepToScript($this, $newStep);
+        }
+
+        $this->steps[] = $newStep;
+
         return $this;
     }
 
@@ -299,8 +308,15 @@ class Script extends Command
     {
         $scriptResult = Result::SUCCESS;
 
+        $steps = $this->getStepsForEnvironment();
+
         /* @var $step StepInterface */
-        foreach ($this->getStepsForEnvironment() as $step) {
+        foreach ($steps as $step) {
+            $step->preRun($this);
+        }
+
+        /* @var $step StepInterface */
+        foreach ($steps as $step) {
             if ($this->stepShouldBeSkipped($step)) {
                 $result = new Result($step, Result::SKIPPED);
                 $result->setExplanation("at the user's request");
@@ -324,6 +340,11 @@ class Script extends Command
                 $banner->render('Halting script execution due to failure of previous step.');
                 break;
             }
+        }
+
+        /* @var $step StepInterface */
+        foreach ($steps as $step) {
+            $step->postRun($this);
         }
 
         return $scriptResult;

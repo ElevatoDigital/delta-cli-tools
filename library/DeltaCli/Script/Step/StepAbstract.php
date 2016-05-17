@@ -3,6 +3,7 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Environment;
+use DeltaCli\Script;
 
 abstract class StepAbstract implements StepInterface
 {
@@ -34,6 +35,21 @@ abstract class StepAbstract implements StepInterface
         $this->name = $name;
 
         return $this;
+    }
+
+    public function preRun(Script $script)
+    {
+
+    }
+
+    public function addStepToScript(Script $script, StepInterface $step)
+    {
+
+    }
+
+    public function postRun(Script $script)
+    {
+
     }
 
     public function appliesToEnvironment(Environment $selectedEnvironment)

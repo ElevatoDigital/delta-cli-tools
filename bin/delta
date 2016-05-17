@@ -9,6 +9,10 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 
 require_once VENDOR_PATH . '/autoload.php';
 
+if (!ini_get('date.timezone')) {
+    date_default_timezone_set('America/Chicago');
+}
+
 use DeltaCli\Command\CreateProjectConfig;
 use DeltaCli\Command\ListEnvironments;
 use DeltaCli\Command\SshKeyGen;

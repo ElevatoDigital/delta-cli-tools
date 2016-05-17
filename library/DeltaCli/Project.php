@@ -7,11 +7,14 @@ use DeltaCli\Exception\ProjectNotConfigured;
 use DeltaCli\Exception\ScriptNotFound;
 use DeltaCli\Extension\DefaultScripts as DefaultScriptsExtension;
 use DeltaCli\Extension\Vagrant as VagrantExtension;
+use DeltaCli\FileWatcher\FileWatcherInterface;
+use DeltaCli\FileWatcher\FileWatcherFactory;
 use DeltaCli\Script\Step\AllowWritesToRemoteFolder as AllowWritesToRemoteFolderStep;
 use DeltaCli\Script\Step\FixSshKeyPermissions as FixSshKeyPermissionsStep;
 use DeltaCli\Script\Step\GitBranchMatchesEnvironment as GitBranchMatchesEnvironmentStep;
 use DeltaCli\Script\Step\GitStatusIsClean as GitStatusIsCleanStep;
 use DeltaCli\Script\Step\IsDevEnvironment as IsDevEnvironmentStep;
+use DeltaCli\Script\Step\LogAndSendNotifications as LogAndSendNotificationsStep;
 use DeltaCli\Script\Step\PhpCallableSupportingDryRun as PhpCallableSupportingDryRunStep;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
 use DeltaCli\Script\Step\Scp as ScpStep;
@@ -29,6 +32,11 @@ class Project
      * @var string
      */
     private $name = 'Delta Systems CLI Tools';
+
+    /**
+     * @var array
+     */
+    private $recipients = [];
 
     /**
      * @var array
@@ -59,6 +67,11 @@ class Project
      * @var string
      */
     private $minimumVersionRequired;
+
+    /**
+     * @var FileWatcherInterface
+     */
+    private $fileWatcher;
 
     public function __construct(InputInterface $input, OutputInterface $output)
     {
@@ -211,6 +224,23 @@ class Project
         return $this->getScript('deploy');
     }
 
+    public function getRecipients()
+    {
+        return $this->recipients;
+    }
+
+    public function createRecipient()
+    {
+        return new NotificationRecipient($this);
+    }
+
+    public function addRecipient(NotificationRecipient $recipient)
+    {
+        $this->recipients[] = $recipient;
+
+        return $this;
+    }
+
     public function getEnvironments()
     {
         return $this->environments;
@@ -245,6 +275,15 @@ class Project
         return $this->environments[$name];
     }
 
+    public function getFileWatcher()
+    {
+        if (!$this->fileWatcher) {
+            $this->fileWatcher = FileWatcherFactory::factory($this->input, $this->output);
+        }
+
+        return $this->fileWatcher;
+    }
+
     public function allowWritesToRemoteFolder($remoteFolder)
     {
         return new AllowWritesToRemoteFolderStep($remoteFolder);
@@ -268,6 +307,11 @@ class Project
     public function isDevEnvironment()
     {
         return new IsDevEnvironmentStep();
+    }
+
+    public function logAndSendNotifications()
+    {
+        return new LogAndSendNotificationsStep($this);
     }
 
     public function phpCallableSupportingDryRun(callable $callable, callable $dryRunCallable)
@@ -306,6 +350,6 @@ class Project
             $script = $this->getScript($script);
         }
 
-        return new WatchStep($script);
+        return new WatchStep($script, $this->getFileWatcher());
     }
 }

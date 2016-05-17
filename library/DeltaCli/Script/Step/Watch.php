@@ -3,13 +3,9 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Environment;
-use DeltaCli\Exception\FseventsExtensionNotInstalled;
-use DeltaCli\Exec;
-use DeltaCli\Project;
+use DeltaCli\Exception\NoOtherStepsCanBeAddedAfterWatch;
+use DeltaCli\FileWatcher\FileWatcherInterface;
 use DeltaCli\Script as ScriptObject;
-use DeltaCli\Script\Step\Script as ScriptStep;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class Watch extends StepAbstract implements EnvironmentOptionalInterface
 {
@@ -17,21 +13,6 @@ class Watch extends StepAbstract implements EnvironmentOptionalInterface
      * @var ScriptObject
      */
     private $script;
-
-    /**
-     * @var Project
-     */
-    private $project;
-
-    /**
-     * @var InputInterface
-     */
-    private $input;
-
-    /**
-     * @var OutputInterface
-     */
-    private $output;
 
     /**
      * @var array
@@ -53,12 +34,15 @@ class Watch extends StepAbstract implements EnvironmentOptionalInterface
      */
     private $environment;
 
-    public function __construct(ScriptObject $script)
+    /**
+     * @var FileWatcherInterface
+     */
+    private $fileWatcher;
+
+    public function __construct(ScriptObject $script, FileWatcherInterface $fileWatcher)
     {
-        $this->script  = $script;
-        $this->project = $script->getProject();
-        $this->input   = $this->project->getInput();
-        $this->output  = $this->project->getOutput();
+        $this->script      = $script;
+        $this->fileWatcher = $fileWatcher;
     }
 
     public function getName()
@@ -105,60 +89,25 @@ class Watch extends StepAbstract implements EnvironmentOptionalInterface
 
     public function run()
     {
-        if (!extension_loaded('fsevents')) {
-            throw new FseventsExtensionNotInstalled('fsevents module is required to watch for filesystem changes.');
-        }
-
-        $previousRunFailed = false;
-
-        foreach ($this->paths as $path) {
-            fsevents_add_watch(
-                $path,
-                function () use (&$previousRunFailed) {
-                    $this->output->writeln("<comment>Running {$this->script->getName()} script...</comment>");
-
-                    $scriptStep = new ScriptStep($this->script, $this->input);
-
-                    if ($this->environment) {
-                        $scriptStep->setSelectedEnvironment($this->environment);
-                    }
-
-                    $result = $scriptStep->run();
-
-                    $result->render($this->output);
-
-                    // Display notifications on OS X
-                    if (!$this->onlyNotifyOnFailure || $result->isFailure() || $previousRunFailed) {
-                        Exec::run(
-                            sprintf(
-                                'osascript -e %s',
-                                escapeshellarg(
-                                    sprintf(
-                                        'display notification "%s" with title "%s %s"',
-                                        $result->getMessageText(),
-                                        $this->project->getName(),
-                                        $this->script->getName()
-                                    )
-                                )
-                            ),
-                            $output,
-                            $exitStatus
-                        );
-                    }
-
-                    if ($result->isFailure()) {
-                        $previousRunFailed = true;
-                    } else {
-                        $previousRunFailed = false;
-                    }
-                }
-            );
-        }
-
         if (count($this->paths)) {
-            fsevents_start();
+            $this->fileWatcher->addWatch($this->paths, $this->script, $this->onlyNotifyOnFailure, $this->stopOnFailure);
+            return new Result($this, Result::SUCCESS);
+        } else {
+            $result = new Result($this, Result::FAILURE);
+            $result->setExplanation('because no paths were added to watch');
+            return $result;
         }
+    }
 
-        return new Result($this, Result::SUCCESS);
+    public function postRun(ScriptObject $script)
+    {
+        $this->fileWatcher->startLoop();
+    }
+
+    public function addStepToScript(ScriptObject $script, StepInterface $step)
+    {
+        if (!$step instanceof Watch) {
+            throw new NoOtherStepsCanBeAddedAfterWatch();
+        }
     }
 }
