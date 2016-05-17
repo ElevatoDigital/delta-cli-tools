@@ -367,6 +367,30 @@ class ScriptTest extends PHPUnit_Framework_TestCase
         $this->script->runSteps($this->script->getProject()->getOutput());
     }
 
+    public function testSkippedStepsAlsoSkipPostRunHookAndPreRunHook()
+    {
+        $step = $this->getMock('\DeltaCli\Script\Step\StepInterface');
+
+        $step->expects($this->any())
+            ->method('getName')
+            ->willReturn('skipped-step');
+
+        $step->expects($this->never())
+            ->method('preRun');
+
+        $step->expects($this->never())
+            ->method('run');
+
+        $step->expects($this->never())
+            ->method('postRun');
+
+        $this->script
+            ->addStep($step)
+            ->setSkippedSteps(['skipped-step']);
+
+        $this->script->runSteps($this->script->getProject()->getOutput());
+    }
+
     public function testAddStepHookIsCalledWhenAddingAnotherStep()
     {
         $stepOne = $this->getMock('\DeltaCli\Script\Step\StepInterface');
@@ -447,7 +471,7 @@ class ScriptTest extends PHPUnit_Framework_TestCase
         $added->expects($this->any())
             ->method('getName')
             ->willReturn('added');
-        
+
         $this->script
             ->addDefaultStep($default)
             ->addStep($added);
