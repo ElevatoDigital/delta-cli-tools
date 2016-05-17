@@ -3,11 +3,12 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Exception\InvalidStepResult;
-use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Result
 {
+    const VERBOSE_FLAG_MESSAGE = '<comment>Use -v for more details.</comment>';
+
     const SUCCESS = 'success';
 
     const FAILURE = 'failure';
@@ -84,7 +85,7 @@ class Result
             if (OutputInterface::VERBOSITY_VERBOSE <= $output->getVerbosity()) {
                 $content = $this->verboseOutput;
             } else {
-                $content[] = '<comment>Use -v for more details.</comment>';
+                $content[] = self::VERBOSE_FLAG_MESSAGE;
             }
         }
 
@@ -168,7 +169,7 @@ class Result
                 return 'was skipped';
         }
 
-        return 'white';
+        return 'is invalid';
     }
 
     private function statusIsValid($status)

@@ -382,4 +382,77 @@ class ScriptTest extends PHPUnit_Framework_TestCase
 
         $this->script->runSteps($this->script->getProject()->getOutput());
     }
+
+    public function testSkippedStepsAreSkippedOnRun()
+    {
+        $skipped  = $this->getMock('\DeltaCli\Script\Step\StepInterface');
+        $executed = $this->getMock('\DeltaCli\Script\Step\StepInterface');
+
+        $skipped->expects($this->never())
+            ->method('run');
+
+        $skipped->expects($this->any())
+            ->method('getName')
+            ->willReturn('skipped-step');
+
+        $executed->expects($this->once())
+            ->method('run');
+
+        $this->script
+            ->setSkippedSteps(['skipped-step'])
+            ->addStep($skipped)
+            ->addStep($executed);
+
+        $this->script->runSteps($this->script->getProject()->getOutput());
+    }
+
+    public function testGettingNonExistentStepReturnsFalse()
+    {
+        $this->assertFalse($this->script->getStep('nope'));
+    }
+
+    public function testInvalidResultDuringDryRunProducesInvalidResult()
+    {
+        $output = new BufferedOutput();
+
+        $step = $this->getMock(
+            '\DeltaCli\Script\Step\PhpCallableSupportingDryRun',
+            ['dryRun'],
+            [
+                function () {
+
+                },
+                function () {
+
+                }
+            ]
+        );
+
+        $this->script->addStep($step);
+
+        $this->script->dryRun($output);
+
+        $this->assertContains('did not return a valid result', $output->fetch());
+    }
+
+    public function testDefaultStepsAreAddedOnceFirstStepIsCreated()
+    {
+        $default = $this->getMock('\DeltaCli\Script\Step\StepInterface');
+        $added   = $this->getMock('\DeltaCli\Script\Step\StepInterface');
+
+        $default->expects($this->any())
+            ->method('getName')
+            ->willReturn('default');
+
+        $added->expects($this->any())
+            ->method('getName')
+            ->willReturn('added');
+        
+        $this->script
+            ->addDefaultStep($default)
+            ->addStep($added);
+
+        $this->assertInstanceOf('DeltaCli\Script\Step\StepInterface', $this->script->getStep('default'));
+        $this->assertInstanceOf('DeltaCli\Script\Step\StepInterface', $this->script->getStep('added'));
+    }
 }

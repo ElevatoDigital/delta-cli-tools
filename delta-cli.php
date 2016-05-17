@@ -96,7 +96,7 @@ $project->createScript('custom-script', 'Just an example custom script.')
     );
 
 $project->createScript('run-tests', 'Run PHPUnit tests.')
-    ->addStep('phpunit', 'phpunit -c tests/phpunit.xml tests/');
+    ->addStep('phpunit', 'phpunit -c tests/phpunit.xml --coverage-html=test-coverage tests/');
 
 $project->createScript('watch-tests', 'Watch for changes and run git status')
     ->addStep(

@@ -3,6 +3,7 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Environment;
+use DeltaCli\Exception\EnvironmentNotAvailableForStep;
 
 class IsDevEnvironment extends StepAbstract implements DryRunInterface, EnvironmentAwareInterface
 {
@@ -32,6 +33,10 @@ class IsDevEnvironment extends StepAbstract implements DryRunInterface, Environm
 
     public function runInternal()
     {
+        if (!$this->environment) {
+            throw new EnvironmentNotAvailableForStep();
+        }
+        
         if ($this->environment->isDevEnvironment()) {
             return new Result($this, Result::SUCCESS);
         } else {

@@ -47,7 +47,11 @@ class Watch extends StepAbstract implements EnvironmentOptionalInterface
 
     public function getName()
     {
-        return 'watch';
+        if ($this->name) {
+            return $this->name;
+        } else {
+            return 'watch';
+        }
     }
 
     public function setSelectedEnvironment(Environment $environment)
