@@ -141,7 +141,9 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
 
         $tunnel->tearDown();
 
-        return [$this->filterItemizedOutput($output), $exitStatus];
+        $changeSet = $this->generateChangeSetFromOutput($output);
+
+        return [$changeSet->getOutput(), $exitStatus, $changeSet->getVerboseOutput()];
     }
 
     protected function getSuccessfulResultExplanation(array $hosts)
@@ -151,30 +153,30 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
         return $message;
     }
 
-    private function filterItemizedOutput(array $rawOutput)
+    private function generateChangeSetFromOutput(array $rawOutput)
     {
-        $filteredOutput = [];
+        $changeSet = new ChangeSet();
 
         foreach ($rawOutput as $line) {
             $change = $this->parseChangeFromLine($line);
+            $file   = $this->stripChangeFromLine($line);
 
             if ($this->outputChangeIsOnlyTimeChange($change) || $this->outputChangeIsSymlink($change)) {
                 continue;
             } elseif ($this->outputChangeIsNewFile($change)) {
-                $filteredOutput[] = $this->replaceChangeWithNewPrefixOnLine($line, 'New File');
+                $changeSet->newFile($file);
             } elseif ($this->outputChangeIsNewDirectory($change)) {
-                $filteredOutput[] = $this->replaceChangeWithNewPrefixOnLine($line, 'New Dir');
+                $changeSet->newDirectory($file);
             } elseif ($this->outputChangeIsFileUpdate($change)) {
-                $filteredOutput[] = $this->replaceChangeWithNewPrefixOnLine($line, 'Update');
+                $changeSet->update($file);
             } elseif ($this->outputChangeIsDeletion($change)) {
-                $filteredOutput[] = $this->replaceChangeWithNewPrefixOnLine($line, 'Delete');
+                $changeSet->delete($file);
             } else {
-                $filteredOutput[] = $line;
-
+                $changeSet->update($file);
             }
         }
 
-        return $filteredOutput;
+        return $changeSet;
     }
 
     private function normalizePath($path)
@@ -248,14 +250,9 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
         return $change;
     }
 
-    private function replaceChangeWithNewPrefixOnLine($line, $newPrefix)
+    private function stripChangeFromLine($line)
     {
         $dividerPosition = strpos($line, ' ');
-
-        return sprintf(
-            '%-8s %s',
-            substr($newPrefix, 0, $dividerPosition),
-            substr($line, $dividerPosition)
-        );
+        return trim(substr($line, $dividerPosition));
     }
 }

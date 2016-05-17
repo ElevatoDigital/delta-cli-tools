@@ -3,6 +3,7 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Exception\InvalidStepResult;
+use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Result
@@ -33,6 +34,11 @@ class Result
     private $output;
 
     /**
+     * @var array
+     */
+    private $verboseOutput = [];
+
+    /**
      * @var string
      */
     private $explanation;
@@ -43,17 +49,16 @@ class Result
             throw new InvalidStepResult("'{$status}'' is not a valid result for a script step.");
         }
 
-        if (!is_array($output)) {
-            if (trim($output)) {
-                $output = explode(PHP_EOL, trim($output));
-            } else {
-                $output = [];
-            }
-        }
-
         $this->step   = $step;
         $this->status = $status;
-        $this->output = $output;
+        $this->output = $this->filterOutputToArray($output);
+    }
+
+    public function setVerboseOutput($verboseOutput)
+    {
+        $this->verboseOutput = $this->filterOutputToArray($verboseOutput);
+
+        return $this;
     }
 
     public function setExplanation($explanation)
@@ -73,16 +78,17 @@ class Result
             )
         );
 
-        if (count($this->output)) {
-            $indentedOutput = array_map(
-                function ($line) {
-                    return '  ' . $line;
-                },
-                $this->output
-            );
+        $content = $this->output;
 
-            $output->writeln($indentedOutput);
+        if ($this->verboseOutput) {
+            if (OutputInterface::VERBOSITY_VERBOSE <= $output->getVerbosity()) {
+                $content = $this->verboseOutput;
+            } else {
+                $content[] = '<comment>Use -v for more details.</comment>';
+            }
         }
+
+        $this->writeOutput($output, $content);
     }
 
     public function getMessageText()
@@ -98,6 +104,35 @@ class Result
     public function isFailure()
     {
         return self::INVALID === $this->status || self::FAILURE === $this->status;
+    }
+
+    private function writeOutput(OutputInterface $output, array $content)
+    {
+        if (count($content)) {
+            $indentedOutput = array_map(
+                function ($line) {
+                    return '  ' . $line;
+                },
+                $content
+            );
+
+            $output->writeln($indentedOutput);
+        }
+
+        return $this;
+    }
+
+    private function filterOutputToArray($output)
+    {
+        if (!is_array($output)) {
+            if (trim($output)) {
+                $output = explode(PHP_EOL, trim($output));
+            } else {
+                $output = [];
+            }
+        }
+
+        return $output;
     }
 
     private function getStatusColor()

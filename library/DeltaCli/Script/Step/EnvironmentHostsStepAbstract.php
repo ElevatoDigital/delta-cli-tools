@@ -28,7 +28,8 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
 
     protected function runOnAllHosts()
     {
-        $output = [];
+        $output        = [];
+        $verboseOutput = [];
 
         $failedHosts        = [];
         $misconfiguredHosts = [];
@@ -40,7 +41,14 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
                 continue;
             }
 
-            list($hostOutput, $exitStatus) = $this->runOnHost($host);
+            $hostResult = $this->runOnHost($host);
+
+            if (3 === count($hostResult)) {
+                list($hostOutput, $exitStatus, $verboseHostOutput) = $hostResult;
+            } else {
+                list($hostOutput, $exitStatus) = $hostResult;
+                $verboseHostOutput = [];
+            }
 
             if ($exitStatus) {
                 $failedHosts[] = $host;
@@ -52,13 +60,17 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
                 foreach ($hostOutput as $line) {
                     $output[] = '  ' . $line;
                 }
+
+                foreach ($verboseHostOutput as $line) {
+                    $verboseOutput[] = '  ' . $line;
+                }
             }
         }
 
-        return $this->generateResult($failedHosts, $misconfiguredHosts, $output);
+        return $this->generateResult($failedHosts, $misconfiguredHosts, $output, $verboseOutput);
     }
 
-    protected function generateResult(array $failedHosts, array $misconfiguredHosts, array $output)
+    protected function generateResult(array $failedHosts, array $misconfiguredHosts, array $output, array $verboseOutput)
     {
         if (count($this->environment->getHosts()) && !count($failedHosts) && !count($misconfiguredHosts)) {
             $result = new Result($this, Result::SUCCESS, $output);
@@ -82,6 +94,8 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
                 $result->setExplanation('because ' . implode(' and ', $explanations));
             }
         }
+
+        $result->setVerboseOutput($verboseOutput);
 
         return $result;
     }
