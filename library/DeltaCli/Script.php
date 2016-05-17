@@ -312,7 +312,9 @@ class Script extends Command
 
         /* @var $step StepInterface */
         foreach ($steps as $step) {
-            $step->preRun($this);
+            if (!$this->stepShouldBeSkipped($step)) {
+                $step->preRun($this);
+            }
         }
 
         /* @var $step StepInterface */
@@ -344,7 +346,9 @@ class Script extends Command
 
         /* @var $step StepInterface */
         foreach ($steps as $step) {
-            $step->postRun($this);
+            if (!$this->stepShouldBeSkipped($step)) {
+                $step->postRun($this);
+            }
         }
 
         return $scriptResult;
