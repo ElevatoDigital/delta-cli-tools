@@ -13,7 +13,11 @@ class IsDevEnvironment extends StepAbstract implements DryRunInterface, Environm
 
     public function getName()
     {
-        return 'is-dev-environment';
+        if ($this->name) {
+            return $this->name;
+        } else {
+            return 'is-dev-environment';
+        }
     }
 
     public function run()
