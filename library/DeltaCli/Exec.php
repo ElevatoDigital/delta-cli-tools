@@ -31,6 +31,11 @@ class Exec
         };
     }
 
+    public static function resetInstance()
+    {
+        self::$instance = null;
+    }
+
     public function runCommand($command, &$output, &$exitStatus)
     {
         Debug::log("Running `{$command}`...");

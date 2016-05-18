@@ -38,6 +38,15 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('test', $this->environment->getName());
     }
 
+    public function testCanSetAndGetIsDevEnvironmentFlag()
+    {
+        $this->assertFalse($this->environment->isDevEnvironment());
+        $this->assertFalse($this->environment->getIsDevEnvironment());
+        $this->assertInstanceOf('\DeltaCli\Environment', $this->environment->setIsDevEnvironment(true));
+        $this->assertTrue($this->environment->isDevEnvironment());
+        $this->assertTrue($this->environment->getIsDevEnvironment());
+    }
+
     public function testCanSetAndGetGitBranch()
     {
         $this->environment->setGitBranch('master');

@@ -27,4 +27,11 @@ class HostTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\DeltaCli\Host', $this->host->setSshHomeFolder('/tmp'));
         $this->assertEquals('/tmp', $this->host->getSshHomeFolder());
     }
+
+    public function testCanSetAndGetCustomSshPort()
+    {
+        $this->assertEquals(22, $this->host->getSshPort());
+        $this->assertInstanceOf('\DeltaCli\Host', $this->host->setSshPort(42));
+        $this->assertEquals(42, $this->host->getSshPort());
+    }
 }

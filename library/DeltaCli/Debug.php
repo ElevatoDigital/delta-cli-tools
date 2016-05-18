@@ -26,10 +26,15 @@ class Debug
         self::$instance = new Debug($output);
     }
 
+    public static function resetSingletonInstance()
+    {
+        self::$instance = null;
+    }
+
     public static function log($message)
     {
         if (!self::$instance) {
-            return;
+            return null;
         }
 
         self::$instance->writeLog($message);
