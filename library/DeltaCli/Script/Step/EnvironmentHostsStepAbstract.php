@@ -3,6 +3,7 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Environment;
+use DeltaCli\Exception\EnvironmentNotAvailableForStep;
 use DeltaCli\Host;
 
 abstract class EnvironmentHostsStepAbstract extends StepAbstract implements EnvironmentAwareInterface
@@ -28,6 +29,10 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
 
     protected function runOnAllHosts()
     {
+        if (!$this->environment) {
+            throw new EnvironmentNotAvailableForStep();
+        }
+        
         $output        = [];
         $verboseOutput = [];
 

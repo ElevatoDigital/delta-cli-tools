@@ -1,0 +1,31 @@
+debug1: sshd version OpenSSH_6.9, LibreSSL 2.1.8
+debug1: private host key #0: ssh-rsa SHA256:nDCsRvr95Ih7uW7qKkTW61NH8XsqK6i0agO3sNteV88
+debug1: setgroups() failed: Operation not permitted
+debug1: rexec_argv[0]='/usr/sbin/sshd'
+debug1: rexec_argv[1]='-D'
+debug1: rexec_argv[2]='-d'
+debug1: rexec_argv[3]='-e'
+debug1: rexec_argv[4]='-E'
+debug1: rexec_argv[5]='./sshd.log'
+debug1: rexec_argv[6]='-f'
+debug1: rexec_argv[7]='./sshd_config'
+debug1: Bind to port 22222 on 127.0.0.1.
+Server listening on 127.0.0.1 port 22222.
+debug1: fd 5 clearing O_NONBLOCK
+debug1: Server will not fork when running in debugging mode.
+debug1: rexec start in 5 out 5 newsock 5 pipe -1 sock 8
+debug1: sshd version OpenSSH_6.9, LibreSSL 2.1.8
+debug1: private host key #0: ssh-rsa SHA256:nDCsRvr95Ih7uW7qKkTW61NH8XsqK6i0agO3sNteV88
+debug1: setgroups() failed: Operation not permitted
+debug1: rexec_argv[0]='/usr/sbin/sshd'
+debug1: rexec_argv[1]='-D'
+debug1: rexec_argv[2]='-d'
+debug1: rexec_argv[3]='-E'
+debug1: rexec_argv[4]='./sshd.log'
+debug1: rexec_argv[5]='-f'
+debug1: rexec_argv[6]='./sshd_config'
+debug1: Bind to port 22222 on 127.0.0.1.
+Server listening on 127.0.0.1 port 22222.
+debug1: fd 5 clearing O_NONBLOCK
+debug1: Server will not fork when running in debugging mode.
+debug1: rexec start in 5 out 5 newsock 5 pipe -1 sock 8

@@ -3,6 +3,7 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Environment;
+use DeltaCli\Exec;
 use DeltaCli\Script;
 
 abstract class StepAbstract implements StepInterface
@@ -17,6 +18,11 @@ abstract class StepAbstract implements StepInterface
      */
     protected $environments = [];
 
+    /**
+     * @var callable
+     */
+    protected $commandRunner;
+
     abstract public function run();
 
     /**
@@ -28,6 +34,29 @@ abstract class StepAbstract implements StepInterface
         $this->environments = $environments;
 
         return $this;
+    }
+
+    public function setCommandRunner(callable $commandRunner)
+    {
+        $this->commandRunner = $commandRunner;
+
+        return $this;
+    }
+
+    public function getCommandRunner()
+    {
+        if (!$this->commandRunner) {
+            $this->commandRunner = Exec::getCommandRunner();
+        }
+
+        return $this->commandRunner;
+    }
+
+    public function exec($command, &$output, &$exitStatus)
+    {
+        /* @var $commandRunner callable */
+        $commandRunner = $this->getCommandRunner();
+        $commandRunner($command, $output, $exitStatus);
     }
 
     public function setName($name)

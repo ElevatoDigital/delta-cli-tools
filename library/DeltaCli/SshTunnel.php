@@ -153,6 +153,14 @@ class SshTunnel
                 ($includeApplicationEnv ? $this->getApplicationEnvVar() : ''),
                 $command
             );
+
+            if ($this->host->getSshHomeFolder()) {
+                $command = sprintf(
+                    'cd %s; %s',
+                    escapeshellarg($this->host->getSshHomeFolder()),
+                    $command
+                );
+            }
         }
 
         return sprintf(

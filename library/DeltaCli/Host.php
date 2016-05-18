@@ -30,6 +30,11 @@ class Host
     private $sshPort = 22;
 
     /**
+     * @var string
+     */
+    private $sshHomeFolder;
+
+    /**
      * @var SshTunnel
      */
     private $sshTunnel;
@@ -96,6 +101,18 @@ class Host
         return $this->sshPort;
     }
 
+    public function setSshHomeFolder($sshHomeFolder)
+    {
+        $this->sshHomeFolder = $sshHomeFolder;
+
+        return $this;
+    }
+
+    public function getSshHomeFolder()
+    {
+        return $this->sshHomeFolder;
+    }
+
     public function getTunnelHost()
     {
         return $this->tunnelHost ?: $this->environment->getTunnelHost();
@@ -108,5 +125,12 @@ class Host
         }
 
         return $this->sshTunnel;
+    }
+
+    public function setSshTunnel(SshTunnel $sshTunnel)
+    {
+        $this->sshTunnel = $sshTunnel;
+
+        return $this;
     }
 }

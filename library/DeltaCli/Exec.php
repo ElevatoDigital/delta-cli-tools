@@ -20,6 +20,17 @@ class Exec
         self::$instance->runCommand($command, $output, $exitStatus);
     }
 
+    public static function getCommandRunner()
+    {
+        if (!self::$instance) {
+            self::$instance = new Exec();
+        }
+
+        return function ($command, &$output, &$exitStatus) {
+            self::$instance->runCommand($command, $output, $exitStatus);
+        };
+    }
+
     public function runCommand($command, &$output, &$exitStatus)
     {
         Debug::log("Running `{$command}`...");

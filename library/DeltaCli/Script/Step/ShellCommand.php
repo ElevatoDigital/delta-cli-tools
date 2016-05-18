@@ -49,7 +49,7 @@ class ShellCommand extends StepAbstract
         }
 
         $this->exec($command, $output, $exitStatus);
-        
+
         if (!$exitStatus) {
             return new Result($this, Result::SUCCESS, $output);
         } else {
@@ -57,10 +57,5 @@ class ShellCommand extends StepAbstract
             $result->setExplanation(" with an exit status of {$exitStatus}");
             return $result;
         }
-    }
-
-    protected function exec($command, &$output, &$exitStatus)
-    {
-        Exec::run($command, $output, $exitStatus);
     }
 }

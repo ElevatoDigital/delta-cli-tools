@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Script\Step;
 
+use Cocur\Slugify\Slugify;
 use DeltaCli\Exec;
 use DeltaCli\Host;
 
@@ -12,9 +13,30 @@ class Ssh extends EnvironmentHostsStepAbstract
      */
     private $command;
 
+    /**
+     * @var Slugify
+     */
+    private $slugify;
+
     public function __construct($command)
     {
         $this->command = $command;
+    }
+
+    public function setSlugify(Slugify $slugify)
+    {
+        $this->slugify = $slugify;
+
+        return $this;
+    }
+
+    public function getSlugify()
+    {
+        if (!$this->slugify) {
+            $this->slugify = new Slugify();
+        }
+
+        return $this->slugify;
     }
 
     public function getName()
@@ -22,7 +44,7 @@ class Ssh extends EnvironmentHostsStepAbstract
         if ($this->name) {
             return $this->name;
         } else {
-            return $this->command . ' over SSH';
+            return $this->getSlugify()->slugify($this->command . '-over-ssh');
         }
     }
 
@@ -30,7 +52,7 @@ class Ssh extends EnvironmentHostsStepAbstract
     {
         $tunnel = $host->getSshTunnel();
         $tunnel->setUp();
-        Exec::run($tunnel->assembleSshCommand($this->command), $output, $exitStatus);
+        $this->exec($tunnel->assembleSshCommand($this->command), $output, $exitStatus);
         $tunnel->tearDown();
 
         return [$output, $exitStatus];
