@@ -4,6 +4,7 @@ namespace DeltaCli\Script\Step;
 
 use Cocur\Slugify\Slugify;
 use DeltaCli\Host;
+use DeltaCli\Script as ScriptObject;
 
 class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
 {
@@ -109,6 +110,11 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
         $this->flags = $flags;
 
         return $this;
+    }
+
+    public function preRun(ScriptObject $script)
+    {
+        $this->checkIfExecutableExists('rsync', 'rsync --version');
     }
 
     public function run()

@@ -3,11 +3,17 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Environment;
+use DeltaCli\Exception\CommandNotFound;
 use DeltaCli\Exec;
 use DeltaCli\Script;
 
 abstract class StepAbstract implements StepInterface
 {
+    /**
+     * @const
+     */
+    const COMMAND_NOT_FOUND = 127;
+
     /**
      * @var string
      */
@@ -34,6 +40,19 @@ abstract class StepAbstract implements StepInterface
         $this->environments = $environments;
 
         return $this;
+    }
+
+    public function checkIfExecutableExists($executable, $testCommand)
+    {
+        $command = sprintf('%s 2>&1', $testCommand);
+
+        $this->exec($command, $output, $exitStatus);
+
+        if (self::COMMAND_NOT_FOUND === $exitStatus) {
+            $exception = new CommandNotFound();
+            $exception->setCommand($executable);
+            throw $exception;
+        }
     }
 
     public function setCommandRunner(callable $commandRunner)

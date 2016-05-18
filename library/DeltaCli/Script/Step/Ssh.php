@@ -4,6 +4,7 @@ namespace DeltaCli\Script\Step;
 
 use Cocur\Slugify\Slugify;
 use DeltaCli\Host;
+use DeltaCli\Script as ScriptObject;
 
 class Ssh extends EnvironmentHostsStepAbstract
 {
@@ -45,6 +46,11 @@ class Ssh extends EnvironmentHostsStepAbstract
         } else {
             return $this->getSlugify()->slugify($this->command . '-over-ssh');
         }
+    }
+
+    public function preRun(ScriptObject $script)
+    {
+        $this->checkIfExecutableExists('ssh', 'ssh -V');
     }
 
     public function runOnHost(Host $host)
