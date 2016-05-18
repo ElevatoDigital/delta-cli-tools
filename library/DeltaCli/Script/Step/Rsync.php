@@ -2,7 +2,7 @@
 
 namespace DeltaCli\Script\Step;
 
-use DeltaCli\Exec;
+use Cocur\Slugify\Slugify;
 use DeltaCli\Host;
 
 class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
@@ -45,6 +45,16 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
      * @var bool
      */
     private $excludeOsCruft = true;
+
+    /**
+     * @var string
+     */
+    private $flags = '-az --no-p';
+
+    /**
+     * @var Slugify
+     */
+    private $slugify;
 
     public function __construct($localPath, $remotePath)
     {
@@ -94,6 +104,13 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
         return $this;
     }
 
+    public function setFlags($flags)
+    {
+        $this->flags = $flags;
+
+        return $this;
+    }
+
     public function run()
     {
         $this->mode = self::LIVE;
@@ -111,12 +128,30 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
         if ($this->name) {
             return $this->name;
         } else {
-            return sprintf(
-                'rsync-%s-to-%s',
-                basename(realpath($this->localPath)),
-                (basename($this->remotePath) ?: 'remote')
+            return $this->getSlugify()->slugify(
+                sprintf(
+                    'rsync-%s-to-%s',
+                    (basename(realpath($this->localPath)) ?: 'local'),
+                    (basename($this->remotePath) ?: 'remote')
+                )
             );
         }
+    }
+
+    public function setSlugify(Slugify $slugify)
+    {
+        $this->slugify = $slugify;
+
+        return $this;
+    }
+
+    public function getSlugify()
+    {
+        if (!$this->slugify) {
+            $this->slugify = new Slugify();
+        }
+
+        return $this->slugify;
     }
 
     public function runOnHost(Host $host)
@@ -126,10 +161,11 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
         $tunnel->setUp();
 
         $command = sprintf(
-            'rsync %s %s %s -az --no-p -i -e %s %s %s@%s:%s 2>&1',
+            'rsync %s %s %s %s -i -e %s %s %s@%s:%s 2>&1',
             (self::DRY_RUN === $this->mode ? '--dry-run' : ''),
             $this->assembleExcludeArgs(),
             ($this->delete ? '--delete' : ''),
+            $this->flags,
             escapeshellarg($tunnel->getCommand()),
             escapeshellarg($this->normalizePath($this->localPath)),
             escapeshellarg($tunnel->getUsername()),
@@ -137,7 +173,7 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
             escapeshellarg($this->normalizePath($this->remotePath))
         );
 
-        Exec::run($command, $output, $exitStatus);
+        $this->exec($command, $output, $exitStatus);
 
         $tunnel->tearDown();
 

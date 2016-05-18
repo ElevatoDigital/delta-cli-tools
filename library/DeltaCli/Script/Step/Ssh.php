@@ -3,7 +3,6 @@
 namespace DeltaCli\Script\Step;
 
 use Cocur\Slugify\Slugify;
-use DeltaCli\Exec;
 use DeltaCli\Host;
 
 class Ssh extends EnvironmentHostsStepAbstract
