@@ -105,7 +105,7 @@ class ApiClient
     public function createAccount($authorizationCode, $password, $confirmPassword)
     {
         return $this->guzzleClient->request(
-            'PUT',
+            'POST',
             $this->url('/account'),
             [
                 'form_params' => [
