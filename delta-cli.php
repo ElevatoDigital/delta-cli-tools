@@ -133,3 +133,6 @@ $project->createEnvironmentScript('ssh-example', 'An example using SSH.')
 
 $project->createEnvironmentScript('scp-example', 'An example using scp.')
     ->addStep($project->scp('delta-cli.php', 'delta-cli-via-scp.php'));
+
+$project->createScript('notification-test', 'A script to test the notification API workflow.')
+    ->addStep($project->logAndSendNotifications());

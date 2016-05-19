@@ -1,0 +1,88 @@
+<?php
+
+namespace DeltaCli;
+
+use GuzzleHttp\Client as GuzzleClient;
+
+class ApiClient
+{
+    const BASE_URL = 'https://deploy.deltasys.com/';
+
+    const VERSION = 'v1';
+
+    /**
+     * @var GuzzleClient
+     */
+    private $guzzleClient;
+
+    /**
+     * @var string
+     */
+    private $homeFolder;
+
+    public function __construct(GuzzleClient $guzzleClient = null)
+    {
+        $this->guzzleClient = ($guzzleClient ?: new GuzzleClient(['exceptions' => false]));
+        $this->homeFolder   = $_SERVER['HOME'];
+    }
+
+    public function setHomeFolder($homeFolder)
+    {
+        $this->homeFolder = $homeFolder;
+
+        return $this;
+    }
+
+    public function hasAccountKey()
+    {
+        $jsonFile = $this->getAccountKeyJsonPath();
+
+        if (!file_exists($jsonFile) || !is_readable($jsonFile)) {
+            return false;
+        }
+
+        $content = file_get_contents($jsonFile);
+        $data    = json_decode($content, true);
+
+        return isset($data['apiKey']) && $data['apiKey'];
+    }
+
+    public function writeAccountKey($apiKey)
+    {
+        file_put_contents(
+            $this->getAccountKeyJsonPath(),
+            json_encode(['apiKey' => $apiKey]),
+            LOCK_EX
+        );
+
+        return $this;
+    }
+
+    public function getAccountKeyJsonPath()
+    {
+        return $this->homeFolder . '/delta-api.json';
+    }
+
+    public function signUpWithEmail($emailAddress)
+    {
+        return $this->guzzleClient->request(
+            'POST',
+            $this->url('/sign-up-with-email'),
+            [
+                'form_params' => [
+                    'email_address' => $emailAddress
+                ]
+            ]
+        );
+    }
+
+    public function createAccount($authorizationCode, $password, $confirmPassword)
+    {
+
+    }
+
+    private function url($url)
+    {
+        return self::BASE_URL . self::VERSION . '/' . ltrim($url, '/');
+    }
+}
