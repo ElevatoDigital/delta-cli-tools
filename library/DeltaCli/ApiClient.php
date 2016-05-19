@@ -35,16 +35,7 @@ class ApiClient
 
     public function hasAccountKey()
     {
-        $jsonFile = $this->getAccountKeyJsonPath();
-
-        if (!file_exists($jsonFile) || !is_readable($jsonFile)) {
-            return false;
-        }
-
-        $content = file_get_contents($jsonFile);
-        $data    = json_decode($content, true);
-
-        return isset($data['apiKey']) && $data['apiKey'];
+        return $this->hasKey($this->getAccountKeyJsonPath());
     }
 
     public function writeAccountKey($apiKey)
@@ -60,7 +51,28 @@ class ApiClient
 
     public function getAccountKeyJsonPath()
     {
-        return $this->homeFolder . '/delta-api.json';
+        return $this->homeFolder . '/.delta-api.json';
+    }
+
+    public function hasProjectKey()
+    {
+        return $this->hasKey($this->getProjectKeyJsonPath());
+    }
+
+    public function writeProjectKey($apiKey)
+    {
+        file_put_contents(
+            $this->getProjectKeyJsonPath(),
+            json_encode(['apiKey' => $apiKey]),
+            LOCK_EX
+        );
+
+        return $this;
+    }
+
+    public function getProjectKeyJsonPath()
+    {
+        return getcwd() . '/.delta-api.json';
     }
 
     public function signUpWithEmail($emailAddress)
@@ -76,9 +88,45 @@ class ApiClient
         );
     }
 
+    public function login($emailAddress, $password)
+    {
+        return $this->guzzleClient->request(
+            'POST',
+            $this->url('/login'),
+            [
+                'form_params' => [
+                    'email_address' => $emailAddress,
+                    'password'      => $password
+                ]
+            ]
+        );
+    }
+
     public function createAccount($authorizationCode, $password, $confirmPassword)
     {
+        return $this->guzzleClient->request(
+            'POST',
+            $this->url('/create-account'),
+            [
+                'form_params' => [
+                    'authorization_code' => $authorizationCode,
+                    'password'           => $password,
+                    'confirm_password'   => $confirmPassword
+                ]
+            ]
+        );
+    }
 
+    private function hasKey($jsonFile)
+    {
+        if (!file_exists($jsonFile) || !is_readable($jsonFile)) {
+            return false;
+        }
+
+        $content = file_get_contents($jsonFile);
+        $data    = json_decode($content, true);
+
+        return isset($data['apiKey']) && $data['apiKey'];
     }
 
     private function url($url)
