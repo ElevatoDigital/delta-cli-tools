@@ -4,6 +4,8 @@
 
 $project->setName('Delta CLI Tools Example');
 
+$project->addSlackHandle('@bgriffith');
+
 $project->createEnvironment('production');
 
 $project->createEnvironment('staging')

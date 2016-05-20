@@ -162,7 +162,7 @@ class ApiClient
         );
     }
 
-    public function postResults(ApiResults $apiResults)
+    public function postResults(ApiResults $apiResults, Project $project)
     {
         return $this->guzzleClient->request(
             'POST',
@@ -170,8 +170,10 @@ class ApiClient
             [
                 'auth' => [$this->getAccountKey(), $this->getAccountKey()],
                 'form_params' => [
-                    'project' => $this->getProjectKey(),
-                    'results' => $apiResults->toJson()
+                    'project'       => $this->getProjectKey(),
+                    'results'       => $apiResults->toJson(),
+                    'slack_channel' => $project->getSlackChannel(),
+                    'slack_handles' => json_encode($project->getSlackHandles())
                 ]
             ]
         );
@@ -184,7 +186,7 @@ class ApiClient
             $this->url("/project/{$this->getProjectKey()}/log"),
             [
                 'auth' => [$this->getAccountKey(), $this->getAccountKey()],
-                'form_params' => [
+                'query' => [
                     'script'      => $script,
                     'environment' => $environment
                 ]

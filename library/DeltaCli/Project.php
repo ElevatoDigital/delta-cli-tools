@@ -68,6 +68,21 @@ class Project
      */
     private $fileWatcher;
 
+    /**
+     * @var string
+     */
+    private $slackChannel;
+
+    /**
+     * @var array
+     */
+    private $slackHandles = [];
+
+    /**
+     * Project constructor.
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     */
     public function __construct(InputInterface $input, OutputInterface $output)
     {
         $this->input  = $input;
@@ -155,6 +170,44 @@ class Project
         }
 
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSlackChannel()
+    {
+        return $this->slackChannel;
+    }
+
+    /**
+     * @param string $slackChannel
+     * @return $this
+     */
+    public function setSlackChannel($slackChannel)
+    {
+        $this->slackChannel = '#' . ltrim($slackChannel, '#');
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSlackHandles()
+    {
+        return $this->slackHandles;
+    }
+
+    /**
+     * @param string $slackHandle
+     * @return $this
+     */
+    public function addSlackHandle($slackHandle)
+    {
+        $this->slackHandles[] = '@' . ltrim($slackHandle, '@');
+
+        return $this;
     }
 
     public function getScripts()
