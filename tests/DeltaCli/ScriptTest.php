@@ -2,6 +2,7 @@
 
 namespace DeltaCli;
 
+use DeltaCli\Script\Step\Result;
 use PHPUnit_Framework_TestCase;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -357,7 +358,8 @@ class ScriptTest extends PHPUnit_Framework_TestCase
         $step = $this->getMock('\DeltaCli\Script\Step\StepInterface');
 
         $step->expects($this->once())
-            ->method('run');
+            ->method('run')
+            ->willReturn(new Result($step, Result::SUCCESS));
 
         $step->expects($this->once())
             ->method('postRun');
