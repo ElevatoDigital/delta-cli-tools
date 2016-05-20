@@ -367,10 +367,12 @@ class Script extends Command
             }
         }
 
-        /* @var $step StepInterface */
-        foreach ($steps as $step) {
-            if (!$this->stepShouldBeSkipped($step)) {
-                $step->postRun($this);
+        if (Result::SUCCESS === $scriptResult) {
+            /* @var $step StepInterface */
+            foreach ($steps as $step) {
+                if (!$this->stepShouldBeSkipped($step)) {
+                    $step->postRun($this);
+                }
             }
         }
 
