@@ -36,7 +36,7 @@ class ChangeSet
 
     public function getOutput()
     {
-        if (10 >= count($this->changes)) {
+        if ($this->shouldJustDisplayVerboseOutputByDefault()) {
             return $this->getVerboseOutput();
         } else {
             ksort($this->countsByType);
@@ -55,6 +55,10 @@ class ChangeSet
 
     public function getVerboseOutput()
     {
+        if ($this->shouldJustDisplayVerboseOutputByDefault()) {
+            return [];
+        }
+        
         $output = [];
 
         foreach ($this->changes as $change) {
@@ -62,6 +66,11 @@ class ChangeSet
         }
 
         return $output;
+    }
+
+    private function shouldJustDisplayVerboseOutputByDefault()
+    {
+        return 10 >= count($this->changes);
     }
 
     private function addChange(ChangeInterface $change)

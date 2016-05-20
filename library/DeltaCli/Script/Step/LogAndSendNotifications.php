@@ -4,6 +4,7 @@ namespace DeltaCli\Script\Step;
 
 use DeltaCli\ApiClient;
 use DeltaCli\Console\ApiQuestion;
+use DeltaCli\Project;
 use DeltaCli\Script as ScriptObject;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,6 +12,11 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 
 class LogAndSendNotifications extends StepAbstract
 {
+    /**
+     * @var Project
+     */
+    private $project;
+
     /**
      * @var InputInterface
      */
@@ -26,10 +32,11 @@ class LogAndSendNotifications extends StepAbstract
      */
     private $apiClient;
 
-    public function __construct(InputInterface $input, OutputInterface $output, ApiClient $apiClient = null)
+    public function __construct(Project $project, ApiClient $apiClient = null)
     {
-        $this->input     = $input;
-        $this->output    = $output;
+        $this->project   = $project;
+        $this->input     = $project->getInput();
+        $this->output    = $project->getOutput();
         $this->apiClient = ($apiClient ?: new ApiClient());
     }
 
@@ -55,7 +62,44 @@ class LogAndSendNotifications extends StepAbstract
 
     public function run()
     {
+        $response = $this->apiClient->getProject($this->apiClient->getProjectKey());
 
+        if (200 === $response->getStatusCode()) {
+            $result = new Result($this, Result::SUCCESS);
+            $result->setStatusMessage('is ready to run at the end of this script');
+        } else {
+            if ('application/json' !== $response->getHeaderLine('Content-Type')) {
+                $output = $response->getReasonPhrase();
+            } else {
+                $json   = json_decode($response->getBody(), true);
+                $output = sprintf('%s (%s)', $json['message'], $json['code']);
+            }
+
+            $result = new Result($this, Result::FAILURE, $output);
+            $result->setExplanation('because there was a problem communicating with Delta API');
+        }
+
+        return $result;
+    }
+
+    public function postRun(ScriptObject $script)
+    {
+        $this->output->writeln('<comment>Logging and sending notifications via Delta API...</comment>');
+
+        $response = $this->apiClient->postResults($script->getApiResults());
+
+        if (200 === $response->getStatusCode()) {
+            $this->output->writeln('<info>Successfully logged results and sent notifications.</info>');
+        } else {
+            $this->output->writeln('<error>There was an error sending the results to the Delta API</error>');
+
+            if ('application/json' !== $response->getHeaderLine('Content-Type')) {
+                $this->output->writeln('  ' . $response->getReasonPhrase());
+            } else {
+                $json = json_decode($response->getBody(), true);
+                $this->output->writeln(sprintf('  %s (%s)', $json['message'], $json['code']));
+            }
+        }
     }
 
     private function runAccountKeyWorkflow(ScriptObject $script)
@@ -97,7 +141,7 @@ class LogAndSendNotifications extends StepAbstract
             $response     = $this->apiClient->login($emailAddress, $password);
 
             if ($loginQuestion->responseIsSuccessful($response)) {
-                $this->apiClient->writeAccountKey($loginQuestion->getResponseField($response, 'api-key'));
+                $this->apiClient->writeAccountKey($loginQuestion->getResponseField($response, 'api_key'));
 
                 $this->output->writeln(
                     [
@@ -170,6 +214,38 @@ class LogAndSendNotifications extends StepAbstract
 
     private function runProjectKeyWorkflow(ScriptObject $script)
     {
-        
+        /* @var $questionHelper \Symfony\Component\Console\Helper\QuestionHelper */
+        $questionHelper = $script->getHelperSet()->get('question');
+
+        $this->output->writeln(
+            '<comment>This project does not appear to have a Delta API key.  Creating one now...</comment>',
+            ''
+        );
+
+        $projectQuestion = new ApiQuestion($this->input, $this->output, $questionHelper);
+        $retryInterval   = 3;
+
+        while (!$this->apiClient->hasProjectKey()) {
+            $response = $this->apiClient->createProject($this->project->getName());
+
+            if ($projectQuestion->responseIsSuccessful($response)) {
+                $this->apiClient->writeProjectKey($projectQuestion->getResponseField($response, 'api_key'));
+
+                $this->output->writeln(
+                    [
+                        '<info>Successfully created project API key and saved it to delta-api.json.</info>',
+                        '<info>Please commit this file to git to avoid adding duplicates to Delta API.</info>'
+                    ]
+                );
+            } else {
+                $this->output->writeln(
+                    "<error>Retrying in {$retryInterval} seconds...</error>"
+                );
+
+                sleep($retryInterval);
+
+                $retryInterval += 2;
+            }
+        }
     }
 }

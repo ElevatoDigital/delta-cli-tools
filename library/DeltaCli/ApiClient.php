@@ -38,6 +38,17 @@ class ApiClient
         return $this->hasKey($this->getAccountKeyJsonPath());
     }
 
+    public function getAccountKey()
+    {
+        if (!$this->hasAccountKey()) {
+            return '';
+        } else {
+            $contents = file_get_contents($this->getAccountKeyJsonPath());
+            $json     = json_decode($contents, true);
+            return $json['apiKey'];
+        }
+    }
+
     public function writeAccountKey($apiKey)
     {
         file_put_contents(
@@ -59,6 +70,17 @@ class ApiClient
         return $this->hasKey($this->getProjectKeyJsonPath());
     }
 
+    public function getProjectKey()
+    {
+        if (!$this->hasProjectKey()) {
+            return '';
+        } else {
+            $contents = file_get_contents($this->getProjectKeyJsonPath());
+            $json     = json_decode($contents, true);
+            return $json['apiKey'];
+        }
+    }
+
     public function writeProjectKey($apiKey)
     {
         file_put_contents(
@@ -72,7 +94,7 @@ class ApiClient
 
     public function getProjectKeyJsonPath()
     {
-        return getcwd() . '/.delta-api.json';
+        return getcwd() . '/delta-api.json';
     }
 
     public function signUpWithEmail($emailAddress)
@@ -112,6 +134,44 @@ class ApiClient
                     'authorization_code' => $authorizationCode,
                     'password'           => $password,
                     'confirm_password'   => $confirmPassword
+                ]
+            ]
+        );
+    }
+
+    public function createProject($name)
+    {
+        return $this->guzzleClient->request(
+            'POST',
+            $this->url('/project'),
+            [
+                'auth'        => [$this->getAccountKey(), $this->getAccountKey()],
+                'form_params' => ['name' => $name]
+            ]
+        );
+    }
+
+    public function getProject($apiKey)
+    {
+        return $this->guzzleClient->request(
+            'GET',
+            $this->url("/project/{$apiKey}"),
+            [
+                'auth' => [$this->getAccountKey(), $this->getAccountKey()],
+            ]
+        );
+    }
+
+    public function postResults(ApiResults $apiResults)
+    {
+        return $this->guzzleClient->request(
+            'POST',
+            $this->url('/results'),
+            [
+                'auth' => [$this->getAccountKey(), $this->getAccountKey()],
+                'form_params' => [
+                    'project' => $this->getProjectKey(),
+                    'results' => $apiResults->toJson()
                 ]
             ]
         );

@@ -44,6 +44,11 @@ class Result
      */
     private $explanation;
 
+    /**
+     * @var string
+     */
+    private $statusMessage;
+
     public function __construct(StepInterface $step, $status, $output = null)
     {
         if (!$this->statusIsValid($status)) {
@@ -53,6 +58,16 @@ class Result
         $this->step   = $step;
         $this->status = $status;
         $this->output = $this->filterOutputToArray($output);
+    }
+
+    public function getStepName()
+    {
+        return $this->step->getName();
+    }
+
+    public function getStatus()
+    {
+        return $this->status;
     }
 
     public function setVerboseOutput($verboseOutput)
@@ -100,6 +115,17 @@ class Result
             $this->getStatusMessage(),
             $this->explanation ? ' ' . $this->explanation : ''
         );
+    }
+
+    public function getApiOutput()
+    {
+        $output = $this->output;
+
+        if ($this->verboseOutput) {
+            $output = $this->verboseOutput;
+        }
+
+        return implode(PHP_EOL, $output);
     }
 
     public function isFailure()
@@ -154,22 +180,33 @@ class Result
         return 'white';
     }
 
+    public function setStatusMessage($statusMessage)
+    {
+        $this->statusMessage = $statusMessage;
+
+        return $this;
+    }
+
     private function getStatusMessage()
     {
-        switch ($this->status) {
-            case self::SUCCESS:
-                return 'completed successfully';
-            case self::INVALID:
-                return 'did not return a valid result';
-            case self::FAILURE:
-                return 'failed';
-            case self::WARNING:
-                return 'generated a warning';
-            case self::SKIPPED:
-                return 'was skipped';
-        }
+        if ($this->statusMessage) {
+            return $this->statusMessage;
+        } else {
+            switch ($this->status) {
+                case self::SUCCESS:
+                    return 'completed successfully';
+                case self::INVALID:
+                    return 'did not return a valid result';
+                case self::FAILURE:
+                    return 'failed';
+                case self::WARNING:
+                    return 'generated a warning';
+                case self::SKIPPED:
+                    return 'was skipped';
+            }
 
-        return 'is invalid';
+            return 'is invalid';
+        }
     }
 
     private function statusIsValid($status)

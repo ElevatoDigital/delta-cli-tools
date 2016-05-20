@@ -28,6 +28,11 @@ class Script extends Command
     private $project;
 
     /**
+     * @var ApiResults
+     */
+    private $apiResults;
+
+    /**
      * @var Environment
      */
     private $environment;
@@ -95,6 +100,7 @@ class Script extends Command
 
         $this->setDescription($description);
 
+        $this->apiResults            = new ApiResults($this);
         $this->project               = $project;
         $this->stepFactory           = ($stepFactory ?: new StepFactory($this->project->getInput()));
         $this->composerVersionReader = new ComposerVersion();
@@ -246,6 +252,11 @@ class Script extends Command
         return $this->environment;
     }
 
+    public function getApiResults()
+    {
+        return $this->apiResults;
+    }
+
     public function setPlaceholderCallback(callable $placeholderCallback)
     {
         $this->placeholderCallback = $placeholderCallback;
@@ -331,6 +342,8 @@ class Script extends Command
             }
 
             $result->render($output);
+
+            $this->apiResults->addStepResult($result);
 
             if ($this->stopOnFailure && $result->isFailure()) {
                 $scriptResult = Result::FAILURE;

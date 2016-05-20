@@ -311,7 +311,7 @@ class Project
 
     public function logAndSendNotifications()
     {
-        return new LogAndSendNotificationsStep($this->input, $this->output);
+        return new LogAndSendNotificationsStep($this);
     }
 
     public function phpCallableSupportingDryRun(callable $callable, callable $dryRunCallable)
