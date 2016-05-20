@@ -177,6 +177,21 @@ class ApiClient
         );
     }
 
+    public function fetchLog($script, $environment)
+    {
+        return $this->guzzleClient->request(
+            'GET',
+            $this->url("/project/{$this->getProjectKey()}/log"),
+            [
+                'auth' => [$this->getAccountKey(), $this->getAccountKey()],
+                'form_params' => [
+                    'script'      => $script,
+                    'environment' => $environment
+                ]
+            ]
+        );
+    }
+
     private function hasKey($jsonFile)
     {
         if (!file_exists($jsonFile) || !is_readable($jsonFile)) {

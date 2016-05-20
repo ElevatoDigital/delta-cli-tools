@@ -36,11 +36,6 @@ class Project
     /**
      * @var array
      */
-    private $recipients = [];
-
-    /**
-     * @var array
-     */
     private $environments = [];
 
     /**
@@ -222,23 +217,6 @@ class Project
     public function getDeployScript()
     {
         return $this->getScript('deploy');
-    }
-
-    public function getRecipients()
-    {
-        return $this->recipients;
-    }
-
-    public function createRecipient()
-    {
-        return new NotificationRecipient($this);
-    }
-
-    public function addRecipient(NotificationRecipient $recipient)
-    {
-        $this->recipients[] = $recipient;
-
-        return $this;
     }
 
     public function getEnvironments()

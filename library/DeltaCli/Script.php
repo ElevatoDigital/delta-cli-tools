@@ -135,6 +135,12 @@ class Script extends Command
     {
         $this
             ->addOption(
+                'colors',
+                null,
+                InputOption::VALUE_NONE,
+                'Force color output.  Useful with `less -R`.'
+            )
+            ->addOption(
                 'skip-step',
                 null,
                 InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
@@ -208,6 +214,10 @@ class Script extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->checkRequiredVersionForProject();
+
+        if ($input->hasOption('colors') && $input->getOption('colors')) {
+            $output->setDecorated(true);
+        }
 
         if (!count($this->steps) && $this->placeholderCallback) {
             $placeholderCallback = $this->placeholderCallback;
