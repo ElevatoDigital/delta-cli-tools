@@ -22,6 +22,7 @@ class DefaultScripts implements ExtensionInterface
             ->addDefaultStep($project->gitStatusIsClean())
             ->addDefaultStep($project->gitBranchMatchesEnvironment())
             ->addDefaultStep($project->fixSshKeyPermissions())
+            ->addDefaultStep($project->logAndSendNotifications())
             ->setPlaceholderCallback(
                 function (OutputInterface $output) {
                     $banner = new Banner($output);
