@@ -12,6 +12,24 @@ class LogAndSendNotifications extends DeltaApiAbstract implements EnvironmentOpt
      */
     private $environment;
 
+    private $sendNotificationsOnScriptSuccess = true;
+
+    private $sendNotificationsOnScriptFailure = true;
+
+    public function setSendNotificationsOnScriptSuccess($sendNotificationsOnScriptSuccess)
+    {
+        $this->sendNotificationsOnScriptSuccess = $sendNotificationsOnScriptSuccess;
+
+        return $this;
+    }
+
+    public function setSendNotificationsOnceScriptFailure($sendNotificationsOnScriptFailure)
+    {
+        $this->sendNotificationsOnScriptFailure = $sendNotificationsOnScriptFailure;
+
+        return $this;
+    }
+
     public function getName()
     {
         if ($this->name) {
@@ -57,10 +75,20 @@ class LogAndSendNotifications extends DeltaApiAbstract implements EnvironmentOpt
 
         $this->output->writeln('<comment>Logging and sending notifications via Delta API...</comment>');
 
-        $response = $this->apiClient->postResults($script->getApiResults(), $this->project);
+        $sendNotifications = $this->shouldSendNotifications($script->getApiResults()->getScriptResult());
+
+        $response = $this->apiClient->postResults(
+            $script->getApiResults(),
+            $this->project,
+            $sendNotifications
+        );
 
         if (200 === $response->getStatusCode()) {
-            $this->output->writeln('<info>Successfully logged results and sent notifications.</info>');
+            if ($sendNotifications) {
+                $this->output->writeln('<info>Successfully logged results and sent notifications.</info>');
+            } else {
+                $this->output->writeln('<info>Successfully logged results.</info>');
+            }
         } else {
             $this->output->writeln('<error>There was an error sending the results to the Delta API</error>');
 
@@ -78,5 +106,16 @@ class LogAndSendNotifications extends DeltaApiAbstract implements EnvironmentOpt
         $this->environment = $environment;
 
         return $this;
+    }
+
+    private function shouldSendNotifications($scriptResult)
+    {
+        if (Result::SUCCESS === $scriptResult && $this->sendNotificationsOnScriptSuccess) {
+            return true;
+        } else if (Result::FAILURE === $scriptResult && $this->sendNotificationsOnScriptFailure) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

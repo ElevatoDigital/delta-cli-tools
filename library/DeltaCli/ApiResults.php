@@ -17,12 +17,29 @@ class ApiResults
     private $stepResults = [];
 
     /**
+     * @var string
+     */
+    private $scriptResult;
+
+    /**
      * ApiResults constructor.
      * @param Script $script
      */
     public function __construct(Script $script)
     {
         $this->script = $script;
+    }
+
+    public function setScriptResult($scriptResult)
+    {
+        $this->scriptResult = $scriptResult;
+
+        return $this;
+    }
+
+    public function getScriptResult()
+    {
+        return $this->scriptResult;
     }
 
     public function addStepResult(Result $stepResult)
@@ -44,6 +61,7 @@ class ApiResults
             [
                 'script'      => $this->script->getName(),
                 'environment' => $environmentName,
+                'result'      => $this->scriptResult,
                 'steps'       => $this->getStepResults(),
                 'attributes'  => []
             ]
