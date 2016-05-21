@@ -48,6 +48,11 @@ class Environment
      */
     private $isDevEnvironment = false;
 
+    /**
+     * @var bool
+     */
+    private $logAndSendNotifications;
+
     public function __construct(Project $project, $name)
     {
         $this->project = $project;
@@ -98,6 +103,22 @@ class Environment
     public function getIsDevEnvironment()
     {
         return $this->isDevEnvironment;
+    }
+
+    public function setLogAndSendNotifications($logAndSendNotifications)
+    {
+        $this->logAndSendNotifications = (boolean) $logAndSendNotifications;
+
+        return $this;
+    }
+
+    public function getLogAndSendNotifications()
+    {
+        if (null === $this->logAndSendNotifications) {
+            return ($this->isDevEnvironment() ? false : true);
+        } else {
+            return $this->logAndSendNotifications;
+        }
     }
 
     public function addHost($hostname, $username = null, $sshPrivateKey = null)

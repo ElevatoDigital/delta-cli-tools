@@ -41,9 +41,14 @@ class LogAndSendNotifications extends DeltaApiAbstract implements EnvironmentOpt
 
     public function run()
     {
-        if ($this->environment && $this->environment->isDevEnvironment()) {
+        if ($this->environment && !$this->environment->getLogAndSendNotifications()) {
             $result = new Result($this, Result::SKIPPED);
-            $result->setExplanation(" because {$this->environment->getName()} is a dev environment");
+
+            if ($this->environment->isDevEnvironment()) {
+                $result->setExplanation("because {$this->environment->getName()} is a dev environment");
+            } else {
+                $result->setExplanation("because {$this->environment->getName()} environment has them disabled");
+            }
             return $result;
         }
 
@@ -69,7 +74,7 @@ class LogAndSendNotifications extends DeltaApiAbstract implements EnvironmentOpt
 
     public function postRun(ScriptObject $script)
     {
-        if ($this->environment && $this->environment->isDevEnvironment()) {
+        if ($this->environment && !$this->environment->getLogAndSendNotifications()) {
             return;
         }
 
