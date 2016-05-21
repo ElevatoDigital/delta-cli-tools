@@ -52,9 +52,15 @@ class DisplayLog extends DeltaApiAbstract
                     $header = $entry['script'];
                 }
 
+                if (Result::SUCCESS === $entry['status']) {
+                    $status = 'info';
+                } else {
+                    $status = 'error';
+                }
+
                 $this->output->writeln(
                     [
-                        "<comment>{$header}</comment>",
+                        "<{$status}>{$header}</{$status}>",
                         sprintf('Run By: %s', $entry['run_by_user']),
                         sprintf('Date:   %s', $this->formatTimestamp($entry['date_run']))
                     ]
