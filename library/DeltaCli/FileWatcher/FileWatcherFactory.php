@@ -48,7 +48,7 @@ class FileWatcherFactory
                 $result = $scriptStep->run();
                 $result->render($fileWatcher->getOutput());
 
-                $fileWatcher->getOutput()->writeln(['', '']);
+                $fileWatcher->getOutput()->writeln(['']);
 
                 if (!$onlyNotifyOnFailure || $result->isFailure() || $previousRunFailed) {
                     $fileWatcher->displayNotification($script, $result);
