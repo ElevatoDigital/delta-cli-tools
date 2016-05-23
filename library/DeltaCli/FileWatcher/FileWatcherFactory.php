@@ -37,7 +37,7 @@ class FileWatcherFactory
                 "<comment>Running {$script->getName()} script at {$timestamp}...</comment>"
             );
 
-            $scriptStep = new ScriptStep($script, $fileWatcher->getInput());
+            $scriptStep = new ScriptStep($script, $fileWatcher->getInput(), $fileWatcher->getOutput());
 
             if ($script->getEnvironment()) {
                 $scriptStep->setSelectedEnvironment($script->getEnvironment());

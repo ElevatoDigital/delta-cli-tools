@@ -36,8 +36,8 @@ class ChangeSet
 
     public function getOutput()
     {
-        if ($this->shouldJustDisplayVerboseOutputByDefault()) {
-            return $this->getVerboseOutput();
+        if ($this->shouldJustDisplayFullOutputByDefault()) {
+            return $this->getFullOutput();
         } else {
             ksort($this->countsByType);
 
@@ -55,10 +55,15 @@ class ChangeSet
 
     public function getVerboseOutput()
     {
-        if ($this->shouldJustDisplayVerboseOutputByDefault()) {
+        if ($this->shouldJustDisplayFullOutputByDefault()) {
             return [];
         }
-        
+
+        return $this->getFullOutput();
+    }
+
+    private function getFullOutput()
+    {
         $output = [];
 
         foreach ($this->changes as $change) {
@@ -68,7 +73,7 @@ class ChangeSet
         return $output;
     }
 
-    private function shouldJustDisplayVerboseOutputByDefault()
+    private function shouldJustDisplayFullOutputByDefault()
     {
         return 10 >= count($this->changes);
     }

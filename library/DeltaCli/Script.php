@@ -102,8 +102,13 @@ class Script extends Command
 
         $this->apiResults            = new ApiResults($this);
         $this->project               = $project;
-        $this->stepFactory           = ($stepFactory ?: new StepFactory($this->project->getInput()));
         $this->composerVersionReader = new ComposerVersion();
+
+        if (null === $stepFactory) {
+            $stepFactory = new StepFactory($this->project->getInput(), $this->project->getOutput());
+        }
+
+        $this->stepFactory = $stepFactory;
 
         $this->init();
     }
