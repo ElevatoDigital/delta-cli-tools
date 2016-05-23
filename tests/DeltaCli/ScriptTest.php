@@ -238,7 +238,7 @@ class ScriptTest extends PHPUnit_Framework_TestCase
         $optionalStep = $this->getMock(
             '\DeltaCli\Script\Step\Script',
             ['setSelectedEnvironment'],
-            [$this->project->getScript('other-script'), $this->project->getInput()]
+            [$this->project->getScript('other-script'), $this->project->getInput(), $this->project->getOutput()]
         );
 
         $optionalStep->expects($this->once())

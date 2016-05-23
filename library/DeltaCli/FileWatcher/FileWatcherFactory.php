@@ -38,6 +38,7 @@ class FileWatcherFactory
             );
 
             $scriptStep = new ScriptStep($script, $fileWatcher->getInput(), $fileWatcher->getOutput());
+            $scriptStep->setUseConsoleOutput(true);
 
             if ($script->getEnvironment()) {
                 $scriptStep->setSelectedEnvironment($script->getEnvironment());
@@ -46,6 +47,8 @@ class FileWatcherFactory
             try {
                 $result = $scriptStep->run();
                 $result->render($fileWatcher->getOutput());
+
+                $fileWatcher->getOutput()->writeln(['', '']);
 
                 if (!$onlyNotifyOnFailure || $result->isFailure() || $previousRunFailed) {
                     $fileWatcher->displayNotification($script, $result);
