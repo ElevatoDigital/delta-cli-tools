@@ -5,6 +5,7 @@ namespace DeltaCli\FileWatcher;
 use DeltaCli\Exception\NoCompatibleFileWatcherExtensionAvailable;
 use DeltaCli\Script;
 use DeltaCli\Script\Step\Script as ScriptStep;
+use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -42,18 +43,27 @@ class FileWatcherFactory
                 $scriptStep->setSelectedEnvironment($script->getEnvironment());
             }
 
-            $result = $scriptStep->run();
+            try {
+                $result = $scriptStep->run();
+                $result->render($fileWatcher->getOutput());
 
-            $result->render($fileWatcher->getOutput());
+                if (!$onlyNotifyOnFailure || $result->isFailure() || $previousRunFailed) {
+                    $fileWatcher->displayNotification($script, $result);
+                }
 
-            if (!$onlyNotifyOnFailure || $result->isFailure() || $previousRunFailed) {
-                $fileWatcher->displayNotification($script, $result);
-            }
-
-            if ($result->isFailure()) {
-                $previousRunFailed = true;
-            } else {
-                $previousRunFailed = false;
+                if ($result->isFailure()) {
+                    $previousRunFailed = true;
+                } else {
+                    $previousRunFailed = false;
+                }
+            } catch (Exception $e) {
+                $fileWatcher->getOutput()->writeln(
+                    [
+                        '<error>Error encountered when running script during watch.</error>',
+                        '',
+                        $e->getMessage()
+                    ]
+                );
             }
         };
     }

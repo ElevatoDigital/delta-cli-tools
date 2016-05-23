@@ -94,6 +94,10 @@ class Watch extends StepAbstract implements EnvironmentOptionalInterface
     public function run()
     {
         if (count($this->paths)) {
+            if ($this->environment) {
+                $this->script->setEnvironment($this->environment);
+            }
+            
             $this->fileWatcher->addWatch($this->paths, $this->script, $this->onlyNotifyOnFailure, $this->stopOnFailure);
             return new Result($this, Result::SUCCESS);
         } else {
