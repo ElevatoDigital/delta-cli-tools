@@ -121,7 +121,7 @@ class SshTunnel
 
             Debug::log("Opening SSH tunnel with `{$command}`...");
 
-            $this->sshProcess = shell_exec($command);
+            $this->sshProcess = trim(shell_exec($command));
 
             $this->waitUntilTunnelIsOpen();
         }
@@ -134,9 +134,20 @@ class SshTunnel
         }
 
         if ($this->sshProcess) {
-            Debug::log("Tearing down SSH tunnel for {$this->tunnelConnectionsForHost->getHostname()}.");
+            Debug::log(
+                "Tearing down SSH tunnel for {$this->tunnelConnectionsForHost->getHostname()} with PID "
+                . "{$this->sshProcess}."
+            );
 
-            posix_kill($this->sshProcess, '-9');
+            $success = posix_kill($this->sshProcess, 9);
+
+            if ($success) {
+                Debug::log("Successfully killed SSH tunnel process {$this->sshProcess}.");
+            } else {
+                Debug::log("Failed to kill SSH tunnel process {$this->sshProcess}.");
+            }
+
+            $this->sshProcess = null;
         }
     }
 
