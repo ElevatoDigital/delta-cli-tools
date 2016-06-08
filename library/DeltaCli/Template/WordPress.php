@@ -106,6 +106,8 @@ class WordPress implements TemplateInterface
 
             if (file_exists($cwd . '/src')) {
                 $this->localWordPressRoot = $cwd . '/src';
+            } else if (file_exists($cwd . '/httpdocs')) {
+                $this->localWordPressRoot = $cwd . '/httpdocs';
             } else {
                 $this->localWordPressRoot = $cwd;
             }
