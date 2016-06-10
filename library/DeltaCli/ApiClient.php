@@ -3,6 +3,8 @@
 namespace DeltaCli;
 
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Handler\StreamHandler;
+use GuzzleHttp\HandlerStack;
 
 class ApiClient
 {
@@ -22,7 +24,10 @@ class ApiClient
 
     public function __construct(GuzzleClient $guzzleClient = null)
     {
-        $this->guzzleClient = ($guzzleClient ?: new GuzzleClient(['exceptions' => false]));
+        $stack = new HandlerStack();
+        $stack->setHandler(new StreamHandler());
+
+        $this->guzzleClient = ($guzzleClient ?: new GuzzleClient(['exceptions' => false, 'handler' => $stack]));
         $this->homeFolder   = $_SERVER['HOME'];
     }
 
