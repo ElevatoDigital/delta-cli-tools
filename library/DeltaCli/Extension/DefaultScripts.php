@@ -42,5 +42,8 @@ class DefaultScripts implements ExtensionInterface
                     );
                 }
             );
+
+        $project->createScript('git:latest-tag', 'Display the latest git tag for this project.')
+            ->addStep('display-latest-git-tag', 'git describe --abbrev=0 --tags');
     }
 }
