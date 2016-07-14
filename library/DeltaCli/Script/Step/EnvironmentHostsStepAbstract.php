@@ -32,7 +32,7 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
         if (!$this->environment) {
             throw new EnvironmentNotAvailableForStep();
         }
-        
+
         $output        = [];
         $verboseOutput = [];
 
@@ -60,7 +60,9 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
             }
 
             if (count($hostOutput)) {
-                $output[] = '<comment>' . $host->getHostname() . '</comment>';
+                $hostnameComment = '<comment>' . $host->getHostname() . '</comment>';
+                $output[]        = $hostnameComment;
+                $verboseOutput[] = $hostnameComment;
 
                 foreach ($hostOutput as $line) {
                     $output[] = '  ' . $line;
