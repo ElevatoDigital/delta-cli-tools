@@ -10,8 +10,8 @@
     },
     "require": {
         "php": ">=5.5.0",
-        "symfony/console": "^2.0",
-        "symfony/stopwatch": "^2.0",
+        "symfony/console": ">=2.0",
+        "symfony/stopwatch": ">=2.0",
         "cocur/slugify": "2.*",
         "guzzlehttp/guzzle": "~6.0"
     },
