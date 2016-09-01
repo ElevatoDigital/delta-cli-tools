@@ -2,7 +2,6 @@
 
 namespace DeltaCli\FileWatcher;
 
-use DeltaCli\Exception\NoCompatibleFileWatcherExtensionAvailable;
 use DeltaCli\Script;
 use DeltaCli\Script\Step\Script as ScriptStep;
 use Exception;
@@ -18,7 +17,7 @@ class FileWatcherFactory
         } else if (extension_loaded('inotify')) {
             return new Inotify($input, $output);
         } else {
-            throw new NoCompatibleFileWatcherExtensionAvailable();
+            return new NullWatcher();
         }
     }
 
