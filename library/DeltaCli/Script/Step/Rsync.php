@@ -241,6 +241,7 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
             $args[] = '--exclude=.Trashes';
             $args[] = '--exclude=ehthumbs.db';
             $args[] = '--exclude=Thumbs.db';
+            $args[] = '--exclude=google*.html';
         }
 
         foreach ($this->excludes as $exclude) {
