@@ -100,7 +100,7 @@ class Scp extends EnvironmentHostsStepAbstract
     private function getDirectoryFlag()
     {
         if (null !== $this->isDirectory) {
-            return (boolean) $this->isDirectory;
+            return ($this->isDirectory ? '-r' : '');
         } else {
             return is_dir($this->localFile) ? '-r' : '';
         }

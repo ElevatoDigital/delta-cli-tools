@@ -13,6 +13,8 @@ class Scp extends Script
 
     private $file2;
 
+    private $recursive;
+
     public function __construct(Project $project)
     {
         parent::__construct(
@@ -36,10 +38,19 @@ class Scp extends Script
         return $this;
     }
 
+    public function setRecursive($recursive)
+    {
+        $this->recursive = $recursive;
+
+        return $this;
+    }
+
     protected function configure()
     {
         $this->addSetterArgument('file1');
         $this->addSetterArgument('file2');
+
+        $this->addSetterOption('recursive', 'r');
 
         parent::configure();
     }
@@ -50,6 +61,11 @@ class Scp extends Script
         $scp   = new ScpStep($paths->getLocalPath(), $paths->getRemotePath(), $paths->getDirection());
         $env   = $this->getProject()->getEnvironment($paths->getRemoteEnvironment());
         $this->setEnvironment($env);
+
+        if ($this->recursive) {
+            $scp->setIsDirectory(true);
+        }
+
         $this->addStep($scp);
     }
 }
