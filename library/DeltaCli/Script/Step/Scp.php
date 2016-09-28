@@ -3,21 +3,12 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Exec;
+use DeltaCli\FileTransferPaths;
 use DeltaCli\Host;
 use DeltaCli\SshTunnel;
 
 class Scp extends EnvironmentHostsStepAbstract
 {
-    /**
-     * @const
-     */
-    const UP = 'upload';
-
-    /**
-     * @const
-     */
-    const DOWN = 'download';
-
     /**
      * @var string
      */
@@ -31,14 +22,14 @@ class Scp extends EnvironmentHostsStepAbstract
     /**
      * @var string
      */
-    private $direction = self::UP;
+    private $direction = FileTransferPaths::UP;
 
     /**
      * @var boolean
      */
     private $isDirectory = null;
 
-    public function __construct($localFile, $remoteFile, $direction = self::UP)
+    public function __construct($localFile, $remoteFile, $direction = FileTransferPaths::UP)
     {
         $this->localFile  = $localFile;
         $this->remoteFile = $remoteFile;
@@ -60,7 +51,7 @@ class Scp extends EnvironmentHostsStepAbstract
             return sprintf(
                 'scp-%s-%s-remote',
                 basename($this->localFile),
-                (self::UP === $this->direction ? 'to' : 'from')
+                (FileTransferPaths::UP === $this->direction ? 'to' : 'from')
             );
         }
     }
@@ -76,7 +67,7 @@ class Scp extends EnvironmentHostsStepAbstract
             $this->getRemoteFileSpecification($tunnel, $this->remoteFile)
         ];
 
-        if (self::DOWN === $this->direction) {
+        if (FileTransferPaths::DOWN === $this->direction) {
             rsort($fileParts);
         }
 

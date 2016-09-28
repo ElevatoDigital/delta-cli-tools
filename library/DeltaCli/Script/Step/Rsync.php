@@ -3,8 +3,10 @@
 namespace DeltaCli\Script\Step;
 
 use Cocur\Slugify\Slugify;
+use DeltaCli\FileTransferPaths;
 use DeltaCli\Host;
 use DeltaCli\Script as ScriptObject;
+use DeltaCli\SshTunnel;
 
 class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
 {
@@ -21,6 +23,11 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
      * @var string
      */
     private $remotePath;
+
+    /**
+     * @var string
+     */
+    private $direction;
 
     /**
      * @var bool
@@ -57,10 +64,11 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
      */
     private $slugify;
 
-    public function __construct($localPath, $remotePath)
+    public function __construct($localPath, $remotePath, $direction = FileTransferPaths::UP)
     {
         $this->localPath  = $localPath;
         $this->remotePath = $remotePath;
+        $this->direction  = $direction;
     }
 
     public function delete()
@@ -133,12 +141,20 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
     {
         if ($this->name) {
             return $this->name;
-        } else {
+        } elseif (FileTransferPaths::UP === $this->direction) {
             return $this->getSlugify()->slugify(
                 sprintf(
                     'rsync-%s-to-%s',
                     (basename(realpath($this->localPath)) ?: 'local'),
                     (basename($this->remotePath) ?: 'remote')
+                )
+            );
+        } else {
+            return $this->getSlugify()->slugify(
+                sprintf(
+                    'rsync-%s-to-%s',
+                    (basename($this->remotePath) ?: 'remote'),
+                    (basename(realpath($this->localPath)) ?: 'local')
                 )
             );
         }
@@ -166,17 +182,17 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
 
         $tunnel->setUp();
 
+        $pathArguments = $this->assemblePathArguments($tunnel);
+
         $command = sprintf(
-            'rsync %s %s %s %s -i -e %s %s %s@%s:%s 2>&1',
+            'rsync %s %s %s %s -i -e %s %s %s 2>&1',
             (self::DRY_RUN === $this->mode ? '--dry-run' : ''),
             $this->assembleExcludeArgs(),
             ($this->delete ? '--delete' : ''),
             $this->flags,
             escapeshellarg($tunnel->getCommand()),
-            escapeshellarg($this->normalizePath($this->localPath)),
-            escapeshellarg($tunnel->getUsername()),
-            escapeshellarg($tunnel->getHostname()),
-            escapeshellarg($this->normalizePath($this->remotePath))
+            $pathArguments[0],
+            $pathArguments[1]
         );
 
         $this->exec($command, $output, $exitStatus);
@@ -224,6 +240,26 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
     private function normalizePath($path)
     {
         return rtrim($path, '/') . '/';
+    }
+
+    private function assemblePathArguments(SshTunnel $tunnel)
+    {
+        $localArgument = escapeshellarg($this->normalizePath($this->localPath));
+
+        $remoteArgument = sprintf(
+            '%s@%s:%s',
+            escapeshellarg($tunnel->getUsername()),
+            escapeshellarg($tunnel->getHostname()),
+            escapeshellarg($this->normalizePath($this->remotePath))
+        );
+
+        if (FileTransferPaths::UP === $this->direction) {
+            $arguments = [$localArgument, $remoteArgument];
+        } else {
+            $arguments = [$remoteArgument, $localArgument];
+        }
+
+        return $arguments;
     }
 
     private function assembleExcludeArgs()

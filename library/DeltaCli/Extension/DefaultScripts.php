@@ -6,6 +6,7 @@ use DeltaCli\Console\Output\Banner;
 use DeltaCli\Project;
 use DeltaCli\Script\InstallFsevents;
 use DeltaCli\Script\Log;
+use DeltaCli\Script\Rsync as RsyncScript;
 use DeltaCli\Script\Scp as ScpScript;
 use DeltaCli\Script\SshFixKeyPermissions as SshFixKeyPermissionsScript;
 use DeltaCli\Script\SshInstallKey as SshInstallKeyScript;
@@ -17,6 +18,7 @@ class DefaultScripts implements ExtensionInterface
     {
         $project->addScript(new InstallFsevents($project));
         $project->addScript(new Log($project));
+        $project->addScript(new RsyncScript($project));
         $project->addScript(new SshFixKeyPermissionsScript($project));
         $project->addScript(new SshInstallKeyScript($project));
         $project->addScript(new ScpScript($project));
