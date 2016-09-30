@@ -388,7 +388,10 @@ class Script extends Command
     {
         /* @var $step StepInterface|DryRunInterface */
         foreach ($this->getStepsForEnvironment() as $step) {
-            if (!$step instanceof DryRunInterface) {
+            if ($this->stepShouldBeSkipped($step)) {
+                $result = new Result($step, Result::SKIPPED);
+                $result->setExplanation("at the user's request");
+            } elseif (!$step instanceof DryRunInterface) {
                 $result = new Result($step, Result::SKIPPED);
                 $result->setExplanation(self::NO_DRY_RUN_SUPPORT_EXPLANATION);
             } else {
