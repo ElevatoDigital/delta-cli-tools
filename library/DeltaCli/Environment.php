@@ -151,6 +151,52 @@ class Environment
         return false;
     }
 
+    /**
+     * @param string $userInput
+     * @return Host
+     * @throws MustSpecifyHostnameForShell
+     */
+    public function getSelectedHost($userInput)
+    {
+        if (1 === count($this->hosts)) {
+            $selected = current($this->hosts);
+        } else {
+            if (!$userInput) {
+                $hostCount = count($this->hosts);
+
+                throw new MustSpecifyHostnameForShell(
+                    "The {$this->getName()} environment has {$hostCount} hosts, so you must"
+                    . "specify which host you'd like to shell into with the hostname option."
+                );
+            }
+
+            $selected = [];
+
+            /* @var $host Host */
+            foreach ($this->hosts as $host) {
+                if (false !== strpos($host->getHostname(), $userInput)) {
+                    $selected[] = $host;
+                }
+            }
+
+            if (!count($selected)) {
+                throw new MustSpecifyHostnameForShell("No host could be found with the hostname {$userInput}.");
+            } elseif (1 < count($selected)) {
+                throw new MustSpecifyHostnameForShell("More than one host matches the hostname {$userInput}.");
+            }
+
+            $selected = current($selected);
+        }
+
+        if (!$selected->hasRequirementsForSshUse()) {
+            throw new MustSpecifyHostnameForShell(
+                "The {$selected->getHostname()} host is not configured for SSH which needs a username and hostname."
+            );
+        }
+
+        return $selected;
+    }
+
     public function setGitBranch($gitBranch)
     {
         $this->gitBranch = $gitBranch;

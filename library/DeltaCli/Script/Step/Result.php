@@ -84,27 +84,29 @@ class Result
         return $this;
     }
 
-    public function render(OutputInterface $output)
+    public function render(OutputInterface $output, $showStatus = true)
     {
-        $output->writeln(
-            sprintf(
-                '<fg=%s>%s</>',
-                $this->getStatusColor(),
-                $this->getMessageText()
-            )
-        );
+        if ($showStatus) {
+            $output->writeln(
+                sprintf(
+                    '<fg=%s>%s</>',
+                    $this->getStatusColor(),
+                    $this->getMessageText()
+                )
+            );
+        }
 
         $content = $this->output;
 
         if ($this->verboseOutput) {
-            if (OutputInterface::VERBOSITY_VERBOSE <= $output->getVerbosity()) {
+            if (!$showStatus || OutputInterface::VERBOSITY_VERBOSE <= $output->getVerbosity()) {
                 $content = $this->verboseOutput;
             } else {
                 $content[] = self::VERBOSE_FLAG_MESSAGE;
             }
         }
 
-        $this->writeOutput($output, $content);
+        $this->writeOutput($output, $content, $showStatus);
     }
 
     public function getMessageText()
@@ -133,9 +135,15 @@ class Result
         return self::INVALID === $this->status || self::FAILURE === $this->status;
     }
 
-    private function writeOutput(OutputInterface $output, array $content)
+    private function writeOutput(OutputInterface $output, array $content, $indentOutput = true)
     {
-        if (count($content)) {
+        if (!count($content)) {
+            return $this;
+        }
+
+        if (!$indentOutput) {
+            $output->writeln($content);
+        } else {
             $indentedOutput = array_map(
                 function ($line) {
                     return '  ' . $line;

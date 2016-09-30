@@ -68,6 +68,11 @@ class Script extends Command
     private $stopOnFailure = true;
 
     /**
+     * @var bool
+     */
+    private $showStatusOutput = true;
+
+    /**
      * @var array
      */
     private $setterArguments = [];
@@ -162,6 +167,12 @@ class Script extends Command
                 null,
                 InputOption::VALUE_NONE,
                 'List the steps involved in this script.'
+            )
+            ->addOption(
+                'hide-status-output',
+                null,
+                InputOption::VALUE_NONE,
+                'Only display output from the steps themselves rather than Delta CLI status information.'
             );
     }
 
@@ -228,6 +239,10 @@ class Script extends Command
             $placeholderCallback = $this->placeholderCallback;
             $placeholderCallback($output);
             exit;
+        }
+
+        if ($input->hasOption('hide-status-output') && $input->getOption('hide-status-output')) {
+            $this->showStatusOutput = false;
         }
 
         $this->skippedSteps = $input->getOption('skip-step');
@@ -356,7 +371,7 @@ class Script extends Command
                 }
             }
 
-            $result->render($output);
+            $result->render($output, $this->showStatusOutput);
 
             $this->apiResults->addStepResult($result);
 
@@ -402,7 +417,7 @@ class Script extends Command
                 }
             }
 
-            $result->render($output);
+            $result->render($output, $this->showStatusOutput);
         }
     }
 

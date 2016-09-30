@@ -295,6 +295,11 @@ class Project
         return array_key_exists($name, $this->environments);
     }
 
+    /**
+     * @param $name
+     * @return Environment
+     * @throws EnvironmentNotFound
+     */
     public function getEnvironment($name)
     {
         if (!$this->hasEnvironment($name)) {

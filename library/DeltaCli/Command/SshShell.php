@@ -3,8 +3,6 @@
 namespace DeltaCli\Command;
 
 use DeltaCli\Debug;
-use DeltaCli\Exception\MustSpecifyHostnameForShell;
-use DeltaCli\Host;
 use DeltaCli\Project;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -37,10 +35,8 @@ class SshShell extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $host = $this->getHostForEnvironment(
-            $input->getArgument('environment'),
-            $input->getOption('hostname')
-        );
+        $env  = $this->project->getEnvironment($input->getArgument('environment'));
+        $host = $env->getSelectedHost($input->getOption('hostname'));
 
         $permissionsStep = $this->project->fixSshKeyPermissions();
         $permissionsStep->run();
@@ -53,48 +49,5 @@ class SshShell extends Command
         passthru($command);
 
         $tunnel->tearDown();
-    }
-
-    private function getHostForEnvironment($environmentName, $hostname)
-    {
-        $selected    = [];
-        $environment = $this->project->getEnvironment($environmentName);
-        $hosts       = $environment->getHosts();
-
-        if (1 === count($hosts)) {
-            $selected = current($hosts);
-        } else {
-            if (!$hostname) {
-                $hostCount = count($hosts);
-
-                throw new MustSpecifyHostnameForShell(
-                    "The {$environment->getName()} environment has {$hostCount} hosts, so you must"
-                    . "specify which host you'd like to shell into with the hostname option."
-                );
-            }
-
-            /* @var $host Host */
-            foreach ($hosts as $host) {
-                if (false !== strpos($host->getHostname(), $hostname)) {
-                    $selected[] = $host;
-                }
-            }
-
-            if (!count($selected)) {
-                throw new MustSpecifyHostnameForShell("No host could be found with the hostname {$hostname}.");
-            } elseif (1 < count($selected)) {
-                throw new MustSpecifyHostnameForShell("More than one host matches the hostname {$hostname}.");
-            }
-
-            $selected = current($selected);
-        }
-
-        if (!$selected->hasRequirementsForSshUse()) {
-            throw new MustSpecifyHostnameForShell(
-                "The {$selected->getHostname()} host is not configured for SSH which needs a username and hostname."
-            );
-        }
-
-        return $selected;
     }
 }
