@@ -57,7 +57,7 @@ class SshShell extends Command
 
     private function getHostForEnvironment($environmentName, $hostname)
     {
-        $selected    = null;
+        $selected    = [];
         $environment = $this->project->getEnvironment($environmentName);
         $hosts       = $environment->getHosts();
 
@@ -75,17 +75,18 @@ class SshShell extends Command
 
             /* @var $host Host */
             foreach ($hosts as $host) {
-                if ($host->getHostname() === $hostname) {
-                    $selected = $host;
-                    break;
+                if (false !== strpos($host->getHostname(), $hostname)) {
+                    $selected[] = $host;
                 }
             }
 
-            if (!$selected) {
-                throw new MustSpecifyHostnameForShell(
-                    "No host could be found with the hostname {$hostname}."
-                );
+            if (!count($selected)) {
+                throw new MustSpecifyHostnameForShell("No host could be found with the hostname {$hostname}.");
+            } elseif (1 < count($selected)) {
+                throw new MustSpecifyHostnameForShell("More than one host matches the hostname {$hostname}.");
             }
+
+            $selected = current($selected);
         }
 
         if (!$selected->hasRequirementsForSshUse()) {
