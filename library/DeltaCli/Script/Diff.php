@@ -72,8 +72,8 @@ class Diff extends Script
             'generate-diff',
             sprintf(
                 'diff --new-file --recursive --unified --ignore-all-space %s %s',
-                escapeshellarg($paths->getLocalPath()),
-                escapeshellarg($this->getTemporaryLocalPath())
+                escapeshellarg($this->getTemporaryLocalPath()),
+                escapeshellarg($paths->getLocalPath())
             )
         );
 
