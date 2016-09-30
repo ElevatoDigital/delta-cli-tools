@@ -6,6 +6,7 @@ use DeltaCli\FileTransferPaths;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
+use Symfony\Component\Console\Input\InputOption;
 
 class Diff extends Script
 {
@@ -18,6 +19,11 @@ class Diff extends Script
      * @var string
      */
     private $file2;
+
+    /**
+     * @var array
+     */
+    private $excludes = [];
 
     /**
      * @var string
@@ -47,6 +53,13 @@ class Diff extends Script
         return $this;
     }
 
+    public function setExclude(array $excludes)
+    {
+        $this->excludes = $excludes;
+
+        return $this;
+    }
+
     protected function configure()
     {
         // We want temporary files to be removed even if diff "fails"
@@ -54,6 +67,8 @@ class Diff extends Script
 
         $this->addSetterArgument('file1');
         $this->addSetterArgument('file2');
+
+        $this->addSetterOption('exclude', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL);
 
         parent::configure();
     }
@@ -64,6 +79,12 @@ class Diff extends Script
         $rsync = new RsyncStep($this->getTemporaryLocalPath(), $paths->getRemotePath(), FileTransferPaths::DOWN);
         $env   = $this->getProject()->getEnvironment($paths->getRemoteEnvironment());
         $this->setEnvironment($env);
+
+        if (count($this->excludes)) {
+            foreach ($this->excludes as $exclude) {
+                $rsync->exclude($exclude);
+            }
+        }
 
         $this->addStep($rsync)
             ->setName('copy-remote-files');
