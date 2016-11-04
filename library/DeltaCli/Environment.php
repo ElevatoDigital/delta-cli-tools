@@ -159,7 +159,7 @@ class Environment
     public function getSelectedHost($userInput)
     {
         if (1 === count($this->hosts)) {
-            $selected = current($this->hosts);
+            $selected = reset($this->hosts);
         } else {
             if (!$userInput) {
                 $hostCount = count($this->hosts);
