@@ -12,7 +12,6 @@ use DeltaCli\Script\Step\EnvironmentOptionalInterface;
 use DeltaCli\Script\Step\Result;
 use DeltaCli\Script\Step\StepFactory;
 use DeltaCli\Script\Step\StepInterface;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -213,7 +212,7 @@ class Script extends Command
         $this->project->loadConfigFile();
 
         if ($input->hasArgument('environment')) {
-            $this->setEnvironment($input->getArgument('environment'));
+            $this->setEnvironment($this->project->getSelectedEnvironment());
         }
 
         foreach ($this->setterArguments as $argument => $setterMethod) {

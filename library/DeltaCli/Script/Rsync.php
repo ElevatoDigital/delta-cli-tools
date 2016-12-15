@@ -82,7 +82,7 @@ class Rsync extends Script
     {
         $paths = new FileTransferPaths($this->getProject(), $this->file1, $this->file2);
         $rsync = new RsyncStep($paths->getLocalPath(), $paths->getRemotePath(), $paths->getDirection());
-        $env   = $this->getProject()->getEnvironment($paths->getRemoteEnvironment());
+        $env   = $this->getProject()->getTunneledEnvironment($paths->getRemoteEnvironment());
         $this->setEnvironment($env);
 
         if (count($this->excludes)) {

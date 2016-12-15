@@ -311,6 +311,34 @@ class Project
         return $this->environments[$name];
     }
 
+    /**
+     * Get the environment selected for use during the current script or command.  This method will automatically
+     * configure tunneling as well, using the command-line arguments to find the tunneling environment.
+     *
+     * @return Environment
+     */
+    public function getSelectedEnvironment()
+    {
+        return $this->getTunneledEnvironment($this->input->getArgument('environment'));
+    }
+
+    /**
+     * Get an environment and configure tunneling for it.
+     *
+     * @param string $name
+     * @return Environment
+     */
+    public function getTunneledEnvironment($name)
+    {
+        $environment = $this->getEnvironment($name);
+
+        if ($this->input->getOption('tunnel-via')) {
+            $environment->tunnelSshVia($this->input->getOption('tunnel-via'));
+        }
+
+        return $environment;
+    }
+
     public function getFileWatcher()
     {
         if (!$this->fileWatcher) {

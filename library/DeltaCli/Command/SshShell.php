@@ -2,9 +2,9 @@
 
 namespace DeltaCli\Command;
 
+use DeltaCli\Command;
 use DeltaCli\Debug;
 use DeltaCli\Project;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -35,7 +35,7 @@ class SshShell extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $env  = $this->project->getEnvironment($input->getArgument('environment'));
+        $env  = $this->project->getSelectedEnvironment();
         $host = $env->getSelectedHost($input->getOption('hostname'));
 
         $permissionsStep = $this->project->fixSshKeyPermissions();

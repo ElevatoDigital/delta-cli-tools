@@ -77,7 +77,7 @@ class Diff extends Script
     {
         $paths = new FileTransferPaths($this->getProject(), $this->file1, $this->file2);
         $rsync = new RsyncStep($this->getTemporaryLocalPath(), $paths->getRemotePath(), FileTransferPaths::DOWN);
-        $env   = $this->getProject()->getEnvironment($paths->getRemoteEnvironment());
+        $env   = $this->getProject()->getTunneledEnvironment($paths->getRemoteEnvironment());
         $this->setEnvironment($env);
 
         if (count($this->excludes)) {

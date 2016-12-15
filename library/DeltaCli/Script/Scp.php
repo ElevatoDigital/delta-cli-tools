@@ -59,7 +59,7 @@ class Scp extends Script
     {
         $paths = new FileTransferPaths($this->getProject(), $this->file1, $this->file2);
         $scp   = new ScpStep($paths->getLocalPath(), $paths->getRemotePath(), $paths->getDirection());
-        $env   = $this->getProject()->getEnvironment($paths->getRemoteEnvironment());
+        $env   = $this->getProject()->getTunneledEnvironment($paths->getRemoteEnvironment());
         $this->setEnvironment($env);
 
         if ($this->recursive) {
