@@ -13,7 +13,9 @@
         "symfony/console": ">=2.0",
         "symfony/stopwatch": ">=2.0",
         "cocur/slugify": "2.*",
-        "guzzlehttp/guzzle": "~6.0"
+        "guzzlehttp/guzzle": "~6.0",
+        "react/react": "0.4.*",
+        "react/child-process": "0.4.*"
     },
     "require-dev" : {
         "phpunit/dbunit": "2.*",
