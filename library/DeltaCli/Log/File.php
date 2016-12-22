@@ -87,20 +87,30 @@ class File implements LogInterface
                 $process->stdout->on(
                     'data',
                     function ($processOutput) use ($output) {
-                        echo $output->writeln($processOutput);
+                        $output->writeln($this->assembleOutputLine($processOutput));
                     }
                 );
             }
         );
     }
 
-    public function assembleTailCommand(SshTunnel $sshTunnel)
+    private function assembleTailCommand(SshTunnel $sshTunnel)
     {
         return $sshTunnel->assembleSshCommand(
             sprintf(
                 'tail -f %s',
                 escapeshellarg($this->getRemotePath())
             )
+        );
+    }
+
+    private function assembleOutputLine($processOutput)
+    {
+        return sprintf(
+            '<info>%s - %s</info> %s',
+            $this->getName(),
+            $this->host->getHostname(),
+            $processOutput
         );
     }
 }
