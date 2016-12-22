@@ -106,11 +106,12 @@ class File implements LogInterface
 
     private function assembleOutputLine($processOutput)
     {
-        return sprintf(
-            '<comment>%s <%s></comment> %s',
+        $logInfo = sprintf(
+            '<fg=blue>%s <%s></>',
             $this->getName(),
-            $this->host->getHostname(),
-            trim($processOutput)
+            $this->host->getHostname()
         );
+
+        return [$logInfo, trim($processOutput)];
     }
 }

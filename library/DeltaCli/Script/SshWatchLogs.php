@@ -32,10 +32,20 @@ class SshWatchLogs extends Script
             ->addStep(
                 'watch-logs',
                 function () use ($findLogsStep) {
-                    $loop = EventLoopFactory::create();
+                    $loop   = EventLoopFactory::create();
+                    $output = $this->getProject()->getOutput();
 
                     foreach ($findLogsStep->getLogs() as $log) {
-                        $log->attachToEventLoop($loop, $this->getProject()->getOutput());
+                        if ($log->getWatchByDefault()) {
+                            $log->attachToEventLoop($loop, $this->getProject()->getOutput());
+                        } else {
+                            $output->writeln(
+                                sprintf(
+                                    '<comment>Skipping %s because it is not watched by default.</comment>',
+                                    $log->getName()
+                                )
+                            );
+                        }
                     }
 
                     $loop->run();
