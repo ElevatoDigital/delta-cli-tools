@@ -110,7 +110,7 @@ class File implements LogInterface
             '<info>%s - %s</info> %s',
             $this->getName(),
             $this->host->getHostname(),
-            $processOutput
+            trim($processOutput)
         );
     }
 }
