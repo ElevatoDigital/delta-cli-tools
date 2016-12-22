@@ -9,7 +9,9 @@ use DeltaCli\Extension\DefaultScripts as DefaultScriptsExtension;
 use DeltaCli\Extension\Vagrant as VagrantExtension;
 use DeltaCli\FileWatcher\FileWatcherInterface;
 use DeltaCli\FileWatcher\FileWatcherFactory;
+use DeltaCli\Log\Detector\DetectorSet as LogDetectorSet;
 use DeltaCli\Script\Step\AllowWritesToRemoteFolder as AllowWritesToRemoteFolderStep;
+use DeltaCli\Script\Step\FindLogs as FindLogsStep;
 use DeltaCli\Script\Step\FixSshKeyPermissions as FixSshKeyPermissionsStep;
 use DeltaCli\Script\Step\GitBranchMatchesEnvironment as GitBranchMatchesEnvironmentStep;
 use DeltaCli\Script\Step\GitStatusIsClean as GitStatusIsCleanStep;
@@ -351,6 +353,11 @@ class Project
     public function allowWritesToRemoteFolder($remoteFolder)
     {
         return new AllowWritesToRemoteFolderStep($remoteFolder);
+    }
+
+    public function findLogs()
+    {
+        return new FindLogsStep(new LogDetectorSet());
     }
 
     public function fixSshKeyPermissions()

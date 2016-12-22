@@ -45,6 +45,7 @@ class Exec
 
         exec($command, $output, $exitStatus);
 
+        $exitStatus  = (int) $exitStatus;
         $event       = $stopwatch->stop('exec');
         $timeElapsed = $event->getDuration();
 

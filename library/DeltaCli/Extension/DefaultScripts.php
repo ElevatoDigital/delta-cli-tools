@@ -9,8 +9,10 @@ use DeltaCli\Script\Log;
 use DeltaCli\Script\Diff as DiffScript;
 use DeltaCli\Script\Rsync as RsyncScript;
 use DeltaCli\Script\Scp as ScpScript;
+use DeltaCli\Script\SshListLogs as SshListLogsScript;
 use DeltaCli\Script\SshFixKeyPermissions as SshFixKeyPermissionsScript;
 use DeltaCli\Script\SshInstallKey as SshInstallKeyScript;
+use DeltaCli\Script\SshWatchLogs as SshWatchLogsScript;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class DefaultScripts implements ExtensionInterface
@@ -24,6 +26,8 @@ class DefaultScripts implements ExtensionInterface
         $project->addScript(new SshFixKeyPermissionsScript($project));
         $project->addScript(new SshInstallKeyScript($project));
         $project->addScript(new ScpScript($project));
+        $project->addScript(new SshWatchLogsScript($project));
+        $project->addScript(new SshListLogsScript($project));
 
         $project->createScript('deploy', 'Deploy this project.')
             ->requireEnvironment()
