@@ -107,7 +107,7 @@ class File implements LogInterface
     private function assembleOutputLine($processOutput)
     {
         return sprintf(
-            '<comment>%s - %s</comment> %s',
+            '<comment>%s <%s></comment> %s',
             $this->getName(),
             $this->host->getHostname(),
             trim($processOutput)
