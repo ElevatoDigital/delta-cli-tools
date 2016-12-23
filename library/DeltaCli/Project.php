@@ -137,6 +137,18 @@ class Project
             require_once $cwd . '/delta-cli.php';
 
             $this->configFileLoaded = true;
+
+            if (!$this->hasEnvironment('vpn')) {
+                $this->createEnvironment('vpn')
+                    ->setUsername('delta')
+                    ->addHost('vpn.deltasys.com');
+
+                $privateKeyPath = $cwd . '/ssh-keys/id_rsa';
+
+                if (file_exists($privateKeyPath)) {
+                    $this->getEnvironment('vpn')->setSshPrivateKey($privateKeyPath);
+                }
+            }
         }
     }
 
