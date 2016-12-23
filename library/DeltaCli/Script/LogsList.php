@@ -6,13 +6,13 @@ use DeltaCli\Project;
 use DeltaCli\Script;
 use Symfony\Component\Console\Helper\Table;
 
-class SshListLogs extends Script
+class LogsList extends Script
 {
     public function __construct(Project $project)
     {
         parent::__construct(
             $project,
-            'ssh:list-logs',
+            'logs:list',
             'Find and list the logs on a remote environment.'
         );
     }

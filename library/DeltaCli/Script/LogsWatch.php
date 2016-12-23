@@ -6,13 +6,13 @@ use DeltaCli\Project;
 use DeltaCli\Script;
 use React\EventLoop\Factory as EventLoopFactory;
 
-class SshWatchLogs extends Script
+class LogsWatch extends Script
 {
     public function __construct(Project $project)
     {
         parent::__construct(
             $project,
-            'ssh:watch-logs',
+            'logs:watch',
             'Watch the logs on a remote environment.'
         );
     }
