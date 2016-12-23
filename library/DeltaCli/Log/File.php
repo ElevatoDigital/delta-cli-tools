@@ -98,7 +98,7 @@ class File implements LogInterface
     {
         return $sshTunnel->assembleSshCommand(
             sprintf(
-                'tail -f %s',
+                'tail -F %s',
                 escapeshellarg($this->getRemotePath())
             )
         );
