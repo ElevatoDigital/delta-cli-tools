@@ -14,7 +14,7 @@ class DewdropMonolog extends AbstractRemoteFile
 
     public function getRemotePath(Environment $environment)
     {
-        return "zend/logs/{$environment->getApplicationEnv()}";
+        return "zend/logs/{$environment->getApplicationEnv()}.log";
     }
 
     public function getWatchByDefault()
