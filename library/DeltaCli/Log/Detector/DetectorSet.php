@@ -13,6 +13,7 @@ class DetectorSet
     {
         $this->detectors[] = new ApacheErrorLog();
         $this->detectors[] = new ApacheAccessLog();
+        $this->detectors[] = new DewdropMonolog();
     }
 
     public function getAll()

@@ -5,20 +5,20 @@ namespace DeltaCli\Log\Detector;
 use DeltaCli\Environment;
 use DeltaCli\Log\LogInterface;
 
-class ApacheAccessLog extends AbstractRemoteFile
+class DewdropMonolog extends AbstractRemoteFile
 {
     public function getName()
     {
-        return 'apache-access-log';
+        return 'dewdrop-monolog';
     }
 
     public function getRemotePath(Environment $environment)
     {
-        return 'logs/access_log';
+        return "zend/logs/{$environment->getApplicationEnv()}";
     }
 
     public function getWatchByDefault()
     {
-        return LogInterface::DONT_WATCH_BY_DEFAULT;
+        return LogInterface::WATCH_BY_DEFAULT;
     }
 }

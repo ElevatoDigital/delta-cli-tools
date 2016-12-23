@@ -21,6 +21,11 @@ class Environment
     /**
      * @var string
      */
+    private $applicationEnv;
+
+    /**
+     * @var string
+     */
     private $username;
 
     /**
@@ -62,6 +67,22 @@ class Environment
     public function getName()
     {
         return $this->name;
+    }
+
+    public function getApplicationEnv()
+    {
+        if (null === $this->applicationEnv) {
+            return $this->name;
+        } else {
+            return $this->applicationEnv;
+        }
+    }
+
+    public function setApplicationEnv($applicationEnv)
+    {
+        $this->applicationEnv = $applicationEnv;
+
+        return $this;
     }
 
     public function setUsername($username)

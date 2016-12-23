@@ -189,7 +189,7 @@ class SshTunnel
 
     public function getApplicationEnvVar()
     {
-        return sprintf('export APPLICATION_ENV=%s; ', $this->host->getEnvironment()->getName());
+        return sprintf('export APPLICATION_ENV=%s; ', $this->host->getEnvironment()->getApplicationEnv());
     }
 
     private function waitUntilTunnelIsOpen()

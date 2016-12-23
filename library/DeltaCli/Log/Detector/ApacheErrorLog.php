@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Log\Detector;
 
+use DeltaCli\Environment;
 use DeltaCli\Log\LogInterface;
 
 class ApacheErrorLog extends AbstractRemoteFile
@@ -11,7 +12,7 @@ class ApacheErrorLog extends AbstractRemoteFile
         return 'apache-error-log';
     }
 
-    public function getRemotePath()
+    public function getRemotePath(Environment $environment)
     {
         return 'logs/error_log';
     }

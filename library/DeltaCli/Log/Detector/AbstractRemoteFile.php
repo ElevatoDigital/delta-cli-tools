@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Log\Detector;
 
+use DeltaCli\Environment;
 use DeltaCli\Exec;
 use DeltaCli\Host;
 use DeltaCli\Log\File as FileLog;
@@ -11,7 +12,7 @@ abstract class AbstractRemoteFile implements DetectorInterface
 {
     abstract public function getName();
 
-    abstract public function getRemotePath();
+    abstract public function getRemotePath(Environment $environment);
 
     abstract public function getWatchByDefault();
 
@@ -23,8 +24,10 @@ abstract class AbstractRemoteFile implements DetectorInterface
 
         $sshTunnel->setUp();
 
-        if ($this->fileExists($sshTunnel, $this->getRemotePath())) {
-            $log = new FileLog($host, $this->getName(), $this->getRemotePath(), $this->getWatchByDefault());
+        $remotePath = $this->getRemotePath($host->getEnvironment());
+
+        if ($this->fileExists($sshTunnel, $remotePath)) {
+            $log = new FileLog($host, $this->getName(), $remotePath, $this->getWatchByDefault());
         }
 
         $sshTunnel->tearDown();
