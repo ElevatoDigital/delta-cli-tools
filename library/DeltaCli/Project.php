@@ -16,15 +16,18 @@ use DeltaCli\Script\Step\FixSshKeyPermissions as FixSshKeyPermissionsStep;
 use DeltaCli\Script\Step\GitBranchMatchesEnvironment as GitBranchMatchesEnvironmentStep;
 use DeltaCli\Script\Step\GitStatusIsClean as GitStatusIsCleanStep;
 use DeltaCli\Script\Step\IsDevEnvironment as IsDevEnvironmentStep;
+use DeltaCli\Script\Step\KillProcessMatchingName as KillProcessMatchingNameStep;
+use DeltaCli\Script\Step\KillProcessMatchingName;
 use DeltaCli\Script\Step\LogAndSendNotifications as LogAndSendNotificationsStep;
 use DeltaCli\Script\Step\PhpCallableSupportingDryRun as PhpCallableSupportingDryRunStep;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
 use DeltaCli\Script\Step\Scp as ScpStep;
 use DeltaCli\Script\Step\ShellCommandSupportingDryRun as ShellCommandSupportingDryRunStep;
 use DeltaCli\Script\Step\Ssh as SshStep;
+use DeltaCli\Script\Step\StartBackgroundProcess as StartBackgroundProcessStep;
+use DeltaCli\Script\Step\StartBackgroundProcess;
 use DeltaCli\Script\Step\Watch as WatchStep;
 use DeltaCli\Template\TemplateInterface;
-use DeltaCli\Template\WordPress as WordPressTemplate;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -425,6 +428,16 @@ class Project
     public function ssh($command)
     {
         return new SshStep($command);
+    }
+
+    public function killProcessMatchingName($searchString)
+    {
+        return new KillProcessMatchingName($searchString);
+    }
+
+    public function startBackgroundProcess($command)
+    {
+        return new StartBackgroundProcess($command);
     }
 
     public function watch($script)

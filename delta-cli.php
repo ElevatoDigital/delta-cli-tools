@@ -53,6 +53,10 @@ $project->getScript('deploy')
         }
     );
 
+$project->createEnvironmentScript('manage-background-processes', 'Kill and start a background process.')
+    ->addStep($project->killProcessMatchingName('example-background-process.sh'))
+    ->addStep($project->startBackgroundProcess('./example-background-process.sh'));
+
 $project->createScript('dry-runs-for-php-and-shell-commands', 'Custom steps can also support dry runs.')
     ->addStep(
         'shell-command-with-dry-run',
