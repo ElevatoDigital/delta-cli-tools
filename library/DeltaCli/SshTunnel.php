@@ -31,9 +31,21 @@ class SshTunnel
      */
     private $sshProcess;
 
+    /**
+     * @var bool
+     */
+    private $batchMode = true;
+
     public function __construct(Host $host)
     {
         $this->host = $host;
+    }
+
+    public function setBatchMode($batchMode)
+    {
+        $this->batchMode = $batchMode;
+
+        return $this;
     }
 
     public function tunnelConnectionsForHost(Host $host, $tunnelUsername)
@@ -87,11 +99,17 @@ class SshTunnel
 
     public function getSshOptions()
     {
-        if ('localhost' === $this->getHostname()) {
-            return '-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=error';
-        } else {
-            return '';
+        $options = '';
+
+        if ($this->batchMode) {
+            $options = '-o BatchMode=yes';
         }
+
+        if ('localhost' === $this->getHostname()) {
+            $options .= ' -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=error';
+        }
+
+        return $options;
     }
 
     public function setUp()
