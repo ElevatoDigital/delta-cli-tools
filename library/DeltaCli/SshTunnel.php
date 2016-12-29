@@ -2,6 +2,8 @@
 
 namespace DeltaCli;
 
+use DeltaCli\Exception\TunnelConnectionFailure as TunnelConnectionFailureException;
+
 class SshTunnel
 {
     /**
@@ -110,7 +112,7 @@ class SshTunnel
             }
 
             $command = sprintf(
-                'ssh %s -p %s %s@%s -L %d:%s:22 -N > /dev/null 2>&1 & echo $!',
+                'ssh %s -o BatchMode=yes -p %s %s@%s -L %d:%s:22 -N > /dev/null 2>&1 & echo $!',
                 $keyFlag,
                 escapeshellarg($this->host->getSshPort()),
                 escapeshellarg($this->host->getUsername()),
@@ -124,6 +126,12 @@ class SshTunnel
             $this->sshProcess = trim(shell_exec($command));
 
             $this->waitUntilTunnelIsOpen();
+
+            if (false === posix_getpgid($this->sshProcess)) {
+                $exception = new TunnelConnectionFailureException('Failed to connect to SSH tunnel environment.');
+                $exception->setHost($this->host);
+                throw $exception;
+            }
         }
     }
 
@@ -175,7 +183,7 @@ class SshTunnel
             }
         }
 
-        return sprintf(
+        $command = sprintf(
             'ssh %s -p %s %s %s %s@%s %s',
             $this->getSshOptions(),
             escapeshellarg($this->getPort()),
@@ -184,6 +192,21 @@ class SshTunnel
             escapeshellarg($this->getUsername()),
             escapeshellarg($this->getHostname()),
             (null === $command ? '' : escapeshellarg($command))
+        );
+
+        if ($this->host->getSshPassword()) {
+            $command = $this->wrapCommandInExpectScript($command, $this->host->getSshPassword());
+        }
+
+        return $command;
+    }
+
+    public function wrapCommandInExpectScript($command, $password)
+    {
+        return sprintf(
+            __DIR__ . '/_files/ssh-with-password.exp %s %s > /dev/null 2>&1',
+            $password,
+            $command
         );
     }
 

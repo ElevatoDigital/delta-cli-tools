@@ -5,6 +5,8 @@ namespace DeltaCli\Script;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use Exception;
+use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Question\Question;
 
 class SshInstallKey extends Script
 {
@@ -27,6 +29,26 @@ class SshInstallKey extends Script
     {
         $publicKey = getcwd() . '/ssh-keys/id_rsa.pub';
 
+        /* @var $helper QuestionHelper */
+        $helper = $this->getHelper('question');
+        $input  = $this->getProject()->getInput();
+        $output = $this->getProject()->getOutput();
+
+        foreach ($this->getEnvironment()->getHosts() as $host) {
+            $question = new Question(
+                "<question>What is the SSH password for {$host->getUsername()}@{$host->getHostname()}?</question>\n"
+            );
+
+            $question->setHidden(true);
+
+            $password = null;
+
+            while (!$password) {
+                $password = trim($helper->ask($input, $output, $question));
+                $host->setSshPassword($password);
+            }
+        }
+
         $this
             ->addStep($this->getProject()->getScript('ssh:fix-key-permissions'))
             ->addStep(
@@ -35,34 +57,43 @@ class SshInstallKey extends Script
                     if (!file_exists($publicKey)) {
                         throw new Exception('SSH keys have not been generated.  Run ssh:generate-keys.');
                     }
-
-                    /* @var $host \DeltaCli\Host */
-                    foreach ($this->getEnvironment()->getHosts() as $host) {
-                        $this->getProject()->getOutput()->writeln(
-                            sprintf(
-                                '<comment>You will be prompted for the SSH password for %s@%s several times during the '
-                                . 'installation.</comment>',
-                                $host->getUsername(),
-                                $host->getHostname()
-                            )
-                        );
-                    }
                 }
             )
-            ->addStep($this->getProject()->scp($publicKey, ''))
-            ->addStep($this->getProject()->ssh('mkdir -p .ssh')->setName('create-ssh-folder'))
             ->addStep(
+                'copy-public-key',
+                $this->getProject()->scp($publicKey, '')
+            )
+            ->addStep(
+                'create-ssh-folder',
+                $this->getProject()->ssh('mkdir -p .ssh')
+            )
+            ->addStep(
+                'allow-authorized-keys-writes',
                 $this->getProject()->ssh('touch .ssh/authorized_keys && chmod +w .ssh/authorized_keys')
-                    ->setName('allow-authorized-keys-writes')
             )
-            ->addStep($this->getProject()->ssh('cat id_rsa.pub >> .ssh/authorized_keys')->setName('add-key'))
             ->addStep(
+                'label-key',
+                $this->getProject()->ssh(
+                    sprintf(
+                        'echo %s >> .ssh/authorized_keys',
+                        escapeshellarg(
+                            sprintf('# Delta CLI key for %s', $this->getProject()->getName())
+                        )
+                    )
+                )
+            )
+            ->addStep(
+                'add-key',
+                $this->getProject()->ssh('cat id_rsa.pub >> .ssh/authorized_keys')
+            )
+            ->addStep(
+                'change-authorized-keys-permissions',
                 $this->getProject()->ssh('chmod 400 .ssh/authorized_keys')
-                    ->setName('change-authorized-keys-permissions')
             )
             ->addStep(
+                'change-ssh-folder-permissions',
                 $this->getProject()->ssh('chmod 700 .ssh')
-                    ->setName('change-ssh-folder-permissions')
             );
+            //->addStep($this->getProject()->logAndSendNotifications());
     }
 }

@@ -155,6 +155,9 @@ class Environment
         return $this;
     }
 
+    /**
+     * @return Host[]
+     */
     public function getHosts()
     {
         return $this->hosts;

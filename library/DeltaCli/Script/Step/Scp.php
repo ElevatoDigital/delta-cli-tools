@@ -72,7 +72,7 @@ class Scp extends EnvironmentHostsStepAbstract
         }
 
         $command = sprintf(
-            'scp %s -C -P %s %s %s %s %s 2>&1',
+            'scp %s -C -P %s %s %s %s %s',
             ($host->getSshPrivateKey() ? '-i ' . escapeshellarg($host->getSshPrivateKey()) : ''),
             escapeshellarg($tunnel->getPort()),
             $this->getDirectoryFlag(),
@@ -80,6 +80,10 @@ class Scp extends EnvironmentHostsStepAbstract
             $fileParts[0],
             $fileParts[1]
         );
+
+        if ($host->getSshPassword()) {
+            $command = $tunnel->wrapCommandInExpectScript($command, $host->getSshPassword());
+        }
 
         Exec::run($command, $output, $exitStatus);
 

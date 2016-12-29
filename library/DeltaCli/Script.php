@@ -314,6 +314,9 @@ class Script extends Command
         return false;
     }
 
+    /**
+     * @return Script $this
+     */
     public function addStep()
     {
         $this->addDefaultSteps();

@@ -40,6 +40,11 @@ class Host
     private $sshTunnel;
 
     /**
+     * @var string
+     */
+    private $sshPassword;
+
+    /**
      * @var Host
      */
     private $tunnelHost;
@@ -111,6 +116,18 @@ class Host
     public function getSshHomeFolder()
     {
         return $this->sshHomeFolder;
+    }
+
+    public function setSshPassword($sshPassword)
+    {
+        $this->sshPassword = $sshPassword;
+
+        return $this;
+    }
+
+    public function getSshPassword()
+    {
+        return $this->sshPassword;
     }
 
     public function getTunnelHost()
