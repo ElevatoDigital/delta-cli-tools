@@ -38,7 +38,7 @@ try {
     Debug::createSingletonInstance($output);
 
     $application->setCatchExceptions(false);
-    $application->setName($project->getName());
+    $application->setName('Delta CLI');
     $application->add(new CreateProjectConfig($project));
     $application->add(new ListEnvironments($project));
     $application->add(new SshKeyGen());
