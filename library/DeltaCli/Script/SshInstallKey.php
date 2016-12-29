@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Script;
 
+use DeltaCli\Exec;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use Exception;
@@ -53,6 +54,20 @@ class SshInstallKey extends Script
 
         $this
             ->addStep($this->getProject()->getScript('ssh:fix-key-permissions'))
+            ->addStep(
+                'ensure-expect-script-is-executable',
+                function () {
+                    $path = __DIR__ . '/../_files/ssh-with-password.exp';
+
+                    if (!is_executable($path)) {
+                        Exec::run(
+                            sprintf('chmod +x %s', escapeshellarg($path)),
+                            $output,
+                            $exitStatus
+                        );
+                    }
+                }
+            )
             ->addStep(
                 'check-for-public-key',
                 function () use ($publicKey) {
