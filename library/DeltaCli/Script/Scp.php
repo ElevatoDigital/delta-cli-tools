@@ -66,6 +66,8 @@ class Scp extends Script
             $scp->setIsDirectory(true);
         }
 
-        $this->addStep($scp);
+        $this
+            ->addStep($scp)
+            ->addStep($this->getProject()->logAndSendNotifications());
     }
 }

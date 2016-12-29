@@ -95,6 +95,8 @@ class Rsync extends Script
             $rsync->delete();
         }
 
-        $this->addStep($rsync);
+        $this
+            ->addStep($rsync)
+            ->addStep($this->getProject()->logAndSendNotifications());
     }
 }
