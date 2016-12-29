@@ -467,6 +467,7 @@ class Project
 
             $this->getEnvironment('vagrant')->getHost('127.0.0.1')
                 ->setSshPort(2222)
+                ->setSshHomeFolder($cwd)
                 ->setAdditionalSshOptions(
                     [
                         'Compression'           => 'yes',
