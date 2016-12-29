@@ -40,7 +40,19 @@ class SshInstallKey extends Script
                 "<question>What is the SSH password for {$host->getUsername()}@{$host->getHostname()}?</question>\n"
             );
 
-            $question->setHidden(true);
+            $question
+                ->setHidden(true)
+                ->setMaxAttempts(10);
+
+            $question->setValidator(
+                function ($value) {
+                    if (!trim($value)) {
+                        throw new Exception('The password can not be empty.');
+                    }
+
+                    return $value;
+                }
+            );
 
             $password = null;
 
