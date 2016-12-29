@@ -45,6 +45,11 @@ class Host
     private $sshPassword;
 
     /**
+     * @var array
+     */
+    private $additionalSshOptions = [];
+
+    /**
      * @var Host
      */
     private $tunnelHost;
@@ -128,6 +133,18 @@ class Host
     public function getSshPassword()
     {
         return $this->sshPassword;
+    }
+
+    public function setAdditionalSshOptions($additionalSshOptions)
+    {
+        $this->additionalSshOptions = $additionalSshOptions;
+
+        return $this;
+    }
+
+    public function getAdditionalSshOptions()
+    {
+        return $this->additionalSshOptions;
     }
 
     public function getTunnelHost()

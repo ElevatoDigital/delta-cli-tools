@@ -92,24 +92,32 @@ class SshTunnel
                 'ssh -p %d -i %s %s',
                 $this->getPort(),
                 escapeshellarg($this->host->getSshPrivateKey()),
-                $this->getSshOptions()
+                $this->getSshOptions($this->host)
             );
         }
     }
 
-    public function getSshOptions()
+    public function getSshOptions(Host $host)
     {
-        $options = '';
+        $options = [];
 
         if ($this->batchMode) {
-            $options = '-o BatchMode=yes';
+            $options['BatchMode'] = 'yes';
         }
 
         if ('localhost' === $this->getHostname()) {
-            $options .= ' -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o LogLevel=error';
+            $options['UserKnownHostsFile']    = '/dev/null';
+            $options['StrictHostKeyChecking'] = 'no';
+            $options['LogLevel']              = 'error';
         }
 
-        return $options;
+        if ($host) {
+            foreach ($host->getAdditionalSshOptions() as $option => $value) {
+                $options[$option] = $value;
+            }
+        }
+
+        return $this->assembleSshOptionsString($options);
     }
 
     public function setUp()
@@ -203,7 +211,7 @@ class SshTunnel
 
         $command = sprintf(
             'ssh %s -p %s %s %s %s@%s %s',
-            $this->getSshOptions(),
+            $this->getSshOptions($this->host),
             escapeshellarg($this->getPort()),
             $additionalFlags,
             $keyFlag,
@@ -274,5 +282,16 @@ class SshTunnel
         fclose($connection);
 
         return true;
+    }
+
+    private function assembleSshOptionsString(array $sshOptions)
+    {
+        $optionStrings = [];
+
+        foreach ($sshOptions as $option => $value) {
+            $optionStrings[] = sprintf('-o %s=%s', $option, $value);
+        }
+
+        return implode(' ', $optionStrings);
     }
 }

@@ -17,7 +17,6 @@ use DeltaCli\Script\Step\GitBranchMatchesEnvironment as GitBranchMatchesEnvironm
 use DeltaCli\Script\Step\GitStatusIsClean as GitStatusIsCleanStep;
 use DeltaCli\Script\Step\IsDevEnvironment as IsDevEnvironmentStep;
 use DeltaCli\Script\Step\KillProcessMatchingName as KillProcessMatchingNameStep;
-use DeltaCli\Script\Step\KillProcessMatchingName;
 use DeltaCli\Script\Step\LogAndSendNotifications as LogAndSendNotificationsStep;
 use DeltaCli\Script\Step\PhpCallableSupportingDryRun as PhpCallableSupportingDryRunStep;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
@@ -25,7 +24,6 @@ use DeltaCli\Script\Step\Scp as ScpStep;
 use DeltaCli\Script\Step\ShellCommandSupportingDryRun as ShellCommandSupportingDryRunStep;
 use DeltaCli\Script\Step\Ssh as SshStep;
 use DeltaCli\Script\Step\StartBackgroundProcess as StartBackgroundProcessStep;
-use DeltaCli\Script\Step\StartBackgroundProcess;
 use DeltaCli\Script\Step\Watch as WatchStep;
 use DeltaCli\Template\TemplateInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -141,17 +139,7 @@ class Project
 
             $this->configFileLoaded = true;
 
-            if (!$this->hasEnvironment('vpn')) {
-                $this->createEnvironment('vpn')
-                    ->setUsername('delta')
-                    ->addHost('vpn.deltasys.com');
-
-                $privateKeyPath = $cwd . '/ssh-keys/id_rsa';
-
-                if (file_exists($privateKeyPath)) {
-                    $this->getEnvironment('vpn')->setSshPrivateKey($privateKeyPath);
-                }
-            }
+            $this->createDefaultEnvironments($cwd);
         }
     }
 
@@ -437,12 +425,12 @@ class Project
 
     public function killProcessMatchingName($searchString)
     {
-        return new KillProcessMatchingName($searchString);
+        return new KillProcessMatchingNameStep($searchString);
     }
 
     public function startBackgroundProcess($command)
     {
-        return new StartBackgroundProcess($command);
+        return new StartBackgroundProcessStep($command);
     }
 
     public function watch($script)
@@ -452,5 +440,43 @@ class Project
         }
 
         return new WatchStep($script, $this->getFileWatcher());
+    }
+
+    private function createDefaultEnvironments($cwd)
+    {
+
+        if (!$this->hasEnvironment('vpn')) {
+            $this->createEnvironment('vpn')
+                ->setUsername('delta')
+                ->addHost('vpn.deltasys.com');
+
+            $privateKeyPath = $cwd . '/ssh-keys/id_rsa';
+
+            if (file_exists($privateKeyPath)) {
+                $this->getEnvironment('vpn')->setSshPrivateKey($privateKeyPath);
+            }
+        }
+
+        $vagrantPrivateKeyPath = $_SERVER['HOME'] . '/Vagrant/.vagrant/machines/default/virtualbox/private_key';
+
+        if (!$this->hasEnvironment('vagrant') && file_exists($vagrantPrivateKeyPath)) {
+            $this->createEnvironment('vagrant')
+                ->setUsername('vagrant')
+                ->setSshPrivateKey($vagrantPrivateKeyPath)
+                ->addHost('127.0.0.1');
+
+            $this->getEnvironment('vagrant')->getHost('127.0.0.1')
+                ->setSshPort(2222)
+                ->setAdditionalSshOptions(
+                    [
+                        'Compression'           => 'yes',
+                        'DSAAuthentication'     => 'yes',
+                        'LogLevel'              => 'FATAL',
+                        'StrictHostKeyChecking' => 'no',
+                        'UserKnownHostsFile'    => '/dev/null',
+                        'IdentitiesOnly'        => 'yes'
+                    ]
+                );
+        }
     }
 }

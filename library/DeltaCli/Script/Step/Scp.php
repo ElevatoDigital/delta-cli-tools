@@ -76,7 +76,7 @@ class Scp extends EnvironmentHostsStepAbstract
             ($host->getSshPrivateKey() ? '-i ' . escapeshellarg($host->getSshPrivateKey()) : ''),
             escapeshellarg($tunnel->getPort()),
             $this->getDirectoryFlag(),
-            $tunnel->getSshOptions(),
+            $tunnel->getSshOptions($host),
             $fileParts[0],
             $fileParts[1]
         );
