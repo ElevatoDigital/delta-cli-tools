@@ -347,10 +347,15 @@ class Project
      */
     public function getTunneledEnvironment($name)
     {
-        $environment = $this->getEnvironment($name);
+        $environment       = $this->getEnvironment($name);
+        $tunnelEnvironment = $this->input->getOption('tunnel-via');
 
-        if ($this->input->getOption('tunnel-via')) {
-            $environment->tunnelSshVia($this->input->getOption('tunnel-via'));
+        if ($this->input->getOption('vpn')) {
+            $tunnelEnvironment = 'vpn';
+        }
+
+        if ($tunnelEnvironment) {
+            $environment->tunnelSshVia($tunnelEnvironment);
         }
 
         return $environment;

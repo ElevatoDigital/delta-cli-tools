@@ -17,5 +17,12 @@ class Command extends SymfonyCommand
             InputOption::VALUE_REQUIRED,
             'An environment via which SSH should be tunneled.'
         );
+
+        $this->addOption(
+            'vpn',
+            null,
+            InputOption::VALUE_NONE,
+            'Tunnel all SSH connections over the Delta VPN.'
+        );
     }
 }
