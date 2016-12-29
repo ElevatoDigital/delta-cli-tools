@@ -85,7 +85,7 @@ class Scp extends EnvironmentHostsStepAbstract
             $command = $tunnel->wrapCommandInExpectScript($command, $host->getSshPassword());
         }
 
-        Exec::run($command, $output, $exitStatus);
+        $this->execSsh($host, $command, $output, $exitStatus);
 
         $tunnel->tearDown();
 

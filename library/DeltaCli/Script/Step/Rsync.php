@@ -195,7 +195,7 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
             $pathArguments[1]
         );
 
-        $this->exec($command, $output, $exitStatus);
+        $this->execSsh($host, $command, $output, $exitStatus);
 
         $tunnel->tearDown();
 

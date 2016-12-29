@@ -4,7 +4,9 @@ namespace DeltaCli\Script\Step;
 
 use DeltaCli\Environment;
 use DeltaCli\Exception\CommandNotFound;
+use DeltaCli\Exception\SshConnectionFailure;
 use DeltaCli\Exec;
+use DeltaCli\Host;
 use DeltaCli\Script;
 
 abstract class StepAbstract implements StepInterface
@@ -78,6 +80,20 @@ abstract class StepAbstract implements StepInterface
         $commandRunner($command, $output, $exitStatus);
     }
 
+    public function execSsh(Host $host, $command, &$output, &$exitStatus)
+    {
+        $this->exec($command, $output, $exitStatus);
+
+        if ($exitStatus && $this->outputContains($output, ['permission denied', 'publickey'])) {
+            $exception = new SshConnectionFailure();
+            $exception
+                ->setHost($host)
+                ->setFailingCommand($command)
+                ->setOutput($output);
+            throw $exception;
+        }
+    }
+
     public function setName($name)
     {
         $this->name = $name;
@@ -111,6 +127,26 @@ abstract class StepAbstract implements StepInterface
             $environmentName = (is_string($environment) ? $environment : $environment->getName());
 
             if ($environmentName === $selectedEnvironment->getName()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function outputContains(array $output, array $stringsToMatch)
+    {
+        foreach ($output as $line) {
+            $lineMatchesAll = true;
+
+            foreach ($stringsToMatch as $searchString) {
+                if (false === stripos($line, $searchString)) {
+                    $lineMatchesAll = false;
+                    break;
+                }
+            }
+
+            if ($lineMatchesAll) {
                 return true;
             }
         }

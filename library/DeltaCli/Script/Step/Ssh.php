@@ -57,7 +57,7 @@ class Ssh extends EnvironmentHostsStepAbstract
     {
         $tunnel = $host->getSshTunnel();
         $tunnel->setUp();
-        $this->exec($tunnel->assembleSshCommand($this->command), $output, $exitStatus);
+        $this->execSsh($host, $tunnel->assembleSshCommand($this->command), $output, $exitStatus);
         $tunnel->tearDown();
 
         return [$output, $exitStatus];

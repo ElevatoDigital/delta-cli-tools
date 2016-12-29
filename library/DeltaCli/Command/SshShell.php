@@ -41,6 +41,7 @@ class SshShell extends Command
         $permissionsStep = $this->project->fixSshKeyPermissions();
         $permissionsStep->run();
 
+
         $tunnel = $host->getSshTunnel();
         $tunnel->setUp();
 
