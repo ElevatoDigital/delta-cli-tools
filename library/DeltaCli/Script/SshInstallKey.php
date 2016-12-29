@@ -47,6 +47,8 @@ class SshInstallKey extends Script
                 $password = trim($helper->ask($input, $output, $question));
                 $host->setSshPassword($password);
             }
+
+            $host->getSshTunnel()->setBatchMode(false);
         }
 
         $this
@@ -93,7 +95,7 @@ class SshInstallKey extends Script
             ->addStep(
                 'change-ssh-folder-permissions',
                 $this->getProject()->ssh('chmod 700 .ssh')
-            );
-            //->addStep($this->getProject()->logAndSendNotifications());
+            )
+            ->addStep($this->getProject()->logAndSendNotifications());
     }
 }
