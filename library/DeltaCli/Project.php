@@ -27,6 +27,7 @@ use DeltaCli\Script\Step\Ssh as SshStep;
 use DeltaCli\Script\Step\StartBackgroundProcess as StartBackgroundProcessStep;
 use DeltaCli\Script\Step\Watch as WatchStep;
 use DeltaCli\Template\TemplateInterface;
+use DeltaCli\Template\WordPress as WordpressTemplate;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
