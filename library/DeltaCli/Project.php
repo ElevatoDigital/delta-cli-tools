@@ -3,7 +3,6 @@
 namespace DeltaCli;
 
 use DeltaCli\Exception\EnvironmentNotFound;
-use DeltaCli\Exception\ProjectNotConfigured;
 use DeltaCli\Exception\ScriptNotFound;
 use DeltaCli\Extension\DefaultScripts as DefaultScriptsExtension;
 use DeltaCli\Extension\Vagrant as VagrantExtension;
