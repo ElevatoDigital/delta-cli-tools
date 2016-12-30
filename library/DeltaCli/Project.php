@@ -444,7 +444,6 @@ class Project
 
     private function createDefaultEnvironments($cwd)
     {
-
         if (!$this->hasEnvironment('vpn')) {
             $this->createEnvironment('vpn')
                 ->setUsername('delta')

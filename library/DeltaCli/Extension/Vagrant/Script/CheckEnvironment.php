@@ -2,12 +2,19 @@
 
 namespace DeltaCli\Extension\Vagrant\Script;
 
+use DeltaCli\Exec;
 use DeltaCli\Extension\Vagrant\Exception;
 use DeltaCli\Project;
 use DeltaCli\Script;
+use DeltaCli\SshTunnel;
 
 class CheckEnvironment extends Script
 {
+    /**
+     * @var SshTunnel
+     */
+    private $sshTunnel;
+
     public function __construct(Project $project)
     {
         parent::__construct(
@@ -39,7 +46,11 @@ class CheckEnvironment extends Script
             ->addStep(
                 'vagrant-sudo-without-password',
                 function () {
-                    if ('root' !== trim(shell_exec("echo '' | sudo -S whoami"))) {
+                    $cmd = "echo '' | sudo -S whoami";
+
+                    Exec::run($this->sshTunnel->assembleSshCommand($cmd), $output, $exitStatus);
+
+                    if ('root' !== trim($output[0])) {
                         throw new Exception('Could not run sudo without password.');
                     }
                 }
@@ -52,7 +63,7 @@ class CheckEnvironment extends Script
                         escapeshellarg("SELECT 'success';")
                     );
 
-                    exec($cmd, $output, $exitStatus);
+                    Exec::run($this->sshTunnel->assembleSshCommand($cmd), $output, $exitStatus);
 
                     if ($exitStatus || 'success' !== trim($output[0])) {
                         throw new Exception('Could not access MySQL with default Vagrant password (delta).');
@@ -67,12 +78,25 @@ class CheckEnvironment extends Script
                         escapeshellarg("SELECT 'success';")
                     );
 
-                    exec($cmd, $output, $exitStatus);
+                    Exec::run($this->sshTunnel->assembleSshCommand($cmd), $output, $exitStatus);
 
                     if ($exitStatus || 'success' !== trim($output[0])) {
                         throw new Exception('Could not access Postgres superuser with no password.');
                     }
                 }
             );
+    }
+
+    protected function preRun()
+    {
+        $this->setEnvironment('vagrant');
+
+        $this->sshTunnel = $this->getEnvironment()->getHost('127.0.0.1')->getSshTunnel();
+        $this->sshTunnel->setUp();
+    }
+
+    protected function postRun()
+    {
+        $this->sshTunnel->tearDown();
     }
 }

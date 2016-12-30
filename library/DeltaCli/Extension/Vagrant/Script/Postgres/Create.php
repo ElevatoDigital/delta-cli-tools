@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Extension\Vagrant\Script\Postgres;
 
+use DeltaCli\Exec;
 use DeltaCli\Extension\Vagrant\Exception;
 use DeltaCli\Project;
 use DeltaCli\Script;
@@ -72,24 +73,38 @@ class Create extends Script
             ->addStep(
                 'check-if-database-already-exists',
                 function () {
-                    exec(
-                        sprintf(
-                            'psql -lqt -U postgres | cut -d \| -f 1 | grep -qw %s',
-                            escapeshellarg($this->databaseName)
+                    $host   = $this->getEnvironment()->getHost('127.0.0.1');
+                    $tunnel = $host->getSshTunnel();
+
+                    $tunnel->setUp();
+
+                    Exec::run(
+                        $tunnel->assembleSshCommand(
+                            sprintf(
+                                'psql -lqt -U postgres | cut -d \| -f 1 | grep -qw %s',
+                                escapeshellarg($this->databaseName)
+                            )
                         ),
                         $output,
                         $exitStatus
                     );
+
+                    $tunnel->tearDown();
 
                     if (!$exitStatus) {
                         throw new Exception("{$this->databaseName} already exists.");
                     }
                 }
             )
-            ->addStep('create-user', $this->assembleCreateUserCommand())
-            ->addStep('create-database', $this->assembleCreateDatabaseCommand())
-            ->addStep('drop-public-schema', $this->assembleDropPublicSchemaCommand())
-            ->addStep('create-public-schema', $this->assembleCreatePublicSchemaCommand());
+            ->addStep('create-user', $this->getProject()->ssh($this->assembleCreateUserCommand()))
+            ->addStep('create-database', $this->getProject()->ssh($this->assembleCreateDatabaseCommand()))
+            ->addStep('drop-public-schema', $this->getProject()->ssh($this->assembleDropPublicSchemaCommand()))
+            ->addStep('create-public-schema', $this->getProject()->ssh($this->assembleCreatePublicSchemaCommand()));
+    }
+
+    protected function preRun()
+    {
+        $this->setEnvironment('vagrant');
     }
 
     private function assembleCreateUserCommand()

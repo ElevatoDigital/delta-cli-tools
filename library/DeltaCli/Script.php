@@ -226,10 +226,10 @@ class Script extends Command
         }
     }
 
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->checkRequiredVersionForProject();
-
         if ($input->hasOption('colors') && $input->getOption('colors')) {
             $output->setDecorated(true);
         }
@@ -253,6 +253,16 @@ class Script extends Command
         } else {
             $this->runSteps($output);
         }
+    }
+
+    protected function preRun()
+    {
+
+    }
+
+    protected function postRun()
+    {
+
     }
 
     public function getProject()
@@ -351,6 +361,8 @@ class Script extends Command
     {
         $scriptResult = Result::SUCCESS;
 
+        $this->preRun();
+
         $steps = $this->getStepsForEnvironment();
 
         /* @var $step StepInterface */
@@ -397,6 +409,8 @@ class Script extends Command
                 $step->postRun($this);
             }
         }
+
+        $this->postRun();
 
         return $scriptResult;
     }
