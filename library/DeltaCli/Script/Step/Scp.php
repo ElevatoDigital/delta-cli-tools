@@ -64,7 +64,7 @@ class Scp extends EnvironmentHostsStepAbstract
 
         $remoteFile = $this->remoteFile;
 
-        if (0 !== strpos($remoteFile, '/')) {
+        if (0 !== strpos($remoteFile, '/') && $host->getSshHomeFolder()) {
             $remoteFile = rtrim($host->getSshHomeFolder(), '/') . '/' . $remoteFile;
         }
 
