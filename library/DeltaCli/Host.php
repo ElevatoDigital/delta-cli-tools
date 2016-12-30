@@ -147,6 +147,13 @@ class Host
         return $this->additionalSshOptions;
     }
 
+    public function setTunnelHost(Host $tunnelHost)
+    {
+        $this->tunnelHost = $tunnelHost;
+
+        return $this;
+    }
+
     public function getTunnelHost()
     {
         return $this->tunnelHost ?: $this->environment->getTunnelHost();

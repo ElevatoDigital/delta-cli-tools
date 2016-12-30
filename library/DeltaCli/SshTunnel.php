@@ -12,6 +12,11 @@ class SshTunnel
     private $host;
 
     /**
+     * @var int
+     */
+    private $remotePort;
+
+    /**
      * @var Host
      */
     private $tunnelConnectionsForHost;
@@ -36,9 +41,17 @@ class SshTunnel
      */
     private $batchMode = true;
 
-    public function __construct(Host $host)
+    public function __construct(Host $host, $remotePort = 22)
     {
-        $this->host = $host;
+        $this->host       = $host;
+        $this->remotePort = $remotePort;
+    }
+
+    public function setRemotePort($remotePort)
+    {
+        $this->remotePort = $remotePort;
+
+        return $this;
     }
 
     public function setBatchMode($batchMode)
@@ -138,13 +151,14 @@ class SshTunnel
             }
 
             $command = sprintf(
-                'ssh %s -o BatchMode=yes -p %s %s@%s -L %d:%s:22 -N > /dev/null 2>&1 & echo $!',
+                'ssh %s -o BatchMode=yes -p %s %s@%s -L %d:%s:%d -N > /dev/null 2>&1 & echo $!',
                 $keyFlag,
                 escapeshellarg($this->host->getSshPort()),
                 escapeshellarg($this->host->getUsername()),
                 escapeshellarg($this->host->getHostname()),
                 $this->tunnelPort,
-                $this->tunnelConnectionsForHost->getHostname()
+                $this->tunnelConnectionsForHost->getHostname(),
+                $this->remotePort
             );
 
             Debug::log("Opening SSH tunnel with `{$command}`...");
@@ -158,7 +172,11 @@ class SshTunnel
                 $exception->setHost($this->host);
                 throw $exception;
             }
+
+            return $this->tunnelPort;
         }
+
+        return false;
     }
 
     public function tearDown()
