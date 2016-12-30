@@ -49,7 +49,7 @@ class DatabaseTunnel extends Script
 
                     $output->writeln(
                         [
-                            'You can now configure you database application to connect to the tunnel using',
+                            'You can now configure your database application to connect to the tunnel using',
                             'the following information.',
                             ''
                         ]
