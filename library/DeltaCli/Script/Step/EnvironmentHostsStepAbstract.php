@@ -66,6 +66,8 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
 
                 $output[]        = $message;
                 $verboseOutput[] = $message;
+
+                continue;
             }
 
             $hostResult = $this->runOnHost($host);
