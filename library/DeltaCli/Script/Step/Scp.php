@@ -2,7 +2,6 @@
 
 namespace DeltaCli\Script\Step;
 
-use DeltaCli\Exec;
 use DeltaCli\FileTransferPaths;
 use DeltaCli\Host;
 use DeltaCli\SshTunnel;
