@@ -16,6 +16,7 @@ class DetectorSet
         $this->detectors[] = new DewdropMonolog();
         $this->detectors[] = new NginxAccessLog();
         $this->detectors[] = new NginxErrorLog();
+        $this->detectors[] = new VagrantDewdropMonolog();
         $this->detectors[] = new VagrantPhpErrorLog();
         $this->detectors[] = new VagrantApacheErrorLog();
         $this->detectors[] = new VagrantApacheAccessLog();

@@ -60,7 +60,7 @@ abstract class AbstractRemoteFile implements DetectorInterface
         if ($this->requiresRoot()) {
             $command = sprintf('sudo %s', $command);
         }
-        
+
         Exec::run(
             $sshTunnel->assembleSshCommand($command),
             $output,
