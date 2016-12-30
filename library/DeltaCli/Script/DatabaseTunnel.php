@@ -6,7 +6,6 @@ use DeltaCli\Config\Database;
 use DeltaCli\Host;
 use DeltaCli\Project;
 use DeltaCli\Script;
-use DeltaCli\SshTunnel;
 use Symfony\Component\Console\Helper\Table;
 
 class DatabaseTunnel extends Script
@@ -57,7 +56,7 @@ class DatabaseTunnel extends Script
                     );
 
                     $table = new Table($output);
-                    
+
                     $table->addRows(
                         [
                             ['Host', 'localhost'],
