@@ -130,12 +130,10 @@ class Project
         if (!$this->configFileLoaded) {
             $cwd = getcwd();
 
-            if (!file_exists($cwd . '/delta-cli.php')) {
-                throw new ProjectNotConfigured();
+            if (file_exists($cwd . '/delta-cli.php')) {
+                $project = $this;
+                require_once $cwd . '/delta-cli.php';
             }
-
-            $project = $this;
-            require_once $cwd . '/delta-cli.php';
 
             $this->configFileLoaded = true;
 
@@ -464,9 +462,15 @@ class Project
                 ->setSshPrivateKey($vagrantPrivateKeyPath)
                 ->addHost('127.0.0.1');
 
+            if ('/delta' === $cwd || 0 === strpos($cwd, '/delta/')) {
+                $homeFolder = $cwd;
+            } else {
+                $homeFolder = '/delta';
+            }
+
             $this->getEnvironment('vagrant')->getHost('127.0.0.1')
                 ->setSshPort(2222)
-                ->setSshHomeFolder($cwd)
+                ->setSshHomeFolder($homeFolder)
                 ->setAdditionalSshOptions(
                     [
                         'Compression'           => 'yes',
