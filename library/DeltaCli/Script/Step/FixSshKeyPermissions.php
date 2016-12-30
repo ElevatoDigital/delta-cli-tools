@@ -2,10 +2,16 @@
 
 namespace DeltaCli\Script\Step;
 
+use DeltaCli\Environment;
 use DeltaCli\Exec;
 
-class FixSshKeyPermissions extends StepAbstract implements DryRunInterface
+class FixSshKeyPermissions extends StepAbstract implements DryRunInterface, EnvironmentOptionalInterface
 {
+    /**
+     * @var Environment
+     */
+    private $selectedEnvironment;
+
     public function getName()
     {
         return 'fix-ssh-key-permissions';
@@ -13,8 +19,8 @@ class FixSshKeyPermissions extends StepAbstract implements DryRunInterface
 
     public function run()
     {
-        $folder     = getcwd() . '/ssh-keys';
-        $privateKey = $folder . '/id_rsa';
+        $folder     = $this->getKeyFolder();
+        $privateKey = $this->getKeyFullPath();
 
         if (!file_exists($folder) || !is_dir($folder)) {
             return new Result($this, Result::FAILURE, 'ssh-keys folder not found.  Run ssh:generate-key to create it.');
@@ -43,8 +49,8 @@ class FixSshKeyPermissions extends StepAbstract implements DryRunInterface
 
     public function dryRun()
     {
-        $folder     = getcwd() . '/ssh-keys';
-        $privateKey = $folder . '/id_rsa';
+        $folder     = $this->getKeyFolder();
+        $privateKey = $this->getKeyFullPath();
 
         if (!file_exists($folder) || !is_dir($folder)) {
             return new Result($this, Result::FAILURE, 'ssh-keys folder not found.  Run ssh:generate-key to create it.');
@@ -64,5 +70,30 @@ class FixSshKeyPermissions extends StepAbstract implements DryRunInterface
     private function getOctalPermissions($file)
     {
         return substr(sprintf('%o', fileperms($file)), -4);
+    }
+
+    private function getKeyFolder()
+    {
+        if ($this->selectedEnvironment) {
+            return dirname($this->selectedEnvironment->getSshPrivateKey());
+        } else {
+            return getcwd() . '/id_rsa';
+        }
+    }
+
+    private function getKeyFullPath()
+    {
+        if ($this->selectedEnvironment) {
+            return $this->selectedEnvironment->getSshPrivateKey();
+        } else {
+            return $this->getKeyFolder() . '/id_rsa';
+        }
+    }
+
+    public function setSelectedEnvironment(Environment $environment)
+    {
+        $this->selectedEnvironment = $environment;
+
+        return $this;
     }
 }
