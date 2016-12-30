@@ -31,12 +31,24 @@ class File implements LogInterface
      */
     private $watchByDefault;
 
+    /**
+     * @var bool
+     */
+    private $requiresRoot = false;
+
     public function __construct(Host $host, $name, $remotePath, $watchByDefault)
     {
         $this->host           = $host;
         $this->name           = $name;
         $this->remotePath     = $remotePath;
         $this->watchByDefault = $watchByDefault;
+    }
+
+    public function setRequiresRoot($requiresRoot)
+    {
+        $this->requiresRoot = $requiresRoot;
+
+        return $this;
     }
 
     public function getHost()
@@ -98,7 +110,8 @@ class File implements LogInterface
     {
         return $sshTunnel->assembleSshCommand(
             sprintf(
-                'tail -F %s',
+                '%stail -F %s',
+                ($this->requiresRoot ? 'sudo ' : ''),
                 escapeshellarg($this->getRemotePath())
             )
         );

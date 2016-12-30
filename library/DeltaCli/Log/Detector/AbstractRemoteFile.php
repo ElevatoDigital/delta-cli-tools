@@ -20,6 +20,10 @@ abstract class AbstractRemoteFile implements DetectorInterface
     {
         $log = false;
 
+        if (!$this->detectorAppliesToEnvironment($host->getEnvironment())) {
+            return $log;
+        }
+
         $sshTunnel = $host->getSshTunnel();
 
         $sshTunnel->setUp();
@@ -28,11 +32,25 @@ abstract class AbstractRemoteFile implements DetectorInterface
 
         if ($this->fileExists($sshTunnel, $remotePath)) {
             $log = new FileLog($host, $this->getName(), $remotePath, $this->getWatchByDefault());
+
+            if ($this->requiresRoot()) {
+                $log->setRequiresRoot(true);
+            }
         }
 
         $sshTunnel->tearDown();
 
         return $log;
+    }
+
+    protected function requiresRoot()
+    {
+        return false;
+    }
+
+    protected function detectorAppliesToEnvironment(Environment $environment)
+    {
+        return true;
     }
 
     private function fileExists(SshTunnel $sshTunnel, $remotePath)

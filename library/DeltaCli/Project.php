@@ -459,6 +459,7 @@ class Project
             $this->createEnvironment('vagrant')
                 ->setUsername('vagrant')
                 ->setSshPrivateKey($vagrantPrivateKeyPath)
+                ->setApplicationEnv('development')
                 ->addHost('127.0.0.1');
 
             if ('/delta' === $cwd || 0 === strpos($cwd, '/delta/')) {
