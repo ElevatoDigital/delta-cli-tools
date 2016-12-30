@@ -13,6 +13,11 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
      */
     protected $environment;
 
+    /**
+     * @var bool
+     */
+    protected $limitToOnlyFirstHost = false;
+
     abstract public function runOnHost(Host $host);
 
     public function setSelectedEnvironment(Environment $environment)
@@ -25,6 +30,13 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
     public function run()
     {
         return $this->runOnAllHosts();
+    }
+
+    public function limitToOnlyFirstHost($limitToOnlyFirstHost = true)
+    {
+        $this->limitToOnlyFirstHost = $limitToOnlyFirstHost;
+
+        return $this;
     }
 
     protected function runOnAllHosts()
@@ -40,10 +52,20 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
         $misconfiguredHosts = [];
 
         /* @var $host Host */
-        foreach ($this->environment->getHosts() as $host) {
+        foreach ($this->environment->getHosts() as $index => $host) {
             if (!$host->hasRequirementsForSshUse()) {
                 $misconfiguredHosts[] = $host;
                 continue;
+            }
+
+            if ($this->limitToOnlyFirstHost() && $index) {
+                $message = sprintf(
+                    "<fg=cyan>%s skipped because this step is limited to the first host only.</>",
+                    $host->getHostname()
+                );
+
+                $output[]        = $message;
+                $verboseOutput[] = $message;
             }
 
             $hostResult = $this->runOnHost($host);

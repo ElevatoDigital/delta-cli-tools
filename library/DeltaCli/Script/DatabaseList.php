@@ -34,7 +34,7 @@ class DatabaseList extends Script
                 function () use ($findDbsStep) {
                     $table = new Table($this->getProject()->getOutput());
 
-                    $table->setHeaders(['Name', 'Host', 'Username', 'Password', 'Type']);
+                    $table->setHeaders(['DB Name', 'Host', 'Username', 'Password', 'Type']);
 
                     foreach ($findDbsStep->getDatabases() as $database) {
                         $table->addRow(

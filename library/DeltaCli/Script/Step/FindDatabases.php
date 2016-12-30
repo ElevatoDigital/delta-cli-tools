@@ -22,6 +22,8 @@ class FindDatabases extends EnvironmentHostsStepAbstract
     public function __construct(ConfigFactory $configFactory)
     {
         $this->configFactory = $configFactory;
+
+        $this->limitToOnlyFirstHost();
     }
 
     public function runOnHost(Host $host)
