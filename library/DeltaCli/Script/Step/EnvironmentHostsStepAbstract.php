@@ -59,13 +59,10 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
             }
 
             if ($this->limitToOnlyFirstHost() && $index) {
-                $message = sprintf(
+                $output[] = sprintf(
                     "<fg=cyan>%s skipped because this step is limited to the first host only.</>",
                     $host->getHostname()
                 );
-
-                $output[]        = $message;
-                $verboseOutput[] = $message;
 
                 continue;
             }
