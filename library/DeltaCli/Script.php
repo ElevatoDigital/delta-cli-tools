@@ -343,6 +343,9 @@ class Script extends Command
         return $this;
     }
 
+    /**
+     * @return Script $this
+     */
     public function addDefaultStep()
     {
         $this->defaultSteps[] = $this->stepFactory->factory(func_get_args());

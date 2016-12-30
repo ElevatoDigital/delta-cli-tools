@@ -62,9 +62,15 @@ class Scp extends EnvironmentHostsStepAbstract
 
         $tunnel->setUp();
 
+        $remoteFile = $this->remoteFile;
+
+        if (0 !== strpos($remoteFile, '/')) {
+            $remoteFile = rtrim($host->getSshHomeFolder(), '/') . '/' . $remoteFile;
+        }
+
         $fileParts = [
             escapeshellarg($this->localFile),
-            $this->getRemoteFileSpecification($tunnel, $this->remoteFile)
+            $this->getRemoteFileSpecification($tunnel, $remoteFile)
         ];
 
         if (FileTransferPaths::DOWN === $this->direction) {

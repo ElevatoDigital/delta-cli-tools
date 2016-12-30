@@ -14,6 +14,7 @@ if (!ini_get('date.timezone')) {
 }
 
 use DeltaCli\Command\CreateProjectConfig;
+use DeltaCli\Command\DatabaseShell;
 use DeltaCli\Command\ListEnvironments;
 use DeltaCli\Command\SshKeyGen;
 use DeltaCli\Command\SshShell;
@@ -40,6 +41,7 @@ try {
     $application->setCatchExceptions(false);
     $application->setName('Delta CLI');
     $application->add(new CreateProjectConfig($project));
+    $application->add(new DatabaseShell($project));
     $application->add(new ListEnvironments($project));
     $application->add(new SshKeyGen());
     $application->add(new SshShell($project));

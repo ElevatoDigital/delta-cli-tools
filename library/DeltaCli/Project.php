@@ -2,6 +2,7 @@
 
 namespace DeltaCli;
 
+use DeltaCli\Config\ConfigFactory;
 use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\ScriptNotFound;
 use DeltaCli\Extension\DefaultScripts as DefaultScriptsExtension;
@@ -10,6 +11,7 @@ use DeltaCli\FileWatcher\FileWatcherInterface;
 use DeltaCli\FileWatcher\FileWatcherFactory;
 use DeltaCli\Log\Detector\DetectorSet as LogDetectorSet;
 use DeltaCli\Script\Step\AllowWritesToRemoteFolder as AllowWritesToRemoteFolderStep;
+use DeltaCli\Script\Step\FindDatabases as FindDatabasesStep;
 use DeltaCli\Script\Step\FindLogs as FindLogsStep;
 use DeltaCli\Script\Step\FixSshKeyPermissions as FixSshKeyPermissionsStep;
 use DeltaCli\Script\Step\GitBranchMatchesEnvironment as GitBranchMatchesEnvironmentStep;
@@ -358,6 +360,11 @@ class Project
     public function allowWritesToRemoteFolder($remoteFolder)
     {
         return new AllowWritesToRemoteFolderStep($remoteFolder);
+    }
+
+    public function findDatabases()
+    {
+        return new FindDatabasesStep(new ConfigFactory());
     }
 
     public function findLogs()
