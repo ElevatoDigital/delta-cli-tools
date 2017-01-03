@@ -21,9 +21,16 @@ class Postgres implements TypeHandlerInterface
         return 'postgres';
     }
 
-    public function getDumpCommand()
+    public function getDumpCommand($username, $password, $hostname, $databaseName, $port)
     {
-        // TODO: Implement getDumpCommand() method.
+        return sprintf(
+            'PGPASSWORD=%s pg_dump -U %s -h %s -p %s %s',
+            escapeshellarg($password),
+            escapeshellarg($username),
+            escapeshellarg($hostname),
+            escapeshellarg($port),
+            escapeshellarg($databaseName)
+        );
     }
 
     public function getDefaultPort()
