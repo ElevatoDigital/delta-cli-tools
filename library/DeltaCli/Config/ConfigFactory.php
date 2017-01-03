@@ -37,7 +37,7 @@ class ConfigFactory
         foreach ($this->detectorSet->getAll() as $detector) {
             foreach ($detector->getPotentialFilePaths() as $potentialFilePath) {
                 if ($this->fileExists($tunnel, $potentialFilePath)) {
-                    $temporaryFile = $this->copyToTemporaryFile($host, $potentialFilePath);
+                    $temporaryFile = $this->copyToTemporaryFile($tunnel, $host, $potentialFilePath);
 
                     $configs[] = $detector->createConfigFromFile($host->getEnvironment(), $temporaryFile);
                     break;
@@ -67,12 +67,12 @@ class ConfigFactory
         return 0 === $exitStatus;
     }
 
-    private function copyToTemporaryFile($host, $remotePath)
+    private function copyToTemporaryFile(SshTunnel $tunnel, Host $host, $remotePath)
     {
         $temporaryFilePath = sys_get_temp_dir() . '/' . uniqid('delta-cli-config', true);
 
         $scp = new Scp($temporaryFilePath, $remotePath, FileTransferPaths::DOWN);
-        $scp->runOnHost($host);
+        $scp->runOnHostViaAlreadyConfiguredSshTunnel($tunnel, $host);
 
         return $temporaryFilePath;
     }

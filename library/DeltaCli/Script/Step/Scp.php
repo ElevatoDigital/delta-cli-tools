@@ -61,6 +61,15 @@ class Scp extends EnvironmentHostsStepAbstract
 
         $tunnel->setUp();
 
+        $result = $this->runOnHostViaAlreadyConfiguredSshTunnel($tunnel, $host);
+
+        $tunnel->tearDown();
+
+        return $result;
+    }
+
+    public function runOnHostViaAlreadyConfiguredSshTunnel(SshTunnel $tunnel, Host $host)
+    {
         $remoteFile = $this->remoteFile;
 
         if (0 !== strpos($remoteFile, '/') && $host->getSshHomeFolder()) {
@@ -91,8 +100,6 @@ class Scp extends EnvironmentHostsStepAbstract
         }
 
         $this->execSsh($host, $command, $output, $exitStatus);
-
-        $tunnel->tearDown();
 
         return [$output, $exitStatus];
     }
