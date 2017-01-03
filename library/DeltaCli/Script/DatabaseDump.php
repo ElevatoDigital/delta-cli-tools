@@ -33,7 +33,7 @@ class DatabaseDump extends Script
             ->addStep(
                 'dump-database',
                 function () use ($findDbsStep) {
-                    $dumpStep = $this->getProject()->dumpDatabase(current($findDbsStep->getDatabases()));
+                    $dumpStep = $this->getProject()->dumpDatabase(reset($findDbsStep->getDatabases()));
                     $dumpStep->setSelectedEnvironment($this->getProject()->getSelectedEnvironment());
                     return $dumpStep->run();
                 }

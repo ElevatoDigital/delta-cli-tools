@@ -3,6 +3,7 @@
 namespace DeltaCli\Config;
 
 use DeltaCli\Config\Database\TypeHandler\TypeHandlerFactory;
+use PDO;
 
 class Database
 {
@@ -77,6 +78,17 @@ class Database
         return $this->host;
     }
 
+    public function createPdoConnection($hostname = null, $port = null)
+    {
+        return $this->typeHandler->createPdoConnection(
+            $this->username,
+            $this->password,
+            ($hostname ?: $this->host),
+            $this->databaseName,
+            ($port ?: $this->port)
+        );
+    }
+
     public function getShellCommand($hostname = null, $port = null)
     {
         return $this->typeHandler->getShellCommand(
@@ -97,6 +109,11 @@ class Database
             $this->databaseName,
             ($port ?: $this->port)
         );
+    }
+
+    public function emptyDb(PDO $pdo)
+    {
+        $this->typeHandler->emptyDb($pdo);
     }
 
     private function getDefaultPort()

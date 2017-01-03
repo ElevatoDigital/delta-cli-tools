@@ -2,12 +2,24 @@
 
 namespace DeltaCli\Config\Database\TypeHandler;
 
+use PDO;
+
 interface TypeHandlerInterface
 {
     /**
      * @return string
      */
     public function getName();
+
+    /**
+     * @param string $username
+     * @param string $password
+     * @param string $hostname
+     * @param string $databaseName
+     * @param integer $port
+     * @return PDO
+     */
+    public function createPdoConnection($username, $password, $hostname, $databaseName, $port);
 
     /**
      * @param string $username
@@ -30,4 +42,9 @@ interface TypeHandlerInterface
      * @return integer
      */
     public function getDefaultPort();
+
+    /**
+     * @return void
+     */
+    public function emptyDb(PDO $pdo);
 }

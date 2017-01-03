@@ -13,6 +13,7 @@ use DeltaCli\FileWatcher\FileWatcherFactory;
 use DeltaCli\Log\Detector\DetectorSet as LogDetectorSet;
 use DeltaCli\Script\Step\AllowWritesToRemoteFolder as AllowWritesToRemoteFolderStep;
 use DeltaCli\Script\Step\DumpDatabase as DumpDatabaseStep;
+use DeltaCli\Script\Step\EmptyDatabase as EmptyDatabaseStep;
 use DeltaCli\Script\Step\FindDatabases as FindDatabasesStep;
 use DeltaCli\Script\Step\FindLogs as FindLogsStep;
 use DeltaCli\Script\Step\FixSshKeyPermissions as FixSshKeyPermissionsStep;
@@ -22,6 +23,7 @@ use DeltaCli\Script\Step\IsDevEnvironment as IsDevEnvironmentStep;
 use DeltaCli\Script\Step\KillProcessMatchingName as KillProcessMatchingNameStep;
 use DeltaCli\Script\Step\LogAndSendNotifications as LogAndSendNotificationsStep;
 use DeltaCli\Script\Step\PhpCallableSupportingDryRun as PhpCallableSupportingDryRunStep;
+use DeltaCli\Script\Step\RestoreDatabase as RestoreDatabaseStep;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
 use DeltaCli\Script\Step\Scp as ScpStep;
 use DeltaCli\Script\Step\ShellCommandSupportingDryRun as ShellCommandSupportingDryRunStep;
@@ -370,6 +372,11 @@ class Project
         return new DumpDatabaseStep($database);
     }
 
+    public function emptyDatabase(Database $database)
+    {
+        return new EmptyDatabaseStep($database);
+    }
+
     public function findDatabases()
     {
         return new FindDatabasesStep(new ConfigFactory());
@@ -413,6 +420,11 @@ class Project
     public function phpCallbackSupportingDryRun(callable $callback, callable $dryRunCallback)
     {
         return $this->phpCallableSupportingDryRun($callback, $dryRunCallback);
+    }
+
+    public function restoreDatabase(Database $database, $dumpFile)
+    {
+        return new RestoreDatabaseStep($database, $dumpFile);
     }
 
     public function rsync($localPath, $remotePath)
