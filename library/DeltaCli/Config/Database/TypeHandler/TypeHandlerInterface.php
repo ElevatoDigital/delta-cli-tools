@@ -24,7 +24,7 @@ interface TypeHandlerInterface
      * @param integer $port
      * @return string
      */
-    public function getDumpCommand();
+    public function getDumpCommand($username, $password, $hostname, $databaseName, $port);
 
     /**
      * @return integer

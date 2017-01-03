@@ -21,9 +21,16 @@ class Mysql implements TypeHandlerInterface
         return 'mysql';
     }
 
-    public function getDumpCommand()
+    public function getDumpCommand($username, $password, $hostname, $databaseName, $port)
     {
-        // TODO: Implement getDumpCommand() method.
+        return sprintf(
+            'mysqldump --user=%s --password=%s --host=%s --port=%s %s',
+            escapeshellarg($username),
+            escapeshellarg($password),
+            escapeshellarg($hostname),
+            escapeshellarg($port),
+            escapeshellarg($databaseName)
+        );
     }
 
     public function getDefaultPort()

@@ -88,6 +88,17 @@ class Database
         );
     }
 
+    public function getDumpCommand($hostname = null, $port = null)
+    {
+        return $this->typeHandler->getDumpCommand(
+            $this->username,
+            $this->password,
+            ($hostname ?: $this->host),
+            $this->databaseName,
+            ($port ?: $this->port)
+        );
+    }
+
     private function getDefaultPort()
     {
         return $this->typeHandler->getDefaultPort();

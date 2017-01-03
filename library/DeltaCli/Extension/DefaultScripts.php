@@ -6,6 +6,7 @@ use DeltaCli\Console\Output\Banner;
 use DeltaCli\Project;
 use DeltaCli\Script\InstallFsevents;
 use DeltaCli\Script\Log;
+use DeltaCli\Script\DatabaseDump as DatabaseDumpScript;
 use DeltaCli\Script\DatabaseList as DatabaseListScript;
 use DeltaCli\Script\DatabaseTunnel as DatabaseTunnelScript;
 use DeltaCli\Script\Diff as DiffScript;
@@ -28,6 +29,7 @@ class DefaultScripts implements ExtensionInterface
         $project->addScript(new SshFixKeyPermissionsScript($project));
         $project->addScript(new SshInstallKeyScript($project));
         $project->addScript(new ScpScript($project));
+        $project->addScript(new DatabaseDumpScript($project));
         $project->addScript(new DatabaseListScript($project));
         $project->addScript(new DatabaseTunnelScript($project));
         $project->addScript(new LogsListScript($project));

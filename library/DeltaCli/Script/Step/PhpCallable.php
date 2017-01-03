@@ -41,10 +41,12 @@ class PhpCallable extends StepAbstract
     {
         try {
             ob_start();
-            call_user_func($callable);
+            $result = call_user_func($callable);
             $output = ob_get_clean();
 
-            $result = new Result($this, Result::SUCCESS, $output);
+            if (!$result instanceof Result) {
+                $result = new Result($this, Result::SUCCESS, $output);
+            }
         } catch (Exception $e) {
             // Close output buffer left open due to exception being thrown
             ob_get_clean();

@@ -5,7 +5,7 @@ namespace DeltaCli\Script;
 use DeltaCli\Project;
 use DeltaCli\Script;
 
-class DatabaseList extends Script
+class DatabaseDump extends Script
 {
     public function __construct(Project $project)
     {
@@ -28,6 +28,15 @@ class DatabaseList extends Script
         $findDbsStep = $this->getProject()->findDatabases();
 
         $this
-            ->addStep($findDbsStep);
+            ->addStep($findDbsStep)
+            ->addStep($this->getProject()->logAndSendNotifications())
+            ->addStep(
+                'dump-database',
+                function () use ($findDbsStep) {
+                    $dumpStep = $this->getProject()->dumpDatabase(current($findDbsStep->getDatabases()));
+                    $dumpStep->setSelectedEnvironment($this->getProject()->getSelectedEnvironment());
+                    return $dumpStep->run();
+                }
+            );
     }
 }

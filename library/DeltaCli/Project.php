@@ -3,6 +3,7 @@
 namespace DeltaCli;
 
 use DeltaCli\Config\ConfigFactory;
+use DeltaCli\Config\Database;
 use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\ScriptNotFound;
 use DeltaCli\Extension\DefaultScripts as DefaultScriptsExtension;
@@ -11,6 +12,7 @@ use DeltaCli\FileWatcher\FileWatcherInterface;
 use DeltaCli\FileWatcher\FileWatcherFactory;
 use DeltaCli\Log\Detector\DetectorSet as LogDetectorSet;
 use DeltaCli\Script\Step\AllowWritesToRemoteFolder as AllowWritesToRemoteFolderStep;
+use DeltaCli\Script\Step\DumpDatabase as DumpDatabaseStep;
 use DeltaCli\Script\Step\FindDatabases as FindDatabasesStep;
 use DeltaCli\Script\Step\FindLogs as FindLogsStep;
 use DeltaCli\Script\Step\FixSshKeyPermissions as FixSshKeyPermissionsStep;
@@ -363,6 +365,11 @@ class Project
         return new AllowWritesToRemoteFolderStep($remoteFolder);
     }
 
+    public function dumpDatabase(Database $database)
+    {
+        return new DumpDatabaseStep($database);
+    }
+
     public function findDatabases()
     {
         return new FindDatabasesStep(new ConfigFactory());
@@ -468,6 +475,7 @@ class Project
                 ->setUsername('vagrant')
                 ->setSshPrivateKey($vagrantPrivateKeyPath)
                 ->setApplicationEnv('development')
+                ->setIsDevEnvironment(true)
                 ->addHost('127.0.0.1');
 
             if ('/delta' === $cwd || 0 === strpos($cwd, '/delta/')) {
