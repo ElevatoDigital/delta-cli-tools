@@ -112,7 +112,12 @@ class SshTunnel
 
     public function getSshOptions(Host $host)
     {
-        $options = ['StrictHostKeyChecking' => 'no'];
+        $options = [
+            'StrictHostKeyChecking'    => 'no',
+            'PreferredAuthentications' => 'publickey',
+            'ControlMaster'            => 'auto',
+            'ControlPath'              => '~/.ssh/%r@%h:%p'
+        ];
 
         if ($this->batchMode) {
             $options['BatchMode'] = 'yes';
