@@ -3,6 +3,7 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Config\Database;
+use DeltaCli\Environment;
 use DeltaCli\Host;
 use Cocur\Slugify\Slugify;
 
@@ -27,7 +28,7 @@ class DumpDatabase extends EnvironmentHostsStepAbstract
 
     public function runOnHost(Host $host)
     {
-        $this->dumpFileName = $this->generateDumpFileName();
+        $this->dumpFileName = $this->generateDumpFileName($host->getEnvironment());
 
         $tunnel = $host->getSshTunnel();
         $port   = $tunnel->setUp();
@@ -75,14 +76,15 @@ class DumpDatabase extends EnvironmentHostsStepAbstract
         return $this->dumpFileName;
     }
 
-    private function generateDumpFileName()
+    private function generateDumpFileName(Environment $environment)
     {
         $slugify = new Slugify();
 
         return sprintf(
-            '%s-dump-%s-from-delta-cli.sql',
+            '%s-dump-%s-from-%s.sql',
             $slugify->slugify($this->database->getDatabaseName()),
-            date('Ymd-hiA')
+            date('Ymd-hiA'),
+            $environment->getName()
         );
     }
 }
