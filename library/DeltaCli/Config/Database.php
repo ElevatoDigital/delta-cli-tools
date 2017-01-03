@@ -77,7 +77,7 @@ class Database
     {
         if ('postgres' === $this->type) {
             return sprintf(
-                'PGPASSWORD=%s psql -U %s -h %s -p %d %s',
+                'PGPASSWORD=%s psql -U %s -h %s -p %s %s',
                 escapeshellarg($this->password),
                 escapeshellarg($this->username),
                 escapeshellarg($hostname ?: $this->host),
@@ -86,7 +86,7 @@ class Database
             );
         } else {
             return sprintf(
-                'mysql --user=%s --password=%s --host=%s --port=%d %s',
+                'mysql --user=%s --password=%s --host=%s --port=%s %s',
                 escapeshellarg($this->username),
                 escapeshellarg($this->password),
                 escapeshellarg($hostname ?: $this->host),
