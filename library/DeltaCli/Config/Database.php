@@ -2,7 +2,7 @@
 
 namespace DeltaCli\Config;
 
-use DeltaCli\Exception\InvalidDatabaseType as InvalidDatabaseTypeException;
+use DeltaCli\Config\Database\TypeHandler\TypeHandlerFactory;
 
 class Database
 {
@@ -36,21 +36,25 @@ class Database
      */
     private $port;
 
+    /**
+     * @var \DeltaCli\Config\Database\TypeHandler\TypeHandlerInterface
+     */
+    private $typeHandler;
+
     public function __construct($type, $databaseName, $username, $password, $host, $port = null)
     {
-        $this->validateType($type);
-
         $this->type         = $type;
         $this->databaseName = $databaseName;
         $this->username     = $username;
         $this->password     = $password;
         $this->host         = $host;
+        $this->typeHandler  = TypeHandlerFactory::createInstance($this->type);
         $this->port         = (null === $port ? $this->getDefaultPort() : $port);
     }
 
     public function getType()
     {
-        return $this->type;
+        return $this->typeHandler->getName();
     }
 
     public function getDatabaseName()
@@ -75,40 +79,17 @@ class Database
 
     public function getShellCommand($hostname = null, $port = null)
     {
-        if ('postgres' === $this->type) {
-            return sprintf(
-                'PGPASSWORD=%s psql -U %s -h %s -p %s %s',
-                escapeshellarg($this->password),
-                escapeshellarg($this->username),
-                escapeshellarg($hostname ?: $this->host),
-                escapeshellarg($port ?: $this->port),
-                escapeshellarg($this->databaseName)
-            );
-        } else {
-            return sprintf(
-                'mysql --user=%s --password=%s --host=%s --port=%s %s',
-                escapeshellarg($this->username),
-                escapeshellarg($this->password),
-                escapeshellarg($hostname ?: $this->host),
-                escapeshellarg($port ?: $this->port),
-                escapeshellarg($this->databaseName)
-            );
-        }
-    }
-
-    private function validateType($type)
-    {
-        if (!in_array($type, ['postgres', 'mysql'])) {
-            throw new InvalidDatabaseTypeException("Database type must be postgres or mysql.  Received '{$type}'.");
-        }
+        return $this->typeHandler->getShellCommand(
+            $this->username,
+            $this->password,
+            ($hostname ?: $this->host),
+            $this->databaseName,
+            ($port ?: $this->port)
+        );
     }
 
     private function getDefaultPort()
     {
-        if ('postgres' === $this->type) {
-            return 5432;
-        } else {
-            return 3306;
-        }
+        return $this->typeHandler->getDefaultPort();
     }
 }
