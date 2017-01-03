@@ -114,13 +114,13 @@ class SshTunnel
     {
         $options = [
             'StrictHostKeyChecking'    => 'no',
-            'PreferredAuthentications' => 'publickey',
             'ControlMaster'            => 'auto',
             'ControlPath'              => '~/.ssh/%r@%h:%p'
         ];
 
         if ($this->batchMode) {
-            $options['BatchMode'] = 'yes';
+            $options['BatchMode']                = 'yes';
+            $options['PreferredAuthentications'] = 'publickey';
         }
 
         if ('localhost' === $this->getHostname()) {
