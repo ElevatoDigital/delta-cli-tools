@@ -7,6 +7,11 @@ use DeltaCli\Script;
 
 class DatabaseDump extends Script
 {
+    /**
+     * @var string
+     */
+    private $dumpFile;
+
     public function __construct(Project $project)
     {
         parent::__construct(
@@ -23,6 +28,11 @@ class DatabaseDump extends Script
         parent::configure();
     }
 
+    public function getDumpFile()
+    {
+        return $this->dumpFile;
+    }
+
     protected function addSteps()
     {
         $findDbsStep = $this->getProject()->findDatabases();
@@ -35,7 +45,9 @@ class DatabaseDump extends Script
                 function () use ($findDbsStep) {
                     $dumpStep = $this->getProject()->dumpDatabase(reset($findDbsStep->getDatabases()));
                     $dumpStep->setSelectedEnvironment($this->getProject()->getSelectedEnvironment());
-                    return $dumpStep->run();
+                    $result = $dumpStep->run();
+                    $this->dumpFile = $dumpStep->getDumpFileName();
+                    return $result;
                 }
             );
     }
