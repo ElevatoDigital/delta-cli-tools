@@ -112,16 +112,15 @@ class SshTunnel
 
     public function getSshOptions(Host $host)
     {
-        $options = [];
+        $options = ['StrictHostKeyChecking' => 'no'];
 
         if ($this->batchMode) {
             $options['BatchMode'] = 'yes';
         }
 
         if ('localhost' === $this->getHostname()) {
-            $options['UserKnownHostsFile']    = '/dev/null';
-            $options['StrictHostKeyChecking'] = 'no';
-            $options['LogLevel']              = 'error';
+            $options['UserKnownHostsFile'] = '/dev/null';
+            $options['LogLevel']           = 'error';
         }
 
         if ($host) {
@@ -151,7 +150,8 @@ class SshTunnel
             }
 
             $command = sprintf(
-                'ssh %s -o BatchMode=yes -p %s %s@%s -L %d:%s:%d -N > /dev/null 2>&1 & echo $!',
+                'ssh %s -o StrictHostKeyChecking=no -o BatchMode=yes -p %s %s@%s -L %d:%s:%d -N > /dev/null 2>&1'
+                . '& echo $!',
                 $keyFlag,
                 escapeshellarg($this->host->getSshPort()),
                 escapeshellarg($this->host->getUsername()),
