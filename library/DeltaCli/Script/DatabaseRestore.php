@@ -5,14 +5,14 @@ namespace DeltaCli\Script;
 use DeltaCli\Project;
 use DeltaCli\Script;
 
-class DatabaseCopy extends Script
+class DatabaseRestore extends Script
 {
     public function __construct(Project $project)
     {
         parent::__construct(
             $project,
-            'db:copy',
-            'Copy a database from one environment to another.'
+            'db:restore',
+            'Restore from a database dump.'
         );
     }
 

@@ -5,14 +5,14 @@ namespace DeltaCli\Script;
 use DeltaCli\Project;
 use DeltaCli\Script;
 
-class DatabaseCopy extends Script
+class DatabaseSearchAndReplace extends Script
 {
     public function __construct(Project $project)
     {
         parent::__construct(
             $project,
-            'db:copy',
-            'Copy a database from one environment to another.'
+            'db:search-and-replace',
+            'Search for and replace a string throughout a database.'
         );
     }
 
