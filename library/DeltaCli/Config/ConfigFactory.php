@@ -41,6 +41,7 @@ class ConfigFactory
 
             if ($config) {
                 $configs[] = $config;
+                break;
             }
         }
 
