@@ -40,6 +40,7 @@ class ConfigFactory
                     $temporaryFile = $this->copyToTemporaryFile($host, $potentialFilePath);
 
                     $configs[] = $detector->createConfigFromFile($host->getEnvironment(), $temporaryFile);
+                    break;
                 }
             }
         }
