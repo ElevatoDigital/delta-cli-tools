@@ -28,7 +28,7 @@ class ConfigFactory
      */
     public function detectConfigsOnHost(Host $host)
     {
-        $configs = false;
+        $configs = [];
         $tunnel  = $host->getSshTunnel();
 
         $tunnel->setUp();
