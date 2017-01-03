@@ -56,9 +56,15 @@ class DatabaseShell extends Command
         $database = reset($databases);
 
         $tunnel = $host->getSshTunnel();
-        $tunnel->setUp();
+        $port   = $tunnel->setUp();
 
-        $command = $tunnel->assembleSshCommand($database->getShellCommand(), '-t');
+        if (false === $port) {
+            $databaseCommand = $database->getShellCommand();
+        } else {
+            $databaseCommand = $database->getShellCommand($tunnel->getHostname(), $port);
+        }
+
+        $command = $tunnel->assembleSshCommand($databaseCommand, '-t');
         Debug::log("Opening DB shell with `{$command}`...");
         passthru($command);
 

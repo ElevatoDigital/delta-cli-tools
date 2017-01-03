@@ -31,7 +31,12 @@ class Database
      */
     private $host;
 
-    public function __construct($type, $databaseName, $username, $password, $host)
+    /**
+     * @var integer
+     */
+    private $port;
+
+    public function __construct($type, $databaseName, $username, $password, $host, $port = null)
     {
         $this->validateType($type);
 
@@ -40,6 +45,7 @@ class Database
         $this->username     = $username;
         $this->password     = $password;
         $this->host         = $host;
+        $this->port         = (null === $port ? $this->getDefaultPort() : $port);
     }
 
     public function getType()
@@ -67,22 +73,24 @@ class Database
         return $this->host;
     }
 
-    public function getShellCommand()
+    public function getShellCommand($hostname = null, $port = null)
     {
         if ('postgres' === $this->type) {
             return sprintf(
-                'PGPASSWORD=%s psql -U %s -h %s %s',
+                'PGPASSWORD=%s psql -U %s -h %s -p %d %s',
                 escapeshellarg($this->password),
                 escapeshellarg($this->username),
-                escapeshellarg($this->host),
+                escapeshellarg($hostname ?: $this->host),
+                escapeshellarg($port ?: $this->port),
                 escapeshellarg($this->databaseName)
             );
         } else {
             return sprintf(
-                'mysql --user=%s --password=%s --host=%s %s',
+                'mysql --user=%s --password=%s --host=%s --port=%d %s',
                 escapeshellarg($this->username),
                 escapeshellarg($this->password),
-                escapeshellarg($this->host),
+                escapeshellarg($hostname ?: $this->host),
+                escapeshellarg($port ?: $this->port),
                 escapeshellarg($this->databaseName)
             );
         }
@@ -92,6 +100,15 @@ class Database
     {
         if (!in_array($type, ['postgres', 'mysql'])) {
             throw new InvalidDatabaseTypeException("Database type must be postgres or mysql.  Received '{$type}'.");
+        }
+    }
+
+    private function getDefaultPort()
+    {
+        if ('postgres' === $this->type) {
+            return 5432;
+        } else {
+            return 3306;
         }
     }
 }
