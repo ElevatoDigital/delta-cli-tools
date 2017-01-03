@@ -6,8 +6,13 @@ use DeltaCli\Config\Config;
 use DeltaCli\Config\Database;
 use DeltaCli\Environment;
 
-class WordPress
+class WordPress implements DetectorInterface
 {
+    public function getMostLikelyRemoteFilePath()
+    {
+        return 'httpdocs/wp-config.php';
+    }
+
     public function getPotentialFilePaths()
     {
         return [

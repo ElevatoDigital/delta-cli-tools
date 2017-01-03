@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Config;
 
+use DeltaCli\Config\Detector\DetectorInterface;
 use DeltaCli\Config\Detector\DetectorSet;
 use DeltaCli\Exec;
 use DeltaCli\FileTransferPaths;
@@ -28,19 +29,30 @@ class ConfigFactory
     public function detectConfigsOnHost(Host $host)
     {
         $configs = false;
-        $tunnel = $host->getSshTunnel();
+        $tunnel  = $host->getSshTunnel();
 
         $tunnel->setUp();
 
         $temporaryFile = null;
 
+        // First check the most likely path on each detector
         foreach ($this->detectorSet->getAll() as $detector) {
-            foreach ($detector->getPotentialFilePaths() as $potentialFilePath) {
-                if ($this->fileExists($tunnel, $potentialFilePath)) {
-                    $temporaryFile = $this->copyToTemporaryFile($tunnel, $host, $potentialFilePath);
+            $config = $this->checkFilePath($detector, $tunnel, $host, $detector->getMostLikelyRemoteFilePath());
 
-                    $configs[] = $detector->createConfigFromFile($host->getEnvironment(), $temporaryFile);
-                    break;
+            if ($config) {
+                $configs[] = $config;
+            }
+        }
+
+        // Then move on to the other paths only if we didn't already find a config
+        if (!count($configs)) {
+            foreach ($this->detectorSet->getAll() as $detector) {
+                foreach ($detector->getPotentialFilePaths() as $potentialFilePath) {
+                    $config = $this->checkFilePath($detector, $tunnel, $host, $potentialFilePath);
+
+                    if ($config) {
+                        $configs[] = $config;
+                    }
                 }
             }
         }
@@ -52,6 +64,19 @@ class ConfigFactory
         $tunnel->tearDown();
 
         return (count($configs) === 0 ? false : $configs);
+    }
+
+    private function checkFilePath(DetectorInterface $detector, SshTunnel $tunnel, Host $host, $potentialFilePath)
+    {
+        $config = false;
+
+        if ($this->fileExists($tunnel, $potentialFilePath)) {
+            $temporaryFile = $this->copyToTemporaryFile($tunnel, $host, $potentialFilePath);
+
+            $config = $detector->createConfigFromFile($host->getEnvironment(), $temporaryFile);
+        }
+
+        return $config;
     }
 
     private function fileExists(SshTunnel $sshTunnel, $remotePath)

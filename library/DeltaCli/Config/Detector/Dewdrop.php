@@ -8,10 +8,14 @@ use DeltaCli\Environment;
 
 class Dewdrop implements DetectorInterface
 {
+    public function getMostLikelyRemoteFilePath()
+    {
+        return 'zend/dewdrop-config.php';
+    }
+
     public function getPotentialFilePaths()
     {
         return [
-            'zend/dewdrop-config.php',
             'dewdrop-config.php',
             'src/dewdrop-config.php'
         ];

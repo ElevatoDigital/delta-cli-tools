@@ -6,12 +6,16 @@ use DeltaCli\Config\Config;
 use DeltaCli\Config\Database;
 use DeltaCli\Environment;
 
-class ZendFramework1
+class ZendFramework1 implements DetectorInterface
 {
+    public function getMostLikelyRemoteFilePath()
+    {
+        return 'zend/application/configs/application.ini';
+    }
+
     public function getPotentialFilePaths()
     {
         return [
-            'zend/application/configs/application.ini',
             'application/configs/application.ini',
             'src/application/configs/application.ini'
         ];

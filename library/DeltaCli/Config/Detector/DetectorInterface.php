@@ -8,6 +8,11 @@ use DeltaCli\Environment;
 interface DetectorInterface
 {
     /**
+     * @return string
+     */
+    public function getMostLikelyRemoteFilePath();
+
+    /**
      * @return string[]
      */
     public function getPotentialFilePaths();
