@@ -47,14 +47,14 @@ class DatabaseCopy extends Script
 
     public function setSourceEnvironment($sourceEnvironment)
     {
-        $this->sourceEnvironment = $this->getProject()->getEnvironment($sourceEnvironment);
+        $this->sourceEnvironment = $this->getProject()->getTunneledEnvironment($sourceEnvironment);
 
         return $this;
     }
 
     public function setDestinationEnvironment($destinationEnvironment)
     {
-        $this->destinationEnvironment = $this->getProject()->getEnvironment($destinationEnvironment);
+        $this->destinationEnvironment = $this->getProject()->getTunneledEnvironment($destinationEnvironment);
 
         return $this;
     }

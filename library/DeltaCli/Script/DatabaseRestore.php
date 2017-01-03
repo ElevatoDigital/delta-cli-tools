@@ -48,15 +48,19 @@ class DatabaseRestore extends Script
             ->addStep(
                 'backup-database-prior-to-restore',
                 function () use ($findDbsStep) {
-                    $dumpStep = $this->getProject()->dumpDatabase(reset($findDbsStep->getDatabases()));
-                    $dumpStep->setSelectedEnvironment($this->getProject()->getSelectedEnvironment());
+                    $database = reset($findDbsStep->getDatabases());
+                    $dumpStep = $this->getProject()->dumpDatabase($database);
+                    $dumpStep->setSelectedEnvironment($this->getEnvironment());
                     return $dumpStep->run();
                 }
             )
             ->addStep(
                 'empty-database-prior-to-restore',
                 function () use ($findDbsStep) {
-
+                    $database  = reset($findDbsStep->getDatabases());
+                    $emptyStep = $this->getProject()->emptyDatabase($database);
+                    $emptyStep->setSelectedEnvironment($this->getEnvironment());
+                    return $emptyStep->run();
                 }
             )
             ->addStep(
@@ -67,7 +71,7 @@ class DatabaseRestore extends Script
                         $this->dumpFile
                     );
 
-                    $restoreStep->setSelectedEnvironment($this->getProject()->getSelectedEnvironment());
+                    $restoreStep->setSelectedEnvironment($this->getEnvironment());
 
                     return $restoreStep->run();
                 }

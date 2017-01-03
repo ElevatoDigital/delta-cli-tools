@@ -6,8 +6,6 @@ $project->setName('Delta CLI Tools Example');
 
 $project->addSlackHandle('@bgriffith');
 
-$project->createEnvironment('production');
-
 $project->createEnvironment('staging')
     ->setUsername('bgriffith')
     ->setSshPrivateKey(__DIR__ . '/ssh-keys/id_rsa')

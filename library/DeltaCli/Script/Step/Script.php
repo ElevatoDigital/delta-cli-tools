@@ -72,9 +72,11 @@ class Script extends StepAbstract implements EnvironmentOptionalInterface, DryRu
 
     public function run()
     {
-        $this->script
-            ->setEnvironment($this->environment)
-            ->setSkippedSteps($this->skippedSteps);
+        $this->script->setSkippedSteps($this->skippedSteps);
+
+        if ($this->environment) {
+            $this->script->setEnvironment($this->environment);
+        }
 
         $output = $this->getOutput();
 

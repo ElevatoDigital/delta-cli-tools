@@ -5,7 +5,7 @@ namespace DeltaCli\Script\Step;
 use DeltaCli\Config\Database;
 use DeltaCli\Host;
 use Cocur\Slugify\Slugify;
-use DeltaCli\Script;
+use DeltaCli\Script as ScriptObject;
 use DeltaCli\SshTunnel;
 
 class EmptyDatabase extends EnvironmentHostsStepAbstract
@@ -47,7 +47,7 @@ class EmptyDatabase extends EnvironmentHostsStepAbstract
         return 'empty-' . $slugify->slugify($this->database->getDatabaseName()) . '-database';
     }
 
-    public function postRun(Script $script)
+    public function postRun(ScriptObject $script)
     {
         if ($this->sshTunnel) {
             $this->sshTunnel->tearDown();
