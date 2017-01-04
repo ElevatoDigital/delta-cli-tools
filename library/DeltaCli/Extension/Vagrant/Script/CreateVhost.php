@@ -37,6 +37,10 @@ class CreateVhost extends Script
 
     public function setHostname($hostname)
     {
+        if (false === strpos($hostname, '.')) {
+            $hostname .= '.local';
+        }
+
         $this->hostname = $hostname;
 
         return $this;
@@ -61,8 +65,16 @@ class CreateVhost extends Script
         parent::configure();
 
         $this
-            ->addSetterArgument('hostname', InputArgument::REQUIRED, 'The host/domain name for this virtual host.')
-            ->addSetterArgument('document-root', InputArgument::REQUIRED, 'The root folder to serve for this host.')
+            ->addSetterArgument(
+                'hostname',
+                InputArgument::REQUIRED,
+                'The host/domain name for this virtual host.  (e.g. my-project.local)'
+            )
+            ->addSetterArgument(
+                'document-root',
+                InputArgument::REQUIRED,
+                'The root folder to serve for this host. (Typically a www or public folder.)'
+            )
             ->addSetterOption('application-env', null, InputOption::VALUE_OPTIONAL);
     }
 

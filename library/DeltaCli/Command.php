@@ -3,7 +3,9 @@
 namespace DeltaCli;
 
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Command extends SymfonyCommand
 {
@@ -24,5 +26,12 @@ class Command extends SymfonyCommand
             InputOption::VALUE_NONE,
             'Tunnel all SSH connections over the Delta VPN.'
         );
+    }
+
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        if ($input instanceof ArgvInput) {
+            $input->setCommand($this);
+        }
     }
 }

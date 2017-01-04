@@ -13,6 +13,7 @@ if (!ini_get('date.timezone')) {
     date_default_timezone_set('America/Chicago');
 }
 
+use DeltaCli\ArgvInput;
 use DeltaCli\Command\CreateProjectConfig;
 use DeltaCli\Command\DatabaseShell;
 use DeltaCli\Command\ListEnvironments;
@@ -23,7 +24,6 @@ use DeltaCli\Console\Output\Banner;
 use DeltaCli\Exception\ConsoleOutputInterface;
 use DeltaCli\Debug;
 use DeltaCli\Project;
-use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -32,6 +32,8 @@ try {
     $output      = new ConsoleOutput();
     $application = new Application();
     $project     = new Project($input, $output);
+
+    $input->setProject($project);
 
     $composerVersion = new ComposerVersion(VENDOR_PATH);
     $application->setVersion($composerVersion->getCurrentVersion());
@@ -48,7 +50,7 @@ try {
     $application->addCommands($project->getScripts());
     $application->run($input, $output);
 } catch (Exception $e) {
-    if ($e instanceof ConsoleOutputInterface && !$e->hasBanner()) {
+    if (!$e instanceof ConsoleOutputInterface || !$e->hasBanner()) {
         $banner = new Banner($output);
         $banner->setBackground('red');
         $banner->render(get_class($e));
