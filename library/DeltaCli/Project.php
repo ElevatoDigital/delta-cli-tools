@@ -480,7 +480,7 @@ class Project
             }
         }
 
-        $vagrantPrivateKeyPath = $_SERVER['HOME'] . '/Vagrant/.vagrant/machines/default/virtualbox/private_key';
+        $vagrantPrivateKeyPath = $this->findVagrantPath() . '/.vagrant/machines/default/virtualbox/private_key';
 
         if (!$this->hasEnvironment('vagrant') && file_exists($vagrantPrivateKeyPath)) {
             $this->createEnvironment('vagrant')
@@ -510,5 +510,18 @@ class Project
                     ]
                 );
         }
+    }
+
+    private function findVagrantPath()
+    {
+        exec('vagrant global-status --prune', $output, $exitStatus);
+
+        if ($exitStatus) {
+            return '';
+        }
+
+        $directoryPosition = strpos($output[0], 'directory');
+
+        return substr($output[2], $directoryPosition);
     }
 }
