@@ -70,6 +70,8 @@ class SanityCheckPotentiallyDangerousOperation extends StepAbstract implements E
             throw $exception;
         }
 
+        $this->cache->clear($this->cacheKey);
+
         return new Result($this, Result::SUCCESS);
     }
 

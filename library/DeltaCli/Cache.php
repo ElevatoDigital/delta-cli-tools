@@ -25,9 +25,20 @@ class Cache
 
         $data[$key] = $value;
 
-        file_put_contents($this->jsonFile, json_encode($data), LOCK_EX);
+        $this->writeData($data);
 
-        $this->clearData();
+        return $this;
+    }
+
+    public function clear($key)
+    {
+        $data = $this->getData();
+
+        if (isset($data[$key])) {
+            unset($data[$key]);
+        }
+
+        $this->writeData($data);
 
         return $this;
     }
@@ -48,6 +59,12 @@ class Cache
         $this->data = null;
 
         return $this;
+    }
+
+    private function writeData(array $data)
+    {
+        file_put_contents($this->jsonFile, json_encode($data), LOCK_EX);
+        $this->clearData();
     }
 
     private function getData()
