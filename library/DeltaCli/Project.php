@@ -88,6 +88,11 @@ class Project
     private $slackHandles = [];
 
     /**
+     * @var Cache
+     */
+    private $cache;
+
+    /**
      * Project constructor.
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -96,6 +101,7 @@ class Project
     {
         $this->input  = $input;
         $this->output = $output;
+        $this->cache  = new Cache();
 
         $defaultScriptsExtension = new DefaultScriptsExtension();
         $defaultScriptsExtension->extend($this);
@@ -514,14 +520,21 @@ class Project
 
     private function findVagrantPath()
     {
-        exec('vagrant global-status --prune', $output, $exitStatus);
+        $vagrantPath = null;
 
-        if ($exitStatus) {
-            return '';
+        if ((!$vagrantPath = $this->cache->fetch('vagrant-path')) || !file_exists($vagrantPath)) {
+            exec('vagrant global-status --prune', $output, $exitStatus);
+
+            if ($exitStatus) {
+                return '';
+            }
+
+            $directoryPosition = strpos($output[0], 'directory');
+            $vagrantPath       = substr($output[2], $directoryPosition);
+
+            $this->cache->store('vagrant-path', $vagrantPath);
         }
 
-        $directoryPosition = strpos($output[0], 'directory');
-
-        return substr($output[2], $directoryPosition);
+        return $vagrantPath;
     }
 }
