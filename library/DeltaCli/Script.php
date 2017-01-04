@@ -244,11 +244,11 @@ class Script extends Command
             $this->showStatusOutput = false;
         }
 
-        $this->skippedSteps = $input->getOption('skip-step');
+        $this->skippedSteps = ($input->hasOption('skip-step') ? $input->getOption('skip-step') : []);
 
-        if ($input->getOption('dry-run')) {
+        if ($input->hasOption('dry-run') && $input->getOption('dry-run')) {
             $this->dryRun($output);
-        } else if ($input->getOption('list-steps')) {
+        } else if ($input->hasOption('list-steps') && $input->getOption('list-steps')) {
             $this->listSteps($output);
         } else {
             $this->runSteps($output);

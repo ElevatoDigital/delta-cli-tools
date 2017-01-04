@@ -2,6 +2,8 @@
 
 namespace DeltaCli\Config\Database\TypeHandler;
 
+use DeltaCli\Exception\InvalidDatabaseType;
+use DeltaCli\Exception\PgsqlPdoDriverNotInstalled;
 use PDO;
 
 class Postgres implements TypeHandlerInterface
@@ -37,6 +39,10 @@ class Postgres implements TypeHandlerInterface
 
     public function createPdoConnection($username, $password, $hostname, $databaseName, $port)
     {
+        if (!extension_loaded('pdo_pgsql')) {
+            throw new PgsqlPdoDriverNotInstalled('The pgsql PDO driver is not installed.');
+        }
+
         $dsn = sprintf(
             'pgsql:dbname=%s;host=%s;port=%s',
             $databaseName,

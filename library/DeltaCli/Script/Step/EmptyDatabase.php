@@ -3,6 +3,7 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Config\Database;
+use DeltaCli\Exception\PgsqlPdoDriverNotInstalled;
 use DeltaCli\Host;
 use Cocur\Slugify\Slugify;
 use DeltaCli\Script as ScriptObject;
@@ -33,24 +34,23 @@ class EmptyDatabase extends EnvironmentHostsStepAbstract
 
         $tunnelPort = $this->sshTunnel->setUp();
 
-        $pdo = $this->database->createPdoConnection(
-            ($tunnelPort ? $this->sshTunnel->getHostname() : $this->database->getHost()),
-            $tunnelPort
-        );
+        try {
+            $pdo = $this->database->createPdoConnection(
+                ($tunnelPort ? $this->sshTunnel->getHostname() : $this->database->getHost()),
+                $tunnelPort
+            );
 
-        $this->database->emptyDb($pdo);
+            $this->database->emptyDb($pdo);
+        } catch (PgsqlPdoDriverNotInstalled $e) {
+            $this->database->emptyPostgresDbWithoutPdo($this->sshTunnel, $tunnelPort);
+        }
+
+        $this->sshTunnel->tearDown();
     }
 
     public function getName()
     {
         $slugify = new Slugify();
         return 'empty-' . $slugify->slugify($this->database->getDatabaseName()) . '-database';
-    }
-
-    public function postRun(ScriptObject $script)
-    {
-        if ($this->sshTunnel) {
-            $this->sshTunnel->tearDown();
-        }
     }
 }

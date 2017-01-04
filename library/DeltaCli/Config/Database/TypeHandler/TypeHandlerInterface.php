@@ -44,6 +44,7 @@ interface TypeHandlerInterface
     public function getDefaultPort();
 
     /**
+     * @param PDO $pdo
      * @return void
      */
     public function emptyDb(PDO $pdo);

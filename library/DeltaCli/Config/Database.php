@@ -3,6 +3,9 @@
 namespace DeltaCli\Config;
 
 use DeltaCli\Config\Database\TypeHandler\TypeHandlerFactory;
+use DeltaCli\Exception\PostgresCommandFailed;
+use DeltaCli\Exec;
+use DeltaCli\SshTunnel;
 use PDO;
 
 class Database
@@ -114,6 +117,47 @@ class Database
     public function emptyDb(PDO $pdo)
     {
         $this->typeHandler->emptyDb($pdo);
+    }
+
+    /**
+     * Mac OS does not include the pgsql PDO driver by default, so we have this method as a hack to clear out
+     * a Postgres DB without needing that driver.
+     *
+     * @param SshTunnel $sshTunnel
+     * @param integer|boolean $tunnelPort
+     * @throws PostgresCommandFailed
+     * @return void
+     */
+    public function emptyPostgresDbWithoutPdo(SshTunnel $sshTunnel, $tunnelPort)
+    {
+        $shellCommand = $this->getShellCommand(
+            ($tunnelPort ? $sshTunnel->getHostname() : $this->host),
+            $tunnelPort
+        );
+
+        $dropSchema = sprintf(
+            "echo 'DROP SCHEMA public CASCADE;' | %s",
+            $shellCommand
+        );
+
+        Exec::run($sshTunnel->assembleSshCommand($dropSchema), $output, $exitStatus);
+
+        if ($exitStatus) {
+            $output = implode(PHP_EOL, $output);
+            throw new PostgresCommandFailed("Failed to drop Postgres public schema: {$output}.");
+        }
+
+        $createSchema = sprintf(
+            "echo 'CREATE SCHEMA public;' | %s",
+            $shellCommand
+        );
+
+        Exec::run($sshTunnel->assembleSshCommand($createSchema), $output, $exitStatus);
+
+        if ($exitStatus) {
+            $output = implode(PHP_EOL, $output);
+            throw new PostgresCommandFailed("Failed to create Postgres public schema: {$output}.");
+        }
     }
 
     private function getDefaultPort()

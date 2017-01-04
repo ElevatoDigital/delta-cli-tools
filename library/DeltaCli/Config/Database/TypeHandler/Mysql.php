@@ -58,5 +58,4 @@ class Mysql implements TypeHandlerInterface
     {
         return 3306;
     }
-
 }

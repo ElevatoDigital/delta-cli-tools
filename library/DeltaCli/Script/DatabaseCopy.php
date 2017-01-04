@@ -6,6 +6,9 @@ use DeltaCli\Environment;
 use DeltaCli\Exception\InvalidOptions;
 use DeltaCli\Project;
 use DeltaCli\Script;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 class DatabaseCopy extends Script
 {
@@ -78,8 +81,14 @@ class DatabaseCopy extends Script
             ->addStep(
                 'restore-to-destination-environment',
                 function () use ($dumpScript, $restoreScript) {
-                    $restoreScript->setDumpFile($dumpScript->getDumpFile());
-                    return $restoreScript->run($this->getProject()->getInput(), $this->getProject()->getOutput());
+                    $restoreScript
+                        ->setDumpFile($dumpScript->getDumpFile())
+                        ->setDefinition(new InputDefinition());
+
+                    $input = new ArrayInput([]);
+                    $input->setInteractive(false);
+
+                    return $restoreScript->run($input, new BufferedOutput());
                 }
             );
     }
