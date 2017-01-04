@@ -156,8 +156,8 @@ class SshTunnel
             }
 
             $command = sprintf(
-                'ssh %s -o StrictHostKeyChecking=no -o BatchMode=yes -p %s %s@%s -L %d:%s:%d -N > /dev/null 2>&1'
-                . '& echo $!',
+                'ssh %s -o Compression=yes -o StrictHostKeyChecking=no -o BatchMode=yes -p %s %s@%s -L %d:%s:%d '
+                . '-N > /dev/null 2>&1 & echo $!',
                 $keyFlag,
                 escapeshellarg($this->host->getSshPort()),
                 escapeshellarg($this->host->getUsername()),
