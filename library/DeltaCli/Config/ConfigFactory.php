@@ -48,7 +48,7 @@ class ConfigFactory
                 if ($this->cache->fetch('config-detector') !== $detector->getName()) {
                     continue;
                 }
-                
+
                 $config = $this->checkFilePath($detector, $tunnel, $host, $detector->getMostLikelyRemoteFilePath());
 
                 if ($config) {

@@ -40,7 +40,7 @@ class ListEnvironments extends Command
             $this->displayNoEnvironmentsBanner($output);
         } else {
             $table = new Table($output);
-            $table->setHeaders(['Name', 'Host(s)']);
+            $table->setHeaders(['Name', 'Host(s)', 'Is Dev Environment?']);
             $table->setRows($this->getEnvironmentTableRows($environments));
             $table->render();
         }
@@ -75,7 +75,8 @@ class ListEnvironments extends Command
 
             $rows[] = [
                 $environment->getName(),
-                implode(PHP_EOL, $hosts)
+                implode(PHP_EOL, $hosts),
+                $environment->isDevEnvironment() ? 'Yes' : 'No'
             ];
         }
 

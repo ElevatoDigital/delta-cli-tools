@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Script;
 
+use DeltaCli\Exception\AttemptedRestoreToNonDevEnvironment;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use Symfony\Component\Console\Input\InputArgument;
@@ -46,6 +47,11 @@ class DatabaseRestore extends Script
         $this
             ->addStep($findDbsStep)
             ->addStep($this->getProject()->logAndSendNotifications())
+            ->addStep(
+                $this->getProject()->sanityCheckPotentiallyDangerousOperation(
+                    'Restore a database from a dump file.'
+                )
+            )
             ->addStep(
                 'backup-database-prior-to-restore',
                 function () use ($findDbsStep) {

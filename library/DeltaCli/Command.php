@@ -26,6 +26,13 @@ class Command extends SymfonyCommand
             InputOption::VALUE_NONE,
             'Tunnel all SSH connections over the Delta VPN.'
         );
+
+        $this->addOption(
+            'authorization-code',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Authorization code for potentially destructive operations.'
+        );
     }
 
     protected function initialize(InputInterface $input, OutputInterface $output)

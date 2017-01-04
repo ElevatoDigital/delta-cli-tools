@@ -35,8 +35,14 @@ class DatabaseShell extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $env  = $this->project->getSelectedEnvironment();
-        $host = $env->getSelectedHost($input->getOption('hostname'));
+        $env = $this->project->getSelectedEnvironment();
+
+        if ($input->getOption('hostname')) {
+            $host = $env->getSelectedHost($input->getOption('hostname'));
+        } else {
+            $hosts = $env->getHosts();
+            $host  = reset($hosts);
+        }
 
         $findDatabasesStep = $this->project->findDatabases()
             ->setSelectedEnvironment($env);

@@ -136,7 +136,7 @@ class Database
         );
 
         $dropSchema = sprintf(
-            "echo 'DROP SCHEMA public CASCADE;' | %s",
+            "echo 'DROP SCHEMA public CASCADE;' | %s 2>&1",
             $shellCommand
         );
 
@@ -148,7 +148,7 @@ class Database
         }
 
         $createSchema = sprintf(
-            "echo 'CREATE SCHEMA public;' | %s",
+            "echo 'CREATE SCHEMA public;' | %s 2>&1",
             $shellCommand
         );
 

@@ -6,6 +6,7 @@ use DeltaCli\Environment;
 use DeltaCli\Exception\InvalidOptions;
 use DeltaCli\Project;
 use DeltaCli\Script;
+use DeltaCli\Script\Step\Script as ScriptStep;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -75,22 +76,28 @@ class DatabaseCopy extends Script
 
         /* @var $restoreScript \DeltaCli\Script\DatabaseRestore */
         $restoreScript = $this->getProject()->getScript('db:restore')
-            ->setEnvironment($this->destinationEnvironment);
+            ->setEnvironment($this->destinationEnvironment)
+            ->setDefinition(new InputDefinition());
+
+        $restoreInput = new ArrayInput([]);
+        $restoreInput->setInteractive(false);
 
         $this
             ->addStep($dumpScript)
             ->addStep(
-                'restore-to-destination-environment',
+                'assign-dump-file-to-restore-script',
                 function () use ($dumpScript, $restoreScript) {
-                    $restoreScript
-                        ->setDumpFile($dumpScript->getDumpFile())
-                        ->setDefinition(new InputDefinition());
-
-                    $input = new ArrayInput([]);
-                    $input->setInteractive(false);
-
-                    return $restoreScript->run($input, new BufferedOutput());
+                    $restoreScript->setDumpFile($dumpScript->getDumpFile());
                 }
+            )
+            ->addStep($restoreScript)
+            ->addStep(
+                'restore-to-destination-environment',
+                new ScriptStep(
+                    $restoreScript,
+                    $restoreInput,
+                    $this->getProject()->getOutput()
+                )
             );
     }
 }

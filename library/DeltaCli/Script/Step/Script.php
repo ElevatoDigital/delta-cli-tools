@@ -79,10 +79,11 @@ class Script extends StepAbstract implements EnvironmentOptionalInterface, DryRu
         }
 
         $output = $this->getOutput();
+        $status = $this->script->runSteps($output);
 
         return new Result(
             $this,
-            $this->script->runSteps($output),
+            $status,
             ($this->useConsoleOutput ? [] : $output->fetch())
         );
     }

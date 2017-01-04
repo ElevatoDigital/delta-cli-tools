@@ -25,6 +25,7 @@ use DeltaCli\Script\Step\LogAndSendNotifications as LogAndSendNotificationsStep;
 use DeltaCli\Script\Step\PhpCallableSupportingDryRun as PhpCallableSupportingDryRunStep;
 use DeltaCli\Script\Step\RestoreDatabase as RestoreDatabaseStep;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
+use DeltaCli\Script\Step\SanityCheckPotentiallyDangerousOperation as SanityCheckPotentiallyDangerousOperationStep;
 use DeltaCli\Script\Step\Scp as ScpStep;
 use DeltaCli\Script\Step\ShellCommandSupportingDryRun as ShellCommandSupportingDryRunStep;
 use DeltaCli\Script\Step\Ssh as SshStep;
@@ -150,11 +151,12 @@ class Project
             $cwd = getcwd();
 
             if (file_exists($cwd . '/delta-cli.php')) {
+                $this->projectCache = new Cache($cwd . '/.delta-cli-cache.json');
+
                 $project = $this;
                 require_once $cwd . '/delta-cli.php';
             }
 
-            $this->projectCache     = new Cache($cwd . '/.delta-cli-cache.json');
             $this->configFileLoaded = true;
 
             $this->createDefaultEnvironments($cwd);
@@ -444,6 +446,15 @@ class Project
     public function rsync($localPath, $remotePath)
     {
         return new RsyncStep($localPath, $remotePath);
+    }
+
+    public function sanityCheckPotentiallyDangerousOperation($operationDescription)
+    {
+        return new SanityCheckPotentiallyDangerousOperationStep(
+            $this->input,
+            $this->projectCache,
+            $operationDescription
+        );
     }
 
     public function shellCommandSupportingDryRun($command, $dryRunCommand)
