@@ -45,6 +45,10 @@ class ConfigFactory
         // First check previously successful detector from the cache
         if ($this->cache && $this->cache->fetch('config-detector')) {
             foreach ($this->detectorSet->getAll() as $detector) {
+                if ($this->cache->fetch('config-detector') !== $detector->getName()) {
+                    continue;
+                }
+                
                 $config = $this->checkFilePath($detector, $tunnel, $host, $detector->getMostLikelyRemoteFilePath());
 
                 if ($config) {
