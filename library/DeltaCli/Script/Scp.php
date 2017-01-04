@@ -6,6 +6,7 @@ use DeltaCli\FileTransferPaths;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use DeltaCli\Script\Step\Scp as ScpStep;
+use Symfony\Component\Console\Input\InputArgument;
 
 class Scp extends Script
 {
@@ -47,8 +48,8 @@ class Scp extends Script
 
     protected function configure()
     {
-        $this->addSetterArgument('file1');
-        $this->addSetterArgument('file2');
+        $this->addSetterArgument('file1', InputArgument::REQUIRED);
+        $this->addSetterArgument('file2', InputArgument::REQUIRED);
 
         $this->addSetterOption('recursive', 'r');
 

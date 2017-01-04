@@ -2,7 +2,6 @@
 
 namespace DeltaCli;
 
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\HelpCommand;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Input\ArgvInput as SymfonyArgvInput;

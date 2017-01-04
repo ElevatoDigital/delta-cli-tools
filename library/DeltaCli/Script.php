@@ -207,7 +207,7 @@ class Script extends Command
         return $this;
     }
 
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function processInteractiveArgumentsAndOptions(InputInterface $input, OutputInterface $output)
     {
         $this->project->loadConfigFile();
 
@@ -226,9 +226,12 @@ class Script extends Command
         }
     }
 
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        if ($input->isInteractive()) {
+            $this->processInteractiveArgumentsAndOptions($input, $output);
+        }
+
         $this->checkRequiredVersionForProject();
         if ($input->hasOption('colors') && $input->getOption('colors')) {
             $output->setDecorated(true);

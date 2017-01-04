@@ -7,6 +7,7 @@ use DeltaCli\Exception\InvalidOptions;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -35,13 +36,13 @@ class DatabaseCopy extends Script
     {
         $this->addSetterArgument(
             'source-environment',
-            null,
+            InputArgument::REQUIRED,
             'The environment you want to copy the database from.'
         );
 
         $this->addSetterArgument(
             'destination-environment',
-            null,
+            InputArgument::REQUIRED,
             'The environment you want to copy the database to.'
         );
 

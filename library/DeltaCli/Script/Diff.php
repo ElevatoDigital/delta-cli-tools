@@ -6,6 +6,7 @@ use DeltaCli\FileTransferPaths;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 class Diff extends Script
@@ -65,8 +66,8 @@ class Diff extends Script
         // We want temporary files to be removed even if diff "fails"
         $this->setStopOnFailure(false);
 
-        $this->addSetterArgument('file1');
-        $this->addSetterArgument('file2');
+        $this->addSetterArgument('file1', InputArgument::REQUIRED);
+        $this->addSetterArgument('file2', InputArgument::REQUIRED);
 
         $this->addSetterOption('exclude', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL);
 

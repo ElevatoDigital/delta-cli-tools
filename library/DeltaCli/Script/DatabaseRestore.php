@@ -4,6 +4,7 @@ namespace DeltaCli\Script;
 
 use DeltaCli\Project;
 use DeltaCli\Script;
+use Symfony\Component\Console\Input\InputArgument;
 
 class DatabaseRestore extends Script
 {
@@ -24,7 +25,7 @@ class DatabaseRestore extends Script
 
         $this->addSetterArgument(
             'dump-file',
-            null,
+            InputArgument::REQUIRED,
             'The dump file you want to restore.'
         );
 

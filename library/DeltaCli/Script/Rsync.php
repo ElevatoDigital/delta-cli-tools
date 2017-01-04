@@ -6,6 +6,7 @@ use DeltaCli\FileTransferPaths;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 class Rsync extends Script
@@ -69,8 +70,8 @@ class Rsync extends Script
 
     protected function configure()
     {
-        $this->addSetterArgument('file1');
-        $this->addSetterArgument('file2');
+        $this->addSetterArgument('file1', InputArgument::REQUIRED);
+        $this->addSetterArgument('file2', InputArgument::REQUIRED);
 
         $this->addSetterOption('exclude', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL);
         $this->addSetterOption('delete', null, InputOption::VALUE_NONE);
