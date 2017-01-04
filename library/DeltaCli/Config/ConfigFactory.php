@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Config;
 
+use DeltaCli\Cache;
 use DeltaCli\Config\Detector\DetectorInterface;
 use DeltaCli\Config\Detector\DetectorSet;
 use DeltaCli\Exec;
@@ -13,12 +14,18 @@ use DeltaCli\SshTunnel;
 class ConfigFactory
 {
     /**
+     * @var Cache
+     */
+    private $cache;
+
+    /**
      * @var DetectorSet
      */
     private $detectorSet;
 
-    public function __construct(DetectorSet $detectorSet = null)
+    public function __construct(Cache $cache = null, DetectorSet $detectorSet = null)
     {
+        $this->cache       = $cache;
         $this->detectorSet = ($detectorSet ?: new DetectorSet);
     }
 
@@ -35,13 +42,40 @@ class ConfigFactory
 
         $temporaryFile = null;
 
-        // First check the most likely path on each detector
-        foreach ($this->detectorSet->getAll() as $detector) {
-            $config = $this->checkFilePath($detector, $tunnel, $host, $detector->getMostLikelyRemoteFilePath());
+        // First check previously successful detector from the cache
+        if ($this->cache && $this->cache->fetch('config-detector')) {
+            foreach ($this->detectorSet->getAll() as $detector) {
+                $config = $this->checkFilePath($detector, $tunnel, $host, $detector->getMostLikelyRemoteFilePath());
 
-            if ($config) {
-                $configs[] = $config;
-                break;
+                if ($config) {
+                    $configs[] = $config;
+                    break;
+                }
+
+                foreach ($detector->getPotentialFilePaths() as $potentialFilePath) {
+                    $config = $this->checkFilePath($detector, $tunnel, $host, $potentialFilePath);
+
+                    if ($config) {
+                        $configs[] = $config;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Then check the most likely path on each detector
+        if (!count($configs)) {
+            foreach ($this->detectorSet->getAll() as $detector) {
+                $config = $this->checkFilePath($detector, $tunnel, $host, $detector->getMostLikelyRemoteFilePath());
+
+                if ($config) {
+                    if ($this->cache) {
+                        $this->cache->store('config-detector', $detector->getName());
+                    }
+
+                    $configs[] = $config;
+                    break;
+                }
             }
         }
 
@@ -53,6 +87,7 @@ class ConfigFactory
 
                     if ($config) {
                         $configs[] = $config;
+                        break;
                     }
                 }
             }

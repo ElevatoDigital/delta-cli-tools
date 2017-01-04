@@ -90,7 +90,12 @@ class Project
     /**
      * @var Cache
      */
-    private $cache;
+    private $globalCache;
+
+    /**
+     * @var Cache
+     */
+    private $projectCache;
 
     /**
      * Project constructor.
@@ -101,7 +106,9 @@ class Project
     {
         $this->input  = $input;
         $this->output = $output;
-        $this->cache  = new Cache();
+
+        $this->globalCache  = new Cache();
+        $this->projectCache = null;
 
         $defaultScriptsExtension = new DefaultScriptsExtension();
         $defaultScriptsExtension->extend($this);
@@ -147,6 +154,7 @@ class Project
                 require_once $cwd . '/delta-cli.php';
             }
 
+            $this->projectCache     = new Cache($cwd . '/.delta-cli-cache.json');
             $this->configFileLoaded = true;
 
             $this->createDefaultEnvironments($cwd);
@@ -385,7 +393,7 @@ class Project
 
     public function findDatabases()
     {
-        return new FindDatabasesStep(new ConfigFactory());
+        return new FindDatabasesStep(new ConfigFactory($this->projectCache));
     }
 
     public function findLogs()
@@ -472,6 +480,14 @@ class Project
         return new WatchStep($script, $this->getFileWatcher());
     }
 
+    /**
+     * @return Cache
+     */
+    public function getCache()
+    {
+        return $this->projectCache;
+    }
+
     private function createDefaultEnvironments($cwd)
     {
         if (!$this->hasEnvironment('vpn')) {
@@ -522,7 +538,7 @@ class Project
     {
         $vagrantPath = null;
 
-        if ((!$vagrantPath = $this->cache->fetch('vagrant-path')) || !file_exists($vagrantPath)) {
+        if ((!$vagrantPath = $this->globalCache->fetch('vagrant-path')) || !file_exists($vagrantPath)) {
             exec('vagrant global-status --prune', $output, $exitStatus);
 
             if ($exitStatus) {
@@ -532,7 +548,7 @@ class Project
             $directoryPosition = strpos($output[0], 'directory');
             $vagrantPath       = substr($output[2], $directoryPosition);
 
-            $this->cache->store('vagrant-path', $vagrantPath);
+            $this->globalCache->store('vagrant-path', $vagrantPath);
         }
 
         return $vagrantPath;

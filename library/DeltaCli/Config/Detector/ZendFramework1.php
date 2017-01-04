@@ -13,6 +13,11 @@ class ZendFramework1 implements DetectorInterface
         return 'zend/application/configs/application.ini';
     }
 
+    public function getName()
+    {
+        return 'zendframework1';
+    }
+
     public function getPotentialFilePaths()
     {
         return [

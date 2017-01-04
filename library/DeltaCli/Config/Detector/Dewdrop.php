@@ -13,6 +13,11 @@ class Dewdrop implements DetectorInterface
         return 'zend/dewdrop-config.php';
     }
 
+    public function getName()
+    {
+        return 'dewdrop';
+    }
+
     public function getPotentialFilePaths()
     {
         return [

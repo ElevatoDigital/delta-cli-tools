@@ -22,6 +22,11 @@ class WordPress implements DetectorInterface
         ];
     }
 
+    public function getName()
+    {
+        return 'wordpress';
+    }
+
     public function createConfigFromFile(Environment $environment, $configFile)
     {
         $config = new Config();
