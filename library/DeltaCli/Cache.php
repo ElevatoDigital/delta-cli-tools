@@ -27,15 +27,13 @@ class Cache
 
         file_put_contents($this->jsonFile, json_encode($data), LOCK_EX);
 
+        $this->clearData();
+
         return $this;
     }
 
     public function fetch($key)
     {
-        if (!file_exists($this->jsonFile)) {
-            return false;
-        }
-
         $data = $this->getData();
 
         if (isset($data[$key])) {
@@ -54,6 +52,10 @@ class Cache
 
     private function getData()
     {
+        if (!file_exists($this->jsonFile)) {
+            return [];
+        }
+
         if (null === $this->data) {
             $this->data = json_decode(
                 file_get_contents($this->jsonFile),
