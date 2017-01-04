@@ -62,6 +62,12 @@ try {
         $output->writeln($e->getMessage());
     }
 
+    if ($output->isVerbose()) {
+        $output->writeln('');
+        $output->writeln('Debugging backtrace:');
+        $output->writeln($e->getTraceAsString());
+    }
+
     exit(1);
 }
 
