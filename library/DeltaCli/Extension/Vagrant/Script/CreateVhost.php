@@ -44,7 +44,7 @@ class CreateVhost extends Script
 
     public function setDocumentRoot($documentRoot)
     {
-        $this->documentRoot = $documentRoot;
+        $this->documentRoot = realpath($documentRoot);
 
         return $this;
     }
