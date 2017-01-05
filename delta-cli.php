@@ -8,12 +8,10 @@ $project->addSlackHandle('@bgriffith');
 
 $project->createEnvironment('staging')
     ->setUsername('bgriffith')
-    ->setSshPrivateKey(__DIR__ . '/ssh-keys/id_rsa')
     ->addHost('staging.deltasys.com');
 
 $project->createEnvironment('example')
     ->setUsername('bgriffith')
-    ->setSshPrivateKey(__DIR__ . '/ssh-keys/id_rsa')
     ->addHost('brad.plumbing')
     ->tunnelSshVia('staging');
 
@@ -141,3 +139,14 @@ $project->createEnvironmentScript('scp-example', 'An example using scp.')
 
 $project->createScript('notification-test', 'A script to test the notification API workflow.')
     ->addStep($project->logAndSendNotifications());
+
+$project->createEnvironmentScript(
+    'sanity-checking-dangerous-operations',
+    'Requiring random authorization code for dangerous operations.'
+)
+    ->addStep($project->sanityCheckPotentiallyDangerousOperation('Ruin everything.'))
+    ->addStep(
+        function () {
+            throw new Exception('You must have authorized me to ruin everything.');
+        }
+    );
