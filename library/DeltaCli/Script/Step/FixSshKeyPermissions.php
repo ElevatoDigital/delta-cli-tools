@@ -77,7 +77,7 @@ class FixSshKeyPermissions extends StepAbstract implements DryRunInterface, Envi
         if ($this->selectedEnvironment) {
             return dirname($this->selectedEnvironment->getSshPrivateKey());
         } else {
-            return getcwd() . '/id_rsa';
+            return getcwd() . '/ssh-keys';
         }
     }
 
