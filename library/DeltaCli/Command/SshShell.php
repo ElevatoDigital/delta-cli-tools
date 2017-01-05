@@ -59,8 +59,8 @@ class SshShell extends Command
     {
         $script = new Script(
             $this->project,
-            'open-db-shell',
-            'Script that runs prior to opening DB shell and sends notifications.'
+            'open-ssh-shell',
+            'Script that runs prior to opening an SSH shell and sends notifications.'
         );
 
         $script
