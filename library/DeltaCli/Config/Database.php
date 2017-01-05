@@ -7,6 +7,7 @@ use DeltaCli\Exception\PostgresCommandFailed;
 use DeltaCli\Exec;
 use DeltaCli\SshTunnel;
 use PDO;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Database
 {
@@ -158,6 +159,11 @@ class Database
             $output = implode(PHP_EOL, $output);
             throw new PostgresCommandFailed("Failed to create Postgres public schema: {$output}.");
         }
+    }
+
+    public function renderShellHelp(OutputInterface $output)
+    {
+        $this->typeHandler->renderShellHelp($output);
     }
 
     private function getDefaultPort()

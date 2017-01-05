@@ -2,9 +2,10 @@
 
 namespace DeltaCli\Config\Database\TypeHandler;
 
-use DeltaCli\Exception\InvalidDatabaseType;
 use DeltaCli\Exception\PgsqlPdoDriverNotInstalled;
 use PDO;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Postgres implements TypeHandlerInterface
 {
@@ -18,6 +19,27 @@ class Postgres implements TypeHandlerInterface
             escapeshellarg($port),
             escapeshellarg($databaseName)
         );
+    }
+
+    public function renderShellHelp(OutputInterface $output)
+    {
+        $table = new Table($output);
+
+        $table->addRows(
+            [
+                ['Display Tables', '\dt+'],
+                ['Display Columns from a Table', '\d [table-name]'],
+                ['Automatically Enable Expanded Display Mode', '\x auto'],
+                ['Open Editor for More Complex Queries', '\e'],
+                ['Display Help', '\?'],
+                ['Turn on Timing of All Commands', '\timing'],
+                ['Run Query Repeatedly and Show Results', '\watch [number-of-seconds]'],
+                ['Connection Information', '\conninfo'],
+                ['Quit', '\q']
+            ]
+        );
+
+        $table->render();
     }
 
     public function getName()

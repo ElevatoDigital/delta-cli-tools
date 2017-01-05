@@ -82,7 +82,7 @@ class Diff extends Script
         $this->setEnvironment($env);
 
         $rsync->limitToOnlyFirstHost();
-        
+
         if (count($this->excludes)) {
             foreach ($this->excludes as $exclude) {
                 $rsync->exclude($exclude);

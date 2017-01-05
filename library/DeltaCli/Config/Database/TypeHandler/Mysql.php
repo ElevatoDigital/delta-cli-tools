@@ -3,6 +3,8 @@
 namespace DeltaCli\Config\Database\TypeHandler;
 
 use PDO;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Mysql implements TypeHandlerInterface
 {
@@ -16,6 +18,26 @@ class Mysql implements TypeHandlerInterface
             escapeshellarg($port),
             escapeshellarg($databaseName)
         );
+    }
+
+    public function renderShellHelp(OutputInterface $output)
+    {
+        $table = new Table($output);
+
+        $table->addRows(
+            [
+                ['Display Tables', 'SHOW TABLES;'],
+                ['Display Columns from a Table', 'SHOW COLUMNS FROM [table-name];'],
+                ['Use Expanded Output Formatting', 'Append \G to the end of your query.'],
+                ['Open Editor for More Complex Queries', '\e'],
+                ['Server Status', '\s'],
+                ['Display Help', 'help'],
+                ['Turn on Timing of All Commands', '"SET profiling=1" and "SHOW PROFILES;"'],
+                ['Quit', '\q']
+            ]
+        );
+
+        $table->render();
     }
 
     public function getName()

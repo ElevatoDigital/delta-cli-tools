@@ -3,6 +3,7 @@
 namespace DeltaCli\Config\Database\TypeHandler;
 
 use PDO;
+use Symfony\Component\Console\Output\OutputInterface;
 
 interface TypeHandlerInterface
 {
@@ -48,4 +49,9 @@ interface TypeHandlerInterface
      * @return void
      */
     public function emptyDb(PDO $pdo);
+
+    /**
+     * @param OutputInterface $output
+     */
+    public function renderShellHelp(OutputInterface $output);
 }
