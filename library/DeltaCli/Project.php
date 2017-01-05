@@ -157,6 +157,8 @@ class Project
                 require_once $cwd . '/delta-cli.php';
             }
 
+            $this->setDefaultSshPrivateKeyOnEnvironments($cwd);
+
             $this->configFileLoaded = true;
 
             $this->createDefaultEnvironments($cwd);
@@ -297,6 +299,9 @@ class Project
         return $this->getScript('deploy');
     }
 
+    /**
+     * @return Environment[]
+     */
     public function getEnvironments()
     {
         return $this->environments;
@@ -563,5 +568,25 @@ class Project
         }
 
         return $vagrantPath;
+    }
+
+    /**
+     * If a private key exists in the default location used by Delta CLI, automatically assign it to any
+     * environments that did not already a key specified in the delta-cli.php file.
+     *
+     * @param string $workingDirectory
+     * @return $this
+     */
+    private function setDefaultSshPrivateKeyOnEnvironments($workingDirectory)
+    {
+        $defaultSshPrivateKey = $workingDirectory . '/ssh-keys/id_rsa';
+
+        foreach ($this->getEnvironments() as $environment) {
+            if (!$environment->getSshPrivateKey() && file_exists($defaultSshPrivateKey)) {
+                $environment->setSshPrivateKey($defaultSshPrivateKey);
+            }
+        }
+
+        return $this;
     }
 }
