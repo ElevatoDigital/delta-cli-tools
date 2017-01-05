@@ -4,7 +4,11 @@ namespace DeltaCli\Command;
 
 use DeltaCli\Command;
 use DeltaCli\Debug;
+use DeltaCli\Environment;
 use DeltaCli\Project;
+use DeltaCli\Script;
+use DeltaCli\Script\Step\FindDatabases;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -47,19 +51,11 @@ class DatabaseShell extends Command
         $findDatabasesStep = $this->project->findDatabases()
             ->setSelectedEnvironment($env);
 
-        $findDatabasesStep->run();
+        $script = $this->generateScript($env, $findDatabasesStep);
+        $script->run(new ArrayInput([]), $output);
 
         $databases = $findDatabasesStep->getDatabases();
-
-        if (0 === count($databases)) {
-            echo 'No databases found.' . PHP_EOL;
-            exit;
-        } else if (1 < count($databases)) {
-            echo 'More than one database found and no mechanism to select which one yet.' . PHP_EOL;
-            exit;
-        }
-
-        $database = reset($databases);
+        $database  = reset($databases);
 
         $tunnel = $host->getSshTunnel();
         $port   = $tunnel->setUp();
@@ -77,5 +73,43 @@ class DatabaseShell extends Command
         passthru($command);
 
         $tunnel->tearDown();
+    }
+
+    private function generateScript(Environment $env, FindDatabases $findDatabasesStep)
+    {
+        $script = new Script(
+            $this->project,
+            'open-db-shell',
+            'Script that runs prior to opening DB shell and sends notifications.'
+        );
+
+        $script
+            ->setEnvironment($env)
+            ->addStep($this->project->logAndSendNotifications())
+            ->addStep($findDatabasesStep)
+            ->addStep(
+                'validate-databases',
+                function () use ($findDatabasesStep) {
+                    $databases = $findDatabasesStep->getDatabases();
+
+                    if (0 === count($databases)) {
+                        echo 'No databases found.' . PHP_EOL;
+                        exit;
+                    } else if (1 < count($databases)) {
+                        echo 'More than one database found and no mechanism to select which one yet.' . PHP_EOL;
+                        exit;
+                    }
+                }
+            )
+            ->addStep(
+                'open-db-shell',
+                function () use ($findDatabasesStep, $env) {
+                    $databases = $findDatabasesStep->getDatabases();
+                    $database  = reset($databases);
+                    echo "Opening database shell for '{$database->getDatabaseName()}' on {$env->getName()}." . PHP_EOL;
+                }
+            );
+
+        return $script;
     }
 }

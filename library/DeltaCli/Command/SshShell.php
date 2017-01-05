@@ -4,7 +4,11 @@ namespace DeltaCli\Command;
 
 use DeltaCli\Command;
 use DeltaCli\Debug;
+use DeltaCli\Environment;
+use DeltaCli\Host;
 use DeltaCli\Project;
+use DeltaCli\Script;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -38,9 +42,8 @@ class SshShell extends Command
         $env  = $this->project->getSelectedEnvironment();
         $host = $env->getSelectedHost($input->getOption('hostname'));
 
-        $permissionsStep = $this->project->fixSshKeyPermissions();
-        $permissionsStep->run();
-
+        $script = $this->generateScript($env, $host);
+        $script->run(new ArrayInput([]), $output);
 
         $tunnel = $host->getSshTunnel();
         $tunnel->setUp();
@@ -50,5 +53,27 @@ class SshShell extends Command
         passthru($command);
 
         $tunnel->tearDown();
+    }
+
+    private function generateScript(Environment $env, Host $host)
+    {
+        $script = new Script(
+            $this->project,
+            'open-db-shell',
+            'Script that runs prior to opening DB shell and sends notifications.'
+        );
+
+        $script
+            ->setEnvironment($env)
+            ->addStep($this->project->logAndSendNotifications())
+            ->addStep($this->project->fixSshKeyPermissions())
+            ->addStep(
+                'open-ssh-shell',
+                function () use ($host, $env) {
+                    echo "Opening SSH shell to '{$host->getHostname()}' on {$env->getName()}." . PHP_EOL;
+                }
+            );
+
+        return $script;
     }
 }
