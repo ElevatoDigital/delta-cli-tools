@@ -90,10 +90,15 @@ class Diff extends Script
         $this->addStep($rsync)
             ->setName('copy-remote-files');
 
+        /**
+         * Note the "|| true" bash hack here.  The GNU diff command returns an exit status of 1 when
+         * differences are found.  We don't necessarily want to say our script or this step "failed"
+         * when differences are found, so we're just ignoring the exit status in this case.
+         */
         $this->addStep(
             'generate-diff',
             sprintf(
-                'diff --new-file --recursive --unified --ignore-all-space %s %s',
+                'diff --new-file --recursive --unified --ignore-all-space %s %s || true',
                 escapeshellarg($this->getTemporaryLocalPath()),
                 escapeshellarg($paths->getLocalPath())
             )
