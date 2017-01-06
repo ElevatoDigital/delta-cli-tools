@@ -3,7 +3,6 @@
 namespace DeltaCli;
 
 use DeltaCli\FileTransferPaths\Path;
-use DeltaCli\Script\Step\Scp as ScpStep;
 
 class FileTransferPaths
 {

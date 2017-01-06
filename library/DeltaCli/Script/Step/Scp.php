@@ -82,7 +82,7 @@ class Scp extends EnvironmentHostsStepAbstract
         ];
 
         if (FileTransferPaths::DOWN === $this->direction) {
-            rsort($fileParts);
+            krsort($fileParts);
         }
 
         $command = sprintf(
