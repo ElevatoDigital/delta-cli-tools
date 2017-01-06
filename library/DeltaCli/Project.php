@@ -150,6 +150,8 @@ class Project
         if (!$this->configFileLoaded) {
             $cwd = getcwd();
 
+            $this->createDefaultEnvironments($cwd);
+
             if (file_exists($cwd . '/delta-cli.php')) {
                 $this->projectCache = new Cache($cwd . '/.delta-cli-cache.json');
 
@@ -160,8 +162,6 @@ class Project
             $this->setDefaultSshPrivateKeyOnEnvironments($cwd);
 
             $this->configFileLoaded = true;
-
-            $this->createDefaultEnvironments($cwd);
         }
     }
 

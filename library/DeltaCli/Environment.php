@@ -2,6 +2,7 @@
 
 namespace DeltaCli;
 
+use DeltaCli\Config\Config;
 use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\HostNotFound;
 use DeltaCli\Exception\MustSpecifyHostnameForShell;
@@ -58,15 +59,26 @@ class Environment
      */
     private $logAndSendNotifications;
 
+    /**
+     * @var Config
+     */
+    private $manualConfig;
+
     public function __construct(Project $project, $name)
     {
-        $this->project = $project;
-        $this->name    = $name;
+        $this->project      = $project;
+        $this->name         = $name;
+        $this->manualConfig = new Config();
     }
 
     public function getName()
     {
         return $this->name;
+    }
+
+    public function getManualConfig()
+    {
+        return $this->manualConfig;
     }
 
     public function getApplicationEnv()
