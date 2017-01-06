@@ -195,7 +195,7 @@ $project->createScript('composing-scripts', 'An example of calling one script fr
  */
 $project->createEnvironmentScript('inline-naming-of-step', 'Shows naming a step via argument to addStep().')
     ->addStep('custom-step-name', $project->ssh('ls'))
-    ->addEnvironmentSpecificStep('example', 'for-environment-steps-too', $project->ssh('ls'));
+    ->addEnvironmentSpecificStep('staging', 'for-environment-steps-too', $project->ssh('ls'));
 
 /**
  * Add a logAndSendNotifications() step to any script and its results will be added to the log
@@ -208,7 +208,7 @@ $project->createScript('notification-test', 'A script to test the notification A
  * If there is a potentially dangerous operation in your scripts, you can add a
  * sanityCheckPotentiallyDangerousOperation() step.  The step takes a description of the operation
  * as its only argument.  If the user tries to run your script on a non-dev environment, they'll
- * be asked to supply a randomly generated authorization code to proceed.  
+ * be asked to supply a randomly generated authorization code to proceed.
  */
 $project->createEnvironmentScript(
     'sanity-checking-dangerous-operations',
