@@ -477,6 +477,11 @@ class Project
         return new SshStep($command);
     }
 
+    public function sshSupportingDryRun($command, $dryRunCommand)
+    {
+        return new SshStep($command, $dryRunCommand);
+    }
+
     public function killProcessMatchingName($searchString)
     {
         return new KillProcessMatchingNameStep($searchString);

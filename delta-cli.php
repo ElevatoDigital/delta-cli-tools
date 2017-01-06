@@ -120,7 +120,7 @@ $project->createEnvironmentScript('manage-background-processes', 'Kill and start
  *
  * Any steps that do not support dry runs will be skipped when --dry-run is active.
  */
-$project->createScript('dry-runs-for-php-and-shell-commands', 'Custom steps can also support dry runs.')
+$project->createEnvironmentScript('dry-runs-on-custom-steps', 'Custom steps can also support dry runs.')
     ->addStep(
         'shell-command-with-dry-run',
         $project->shellCommandSupportingDryRun(
@@ -148,6 +148,13 @@ $project->createScript('dry-runs-for-php-and-shell-commands', 'Custom steps can 
                     echo 'file-to-write already exists.' . PHP_EOL;
                 }
             }
+        )
+    )
+    ->addStep(
+        'ssh-with-dry-run',
+        $project->sshSupportingDryRun(
+            'touch /tmp/create-tmp-file',
+            'ls /tmp/create-tmp-file'
         )
     );
 
