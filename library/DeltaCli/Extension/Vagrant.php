@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Extension;
 
+use DeltaCli\Extension\Vagrant\Script\BackupDbs;
 use DeltaCli\Extension\Vagrant\Script\CheckEnvironment;
 use DeltaCli\Extension\Vagrant\Script\CreateVhost;
 use DeltaCli\Extension\Vagrant\Script\Mysql\Create as CreateMysql;
@@ -13,6 +14,7 @@ class Vagrant implements ExtensionInterface
 {
     public function extend(Project $project)
     {
+        $project->addScript(new BackupDbs($project));
         $project->addScript(new CheckEnvironment($project));
         $project->addScript(new RestartServices($project));
         $project->addScript(new CreateVhost($project));
