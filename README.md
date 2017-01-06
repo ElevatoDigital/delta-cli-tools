@@ -43,3 +43,6 @@ noting:
 0. --dry-run: Will attempt to perform a dry run.  Steps that don't support it will be skipped.
 0. --list-steps: Will just list the steps in a script rather than trying to run them.  (Helpful especially if many steps were added by a template rather than directly in your delta-cli.php.)
 
+## Video Tutorials
+
+0. Delta-cli v3.27.0 New Feature Update 2017-01-05 https://youtu.be/5I_fq9yEl1A
