@@ -63,6 +63,8 @@ class SshShell extends Command
             'Script that runs prior to opening an SSH shell and sends notifications.'
         );
 
+        $script->setApplication($this->getApplication());
+
         $script
             ->setEnvironment($env)
             ->addStep($this->project->logAndSendNotifications())
