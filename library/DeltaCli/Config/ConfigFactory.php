@@ -35,7 +35,7 @@ class ConfigFactory
      */
     public function detectConfigsOnHost(Host $host)
     {
-        $configs = [$host->getEnvironment()->getManualConfig()];
+        $configs = [];
         $tunnel  = $host->getSshTunnel();
 
         $tunnel->setUp();
@@ -96,6 +96,8 @@ class ConfigFactory
                 }
             }
         }
+
+        $configs[] = $host->getEnvironment()->getManualConfig();
 
         if ($temporaryFile && file_exists($temporaryFile)) {
             unlink($temporaryFile);
