@@ -29,6 +29,6 @@ class VagrantPhpErrorLog extends AbstractRemoteFile
 
     protected function requiresRoot()
     {
-        return falses;
+        return false;
     }
 }
