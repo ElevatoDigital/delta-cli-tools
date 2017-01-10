@@ -16,7 +16,6 @@ class WordPress implements DetectorInterface
     public function getPotentialFilePaths()
     {
         return [
-            'httpdocs/wp-config.php',
             'wp-config.php',
             'src/wp-config.php'
         ];
