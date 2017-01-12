@@ -7,7 +7,10 @@ use DeltaCli\Log\LogInterface;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use React\EventLoop\Factory as EventLoopFactory;
+use React\EventLoop\LoopInterface;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class LogsWatch extends Script
 {
@@ -102,17 +105,78 @@ class LogsWatch extends Script
                         }
                     }
 
-                    foreach ($watchedLogs as $log) {
-                        $log->attachToEventLoop($loop, $this->getProject()->getOutput());
-                    }
-
-                    if (count($watchedLogs)) {
-                        $loop->run();
-                    } else {
-                        $output->writeln('<error>No logs to watch.</error>');
-                    }
+                    $this->startLoop($loop, $watchedLogs);
                 }
             );
+    }
+
+    private function startLoop(LoopInterface $loop, array $watchedLogs)
+    {
+        $output = $this->getProject()->getOutput();
+
+        foreach ($watchedLogs as $log) {
+            $log->attachToEventLoop($loop, $this->getProject()->getOutput());
+        }
+
+        if ('vagrant' !== $this->getEnvironment()->getName()) {
+            $this->areYouStillWatching($loop, $watchedLogs);
+        }
+
+        if (count($watchedLogs)) {
+            $loop->run();
+        } else {
+            $output->writeln('<error>No logs to watch.</error>');
+        }
+    }
+
+    /**
+     * @param LoopInterface $loop
+     * @param LogInterface[] $logs
+     */
+    private function areYouStillWatching(LoopInterface $loop, array $logs)
+    {
+        $startTime = time();
+
+        $durationBeforeAsking = (15 * 60); // 15 minutes
+
+        $loop->addPeriodicTimer(
+            15,
+            function () use ($loop, $logs, &$startTime, $durationBeforeAsking) {
+                if (time() - $durationBeforeAsking > $startTime) {
+                    $this->stop($loop, $logs);
+
+                    /* @var $helper QuestionHelper */
+                    $helper = $this->getHelper('question');
+                    $question = new ConfirmationQuestion('<fg=cyan>Are you still watching? [yes]</>' . PHP_EOL);
+
+                    $answer = $helper->ask(
+                        $this->getProject()->getInput(),
+                        $this->getProject()->getOutput(),
+                        $question
+                    );
+
+                    if ($answer) {
+                        $this->getProject()->getOutput()->writeln('<fg=green>Enjoy!</>');
+                        $this->startLoop($loop, $logs);
+                    } else {
+                        $this->getProject()->getOutput()->writeln('<comment>Shutting down log watchers.</comment>');
+                    }
+                }
+            }
+        );
+    }
+
+    /**
+     * @param LoopInterface $loop
+     * @param LogInterface[] $logs
+     */
+    private function stop(LoopInterface $loop, array $logs)
+    {
+        foreach ($logs as $log) {
+            $log->stop();
+        }
+
+        $loop->stop();
     }
 
     /**

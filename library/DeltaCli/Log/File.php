@@ -36,6 +36,11 @@ class File implements LogInterface
      */
     private $requiresRoot = false;
 
+    /**
+     * @var ChildProcess
+     */
+    private $childProcess;
+
     public function __construct(Host $host, $name, $remotePath, $watchByDefault)
     {
         $this->host           = $host;
@@ -82,21 +87,20 @@ class File implements LogInterface
 
         $sshTunnel->setUp();
 
-        $process = new ChildProcess($this->assembleTailCommand($sshTunnel));
+        $this->childProcess = new ChildProcess($this->assembleTailCommand($sshTunnel));
 
-        $process->on(
+        $this->childProcess->on(
             'exit',
             function () use ($output) {
-                $output->writeln('Process exited.');
             }
         );
 
         $loop->addTimer(
             0.001,
-            function (TimerInterface $timer) use ($process, $output) {
-                $process->start($timer->getLoop());
+            function (TimerInterface $timer) use ($output) {
+                $this->childProcess->start($timer->getLoop());
 
-                $process->stdout->on(
+                $this->childProcess->stdout->on(
                     'data',
                     function ($processOutput) use ($output) {
                         $output->writeln($this->assembleOutputLine($processOutput));
@@ -104,6 +108,13 @@ class File implements LogInterface
                 );
             }
         );
+    }
+
+    public function stop()
+    {
+        if ($this->childProcess) {
+            $this->childProcess->terminate();
+        }
     }
 
     private function assembleTailCommand(SshTunnel $sshTunnel)

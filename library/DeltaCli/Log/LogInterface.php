@@ -44,4 +44,11 @@ interface LogInterface
      * @return void
      */
     public function attachToEventLoop(LoopInterface $loop, OutputInterface $output);
+
+    /**
+     * Stop any timers or processes used by this watcher.
+     *
+     * @return mixed
+     */
+    public function stop();
 }
