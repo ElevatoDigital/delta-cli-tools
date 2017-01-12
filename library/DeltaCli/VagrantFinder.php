@@ -35,18 +35,16 @@ class VagrantFinder
     {
         Exec::run('vagrant global-status --prune', $output, $exitStatus);
 
-        if ($exitStatus) {
+        if (!count($output) || $exitStatus) {
             return '';
         }
 
         $machines = $this->parseMachinesFromOutput($output);
 
-        /*
         if (1 === count($machines)) {
             $machine = reset($machines);
             return $machine['directory'];
         }
-        */
 
         return $this->promptToSelectMachine($machines);
     }

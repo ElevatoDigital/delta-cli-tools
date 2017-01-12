@@ -531,7 +531,13 @@ class Project
             }
         }
 
-        $vagrantPrivateKeyPath = $this->findVagrantPath() . '/.vagrant/machines/default/virtualbox/private_key';
+        $vagrantPath = $this->findVagrantPath();
+
+        $vagrantPrivateKeyPath = null;
+
+        if ($vagrantPath) {
+            $vagrantPrivateKeyPath = $this->findVagrantPath() . '/.vagrant/machines/default/virtualbox/private_key';
+        }
 
         if (!$this->hasEnvironment('vagrant') && file_exists($vagrantPrivateKeyPath)) {
             $this->createEnvironment('vagrant')
@@ -565,16 +571,16 @@ class Project
 
     private function findVagrantPath()
     {
-        $vagrantPath = null;
-
-        if ((!$vagrantPath = $this->globalCache->fetch('vagrant-path')) || !file_exists($vagrantPath)) {
+        if ((!$vagrantPath = $this->globalCache->fetch('vagrant-path'))) {
             /* @var $helper QuestionHelper */
             $helper = $this->application->getHelperSet()->get('question');
             $finder = new VagrantFinder($helper, $this->input, $this->output);
 
             $vagrantPath = $finder->locateVagrantPath();
 
-            $this->globalCache->store('vagrant-path', $vagrantPath);
+            if ($vagrantPath) {
+                $this->globalCache->store('vagrant-path', $vagrantPath);
+            }
         }
 
         return $vagrantPath;
