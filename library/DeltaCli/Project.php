@@ -33,6 +33,8 @@ use DeltaCli\Script\Step\StartBackgroundProcess as StartBackgroundProcessStep;
 use DeltaCli\Script\Step\Watch as WatchStep;
 use DeltaCli\Template\TemplateInterface;
 use DeltaCli\Template\WordPress as WordpressTemplate;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -52,6 +54,11 @@ class Project
      * @var array
      */
     private $scripts = [];
+
+    /**
+     * @var Application
+     */
+    private $application;
 
     /**
      * @var InputInterface
@@ -103,10 +110,11 @@ class Project
      * @param InputInterface $input
      * @param OutputInterface $output
      */
-    public function __construct(InputInterface $input, OutputInterface $output)
+    public function __construct(Application $application, InputInterface $input, OutputInterface $output)
     {
-        $this->input  = $input;
-        $this->output = $output;
+        $this->application = $application;
+        $this->input       = $input;
+        $this->output      = $output;
 
         $this->globalCache  = new Cache();
         $this->projectCache = null;
@@ -560,14 +568,11 @@ class Project
         $vagrantPath = null;
 
         if ((!$vagrantPath = $this->globalCache->fetch('vagrant-path')) || !file_exists($vagrantPath)) {
-            exec('vagrant global-status --prune', $output, $exitStatus);
+            /* @var $helper QuestionHelper */
+            $helper = $this->application->getHelperSet()->get('question');
+            $finder = new VagrantFinder($helper, $this->input, $this->output);
 
-            if ($exitStatus) {
-                return '';
-            }
-
-            $directoryPosition = strpos($output[0], 'directory');
-            $vagrantPath       = substr($output[2], $directoryPosition);
+            $vagrantPath = $finder->locateVagrantPath();
 
             $this->globalCache->store('vagrant-path', $vagrantPath);
         }

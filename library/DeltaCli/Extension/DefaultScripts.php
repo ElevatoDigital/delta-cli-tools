@@ -6,6 +6,7 @@ use DeltaCli\Console\Output\Banner;
 use DeltaCli\Project;
 use DeltaCli\Script\InstallFsevents;
 use DeltaCli\Script\Log;
+use DeltaCli\Script\ClearCaches as ClearCachesScript;
 use DeltaCli\Script\DatabaseCopy as DatabaseCopyScript;
 use DeltaCli\Script\DatabaseDump as DatabaseDumpScript;
 use DeltaCli\Script\DatabaseList as DatabaseListScript;
@@ -25,6 +26,7 @@ class DefaultScripts implements ExtensionInterface
 {
     public function extend(Project $project)
     {
+        $project->addScript(new ClearCachesScript($project));
         $project->addScript(new DiffScript($project));
         $project->addScript(new InstallFsevents($project));
         $project->addScript(new Log($project));

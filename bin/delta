@@ -31,7 +31,7 @@ try {
     $input       = new ArgvInput();
     $output      = new ConsoleOutput();
     $application = new Application();
-    $project     = new Project($input, $output);
+    $project     = new Project($application, $input, $output);
 
     $input->setProject($project);
 
