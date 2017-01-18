@@ -90,14 +90,6 @@ class DatabaseCopy extends Script
                     $restoreScript->setDumpFile($dumpScript->getDumpFile());
                 }
             )
-            ->addStep($restoreScript)
-            ->addStep(
-                'restore-to-destination-environment',
-                new ScriptStep(
-                    $restoreScript,
-                    $restoreInput,
-                    $this->getProject()->getOutput()
-                )
-            );
+            ->addStep($restoreScript);
     }
 }
