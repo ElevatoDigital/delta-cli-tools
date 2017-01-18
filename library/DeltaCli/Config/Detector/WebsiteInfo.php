@@ -28,6 +28,7 @@ class WebsiteInfo implements DetectorInterface
         $data   = parse_ini_file($configFile);
         $config = new Config();
 
+        /*
         if ($this->databaseIsPresent('mysql', $data)) {
             $config->addDatabase(
                 DatabaseFactory::createInstance(
@@ -39,6 +40,7 @@ class WebsiteInfo implements DetectorInterface
                 )
             );
         }
+        */
 
         if ($this->databaseIsPresent('pg', $data)) {
             $config->addDatabase(

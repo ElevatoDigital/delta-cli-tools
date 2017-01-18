@@ -424,7 +424,7 @@ class Project
 
     public function generateDatabaseDiagram(DatabaseInterface $database)
     {
-        return new GenerateDatabaseDiagramStep($database);
+        return new GenerateDatabaseDiagramStep($database, $this->output);
     }
 
     public function gitStatusIsClean()

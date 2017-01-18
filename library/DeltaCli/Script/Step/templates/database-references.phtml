@@ -1,5 +1,14 @@
-<?php foreach ($references as $foreignKeyColumn => $reference):?>
-"<?php echo $tableName;?>":<?php echo $foreignKeyColumn;?> => "<?php echo $reference['table'];?>":<?php echo $reference['column'];?> [
+<?php
+foreach ($references as $foreignKeyColumn => $reference) {
+    printf(
+        '"%s":%s -> "%s":%s [ id=%d ];',
+        $tableName,
+        $foreignKeyColumn,
+        $reference['table'],
+        $reference['column'],
+        $this->edgeId
+    );
 
-];
-<?php endforeach;?>
+    $this->edgeId += 1;
+}
+?>

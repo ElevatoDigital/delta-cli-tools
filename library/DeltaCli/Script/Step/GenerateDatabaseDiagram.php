@@ -5,6 +5,8 @@ namespace DeltaCli\Script\Step;
 use DeltaCli\Config\Database\DatabaseInterface;
 use Cocur\Slugify\Slugify;
 use DeltaCli\Script as ScriptObject;
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class GenerateDatabaseDiagram extends StepAbstract
 {
@@ -13,9 +15,20 @@ class GenerateDatabaseDiagram extends StepAbstract
      */
     private $database;
 
-    public function __construct(DatabaseInterface $database)
+    /**
+     * @var OutputInterface
+     */
+    private $output;
+
+    /**
+     * @var int
+     */
+    private $edgeId = 0;
+
+    public function __construct(DatabaseInterface $database, OutputInterface $output)
     {
         $this->database = $database;
+        $this->output   = $output;
     }
 
     public function preRun(ScriptObject $script)
@@ -25,13 +38,22 @@ class GenerateDatabaseDiagram extends StepAbstract
 
     public function run()
     {
+        $tables = $this->database->getTableNames();
+
         $tableNodes      = [];
         $referencesNodes = [];
 
-        foreach ($this->database->getTableNames() as $tableName) {
+        $progressBar = new ProgressBar($this->output, count($tables));
+
+        foreach ($tables as $tableName) {
             $tableNodes[]      = $this->renderTableNode($tableName);
             $referencesNodes[] = $this->renderReferencesForTable($tableName);
+
+            $progressBar->advance();
         }
+
+        $progressBar->finish();
+        $this->output->writeln(PHP_EOL);
 
         $filename = uniqid('delta-cli-db-diagram', true);
 
@@ -45,9 +67,13 @@ class GenerateDatabaseDiagram extends StepAbstract
 
         $this->exec($command, $output, $exitStatus);
 
-        unlink("/tmp/{$filename}.dot");
+        if ($exitStatus) {
+            return new Result($this, Result::FAILURE, $output);
+        } else {
+            unlink("/tmp/{$filename}.dot");
 
-        passthru("open /tmp/{$filename}.pdf");
+            passthru("open /tmp/{$filename}.pdf");
+        }
     }
 
     public function getName()

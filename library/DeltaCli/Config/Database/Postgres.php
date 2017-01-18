@@ -9,6 +9,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Postgres extends DatabaseAbstract
 {
+    private $columnsByTable = null;
+
+    private $foreignKeysByTable = null;
+
     public function getShellCommand()
     {
         return sprintf(
@@ -55,7 +59,8 @@ class Postgres extends DatabaseAbstract
 
     public function getColumns($tableName)
     {
-        $sql = "SELECT
+        if (null === $this->columnsByTable) {
+            $sql = "SELECT
                 a.attnum,
                 n.nspname,
                 c.relname,
@@ -75,24 +80,38 @@ class Postgres extends DatabaseAbstract
                 LEFT OUTER JOIN pg_constraint AS co ON (co.conrelid = c.oid
                     AND a.attnum = ANY(co.conkey) AND co.contype = 'p')
                 LEFT OUTER JOIN pg_attrdef AS d ON d.adrelid = c.oid AND d.adnum = a.attnum
-            WHERE a.attnum > 0 AND c.relname = %s
+            WHERE a.attnum > 0
             ORDER BY a.attnum";
 
-        $columns = [];
+            $columnsByTable = [];
 
-        foreach ($this->query($sql, [$tableName]) as $columnData) {
-            $columns[] = [
-                'name' => $columnData['column_name'],
-                'type' => $columnData['type']
-            ];
+            foreach ($this->query($sql) as $columnData) {
+                $tableName = $columnData['relname'];
+
+                if (!array_key_exists($tableName, $columnsByTable)) {
+                    $columnsByTable[$tableName] = [];
+                }
+
+                $columnsByTable[$tableName][] = [
+                    'name' => $columnData['column_name'],
+                    'type' => $columnData['type']
+                ];
+            }
+
+            $this->columnsByTable = $columnsByTable;
         }
 
-        return $columns;
+        if (array_key_exists($tableName, $this->columnsByTable)) {
+            return $this->columnsByTable[$tableName];
+        } else {
+            return [];
+        }
     }
 
     public function getForeignKeys($tableName)
     {
-        $sql = "SELECT
+        if (null === $this->foreignKeysByTable) {
+            $sql = "SELECT
                     tc.constraint_name, tc.table_name, kcu.column_name,
                     ccu.table_name AS foreign_table_name,
                     ccu.column_name AS foreign_column_name
@@ -106,21 +125,33 @@ class Postgres extends DatabaseAbstract
                     ON ccu.constraint_name = tc.constraint_name
                 WHERE
                     constraint_type = 'FOREIGN KEY'
-                    AND tc.table_name = %s
                 ORDER BY co.ordinal_position;";
 
-        $references = [];
+            $foreignKeysByTable = [];
 
-        foreach ($this->query($sql, [$tableName]) as $row) {
-            $column = $row['column_name'];
+            foreach ($this->query($sql) as $row) {
+                $tableName = $row['table_name'];
 
-            $references[$column] = array(
-                'table'  => $row['foreign_table_name'],
-                'column' => $row['foreign_column_name']
-            );
+                if (!array_key_exists($tableName, $foreignKeysByTable)) {
+                    $foreignKeysByTable[$tableName] = [];
+                }
+
+                $column = $row['column_name'];
+
+                $foreignKeysByTable[$tableName][$column] = [
+                    'table'  => $row['foreign_table_name'],
+                    'column' => $row['foreign_column_name']
+                ];
+            }
+
+            $this->foreignKeysByTable = $foreignKeysByTable;
         }
 
-        return $references;
+        if (array_key_exists($tableName, $this->foreignKeysByTable)) {
+            return $this->foreignKeysByTable[$tableName];
+        } else {
+            return [];
+        }
     }
 
     public function getType()
