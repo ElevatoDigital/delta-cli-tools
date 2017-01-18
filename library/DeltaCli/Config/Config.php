@@ -2,14 +2,16 @@
 
 namespace DeltaCli\Config;
 
+use DeltaCli\Config\Database\DatabaseInterface;
+
 class Config
 {
     /**
-     * @var Database[]
+     * @var DatabaseInterface[]
      */
     private $databases = [];
 
-    public function addDatabase(Database $database)
+    public function addDatabase(DatabaseInterface $database)
     {
         $this->databases[] = $database;
 
@@ -17,7 +19,7 @@ class Config
     }
 
     /**
-     * @return Database[]
+     * @return DatabaseInterface[]
      */
     public function getDatabases()
     {

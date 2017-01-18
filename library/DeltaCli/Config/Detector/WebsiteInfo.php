@@ -3,7 +3,7 @@
 namespace DeltaCli\Config\Detector;
 
 use DeltaCli\Config\Config;
-use DeltaCli\Config\Database;
+use DeltaCli\Config\Database\DatabaseFactory;
 use DeltaCli\Environment;
 
 class WebsiteInfo implements DetectorInterface
@@ -30,7 +30,7 @@ class WebsiteInfo implements DetectorInterface
 
         if ($this->databaseIsPresent('mysql', $data)) {
             $config->addDatabase(
-                new Database(
+                DatabaseFactory::createInstance(
                     'mysql',
                     $data['mysql_name'],
                     $data['mysql_user'],
@@ -42,7 +42,7 @@ class WebsiteInfo implements DetectorInterface
 
         if ($this->databaseIsPresent('pg', $data)) {
             $config->addDatabase(
-                new Database(
+                DatabaseFactory::createInstance(
                     'postgres',
                     $data['pg_name'],
                     $data['pg_user'],

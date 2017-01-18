@@ -3,7 +3,7 @@
 namespace DeltaCli\Config\Detector;
 
 use DeltaCli\Config\Config;
-use DeltaCli\Config\Database;
+use DeltaCli\Config\Database\DatabaseFactory;
 use DeltaCli\Environment;
 
 class ZendFramework1 implements DetectorInterface
@@ -79,7 +79,7 @@ class ZendFramework1 implements DetectorInterface
 
         foreach ($configValues as $name => $configValue) {
             if ('resources.db.adapter' === $name) {
-                $databases[] = new Database(
+                $databases[] = DatabaseFactory::createInstance(
                     $this->getDatabaseType($configValue),
                     $configValues['resources.db.params.dbname'],
                     $configValues['resources.db.params.username'],

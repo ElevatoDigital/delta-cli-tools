@@ -2,14 +2,14 @@
 
 namespace DeltaCli\Script\Step;
 
-use DeltaCli\Config\Database;
+use DeltaCli\Config\Database\DatabaseInterface;
 use DeltaCli\Host;
 use Cocur\Slugify\Slugify;
 
 class RestoreDatabase extends EnvironmentHostsStepAbstract
 {
     /**
-     * @var Database
+     * @var DatabaseInterface
      */
     private $database;
 
@@ -18,7 +18,7 @@ class RestoreDatabase extends EnvironmentHostsStepAbstract
      */
     private $dumpFileName;
 
-    public function __construct(Database $database, $dumpFileName)
+    public function __construct(DatabaseInterface $database, $dumpFileName)
     {
         $this->database     = $database;
         $this->dumpFileName = $dumpFileName;
@@ -29,17 +29,13 @@ class RestoreDatabase extends EnvironmentHostsStepAbstract
     public function runOnHost(Host $host)
     {
         $tunnel = $host->getSshTunnel();
-        $port   = $tunnel->setUp();
+        $tunnel->setUp();
 
         if (!file_exists($this->dumpFileName) || !is_readable($this->dumpFileName)) {
             throw new \Exception("Could not read dump file at: {$this->dumpFileName}.");
         }
 
-        if (false === $port) {
-            $command = $this->database->getShellCommand();
-        } else {
-            $command = $this->database->getShellCommand($tunnel->getHostname(), $port);
-        }
+        $command = $this->database->getShellCommand();
 
         $this->execSsh(
             $host,

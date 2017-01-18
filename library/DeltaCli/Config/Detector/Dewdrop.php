@@ -3,7 +3,7 @@
 namespace DeltaCli\Config\Detector;
 
 use DeltaCli\Config\Config;
-use DeltaCli\Config\Database;
+use DeltaCli\Config\Database\DatabaseFactory;
 use DeltaCli\Environment;
 
 class Dewdrop implements DetectorInterface
@@ -33,7 +33,7 @@ class Dewdrop implements DetectorInterface
         $config = new Config();
 
         $config->addDatabase(
-            new Database(
+            DatabaseFactory::createInstance(
                 $this->getDatabaseType($values['type']),
                 $values['name'],
                 $values['username'],

@@ -2,7 +2,7 @@
 
 namespace DeltaCli\Script\Step;
 
-use DeltaCli\Config\Database;
+use DeltaCli\Config\Database\DatabaseInterface;
 use DeltaCli\Environment;
 use DeltaCli\Host;
 use Cocur\Slugify\Slugify;
@@ -10,7 +10,7 @@ use Cocur\Slugify\Slugify;
 class DumpDatabase extends EnvironmentHostsStepAbstract
 {
     /**
-     * @var Database
+     * @var DatabaseInterface
      */
     private $database;
 
@@ -19,7 +19,7 @@ class DumpDatabase extends EnvironmentHostsStepAbstract
      */
     private $dumpFileName;
 
-    public function __construct(Database $database)
+    public function __construct(DatabaseInterface $database)
     {
         $this->database = $database;
 
@@ -31,13 +31,9 @@ class DumpDatabase extends EnvironmentHostsStepAbstract
         $this->dumpFileName = $this->generateDumpFileName($host->getEnvironment());
 
         $tunnel = $host->getSshTunnel();
-        $port   = $tunnel->setUp();
+        $tunnel->setUp();
 
-        if (false === $port) {
-            $dumpCommand = $this->database->getDumpCommand();
-        } else {
-            $dumpCommand = $this->database->getDumpCommand($tunnel->getHostname(), $port);
-        }
+        $dumpCommand = $this->database->getDumpCommand();
 
         $this->execSsh(
             $host,

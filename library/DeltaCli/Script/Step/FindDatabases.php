@@ -4,7 +4,7 @@ namespace DeltaCli\Script\Step;
 
 use DeltaCli\Config\Config;
 use DeltaCli\Config\ConfigFactory;
-use DeltaCli\Config\Database;
+use DeltaCli\Config\Database\DatabaseInterface;
 use DeltaCli\Host;
 
 class FindDatabases extends EnvironmentHostsStepAbstract
@@ -46,7 +46,7 @@ class FindDatabases extends EnvironmentHostsStepAbstract
     }
 
     /**
-     * @return Database[]
+     * @return DatabaseInterface[]
      */
     public function getDatabases()
     {

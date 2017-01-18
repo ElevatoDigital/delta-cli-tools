@@ -3,7 +3,7 @@
 namespace DeltaCli\Config\Detector;
 
 use DeltaCli\Config\Config;
-use DeltaCli\Config\Database;
+use DeltaCli\Config\Database\DatabaseFactory;
 use DeltaCli\Environment;
 
 class WordPress implements DetectorInterface
@@ -47,7 +47,7 @@ class WordPress implements DetectorInterface
             }
         }
 
-        return new Database(
+        return DatabaseFactory::createInstance(
             'mysql',
             $constants['DB_NAME'],
             $constants['DB_USER'],

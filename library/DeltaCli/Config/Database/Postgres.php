@@ -1,23 +1,23 @@
 <?php
 
-namespace DeltaCli\Config\Database\TypeHandler;
+namespace DeltaCli\Config\Database;
 
-use DeltaCli\Exception\PgsqlPdoDriverNotInstalled;
-use PDO;
+use DeltaCli\Exception\DatabaseQueryFailed;
+use DeltaCli\Exec;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class Postgres implements TypeHandlerInterface
+class Postgres extends DatabaseAbstract
 {
-    public function getShellCommand($username, $password, $hostname, $databaseName, $port)
+    public function getShellCommand()
     {
         return sprintf(
             'PGPASSWORD=%s psql -U %s -h %s -p %s %s',
-            escapeshellarg($password),
-            escapeshellarg($username),
-            escapeshellarg($hostname),
-            escapeshellarg($port),
-            escapeshellarg($databaseName)
+            escapeshellarg($this->password),
+            escapeshellarg($this->username),
+            escapeshellarg($this->host),
+            escapeshellarg($this->port),
+            escapeshellarg($this->databaseName)
         );
     }
 
@@ -42,31 +42,67 @@ class Postgres implements TypeHandlerInterface
         $table->render();
     }
 
-    public function getName()
+    public function getType()
     {
         return 'postgres';
     }
 
-    public function getDumpCommand($username, $password, $hostname, $databaseName, $port)
+    public function getDumpCommand()
     {
         return sprintf(
             'PGPASSWORD=%s pg_dump -U %s -h %s -p %s %s',
-            escapeshellarg($password),
-            escapeshellarg($username),
-            escapeshellarg($hostname),
-            escapeshellarg($port),
-            escapeshellarg($databaseName)
+            escapeshellarg($this->password),
+            escapeshellarg($this->username),
+            escapeshellarg($this->host),
+            escapeshellarg($this->port),
+            escapeshellarg($this->databaseName)
         );
     }
 
     public function emptyDb()
     {
-        //$pdo->query('DROP SCHEMA public CASCADE;');
-        //$pdo->query('CREATE SCHEMA public;');
+        $this->query('DROP SCHEMA public CASCADE;');
+        $this->query('CREATE SCHEMA public;');
+    }
+
+    public function query($sql, array $params = [])
+    {
+        $sql = $this->escapeQueryParams($sql, $params);
+
+        $command = sprintf(
+            'echo %s | %s --pset=footer -A -q 2>&1',
+            escapeshellarg($sql),
+            $this->getShellCommand()
+        );
+
+        Exec::run($this->sshTunnel->assembleSshCommand($command), $output, $exitStatus);
+
+        if ($exitStatus) {
+            throw new DatabaseQueryFailed(implode(PHP_EOL, $output));
+        }
+
+        if (!isset($output[0]) || !trim($output[0])) {
+            return [];
+        }
+
+        return $this->prepareResultsArrayFromCommandOutput($output, "\t");
     }
 
     public function getDefaultPort()
     {
         return 5432;
+    }
+
+
+    private function escapeQueryParams($sql, array $params)
+    {
+        $params = array_map(
+            function ($value) {
+                return sprintf("'%s'", str_replace("'", "''", $value));
+            },
+            $params
+        );
+
+        return vsprintf($sql, $params);
     }
 }

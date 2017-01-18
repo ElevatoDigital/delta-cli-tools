@@ -3,7 +3,7 @@
 namespace DeltaCli;
 
 use DeltaCli\Config\ConfigFactory;
-use DeltaCli\Config\Database;
+use DeltaCli\Config\Database\DatabaseInterface;
 use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\ScriptNotFound;
 use DeltaCli\Extension\DefaultScripts as DefaultScriptsExtension;
@@ -396,12 +396,12 @@ class Project
         return new AllowWritesToRemoteFolderStep($remoteFolder);
     }
 
-    public function dumpDatabase(Database $database)
+    public function dumpDatabase(DatabaseInterface $database)
     {
         return new DumpDatabaseStep($database);
     }
 
-    public function emptyDatabase(Database $database)
+    public function emptyDatabase(DatabaseInterface $database)
     {
         return new EmptyDatabaseStep($database);
     }
@@ -451,7 +451,7 @@ class Project
         return $this->phpCallableSupportingDryRun($callback, $dryRunCallback);
     }
 
-    public function restoreDatabase(Database $database, $dumpFile)
+    public function restoreDatabase(DatabaseInterface $database, $dumpFile)
     {
         return new RestoreDatabaseStep($database, $dumpFile);
     }

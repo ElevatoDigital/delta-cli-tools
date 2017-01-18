@@ -2,7 +2,6 @@
 
 namespace DeltaCli\Script;
 
-use DeltaCli\Exception\AttemptedRestoreToNonDevEnvironment;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use Symfony\Component\Console\Input\InputArgument;
@@ -55,7 +54,8 @@ class DatabaseRestore extends Script
             ->addStep(
                 'backup-database-prior-to-restore',
                 function () use ($findDbsStep) {
-                    $database = reset($findDbsStep->getDatabases());
+                    $databases = $findDbsStep->getDatabases();
+                    $database  = reset($databases);
                     $dumpStep = $this->getProject()->dumpDatabase($database);
                     $dumpStep->setSelectedEnvironment($this->getEnvironment());
                     return $dumpStep->run();
@@ -64,7 +64,8 @@ class DatabaseRestore extends Script
             ->addStep(
                 'empty-database-prior-to-restore',
                 function () use ($findDbsStep) {
-                    $database  = reset($findDbsStep->getDatabases());
+                    $databases = $findDbsStep->getDatabases();
+                    $database  = reset($databases);
                     $emptyStep = $this->getProject()->emptyDatabase($database);
                     $emptyStep->setSelectedEnvironment($this->getEnvironment());
                     return $emptyStep->run();
@@ -73,10 +74,10 @@ class DatabaseRestore extends Script
             ->addStep(
                 'restore-database-from-dump-file',
                 function () use ($findDbsStep) {
-                    $restoreStep = $this->getProject()->restoreDatabase(
-                        reset($findDbsStep->getDatabases()),
-                        $this->dumpFile
-                    );
+                    $databases = $findDbsStep->getDatabases();
+                    $database  = reset($databases);
+
+                    $restoreStep = $this->getProject()->restoreDatabase($database, $this->dumpFile);
 
                     $restoreStep->setSelectedEnvironment($this->getEnvironment());
 
