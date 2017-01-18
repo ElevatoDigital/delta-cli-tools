@@ -13,6 +13,11 @@ class SticklerLog implements DetectorInterface
      */
     private $databaseManager;
 
+    /**
+     * @var bool
+     */
+    private $alreadyFoundOnPreviousHost = false;
+
     public function __construct(DatabaseManager $databaseManager)
     {
         $this->databaseManager = $databaseManager;
@@ -20,10 +25,17 @@ class SticklerLog implements DetectorInterface
 
     public function detectLogOnHost(Host $host)
     {
+        // Stickler logs are in the DB so there is no use adding them for more than one host in an environment
+        if ($this->alreadyFoundOnPreviousHost) {
+            return false;
+        }
+
         $host->getSshTunnel()->setUp();
 
         foreach ($this->databaseManager->getAll($host) as $database) {
             if ('postgres' === $database->getType() && in_array('delta_log', $database->getTableNames())) {
+                $this->alreadyFoundOnPreviousHost = true;
+
                 return new SticklerLogObject($host, $database);
             }
         }
