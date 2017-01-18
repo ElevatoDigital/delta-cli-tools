@@ -2,6 +2,8 @@
 
 namespace DeltaCli\Log\Detector;
 
+use DeltaCli\Log\DatabaseManager;
+
 class DetectorSet
 {
     /**
@@ -9,8 +11,12 @@ class DetectorSet
      */
     private $detectors = [];
 
-    public function __construct()
+    public function __construct(DatabaseManager $databaseManager = null)
     {
+        if (null === $databaseManager) {
+            $databaseManager = new DatabaseManager();
+        }
+
         $this->detectors[] = new ApacheErrorLog();
         $this->detectors[] = new ApacheAccessLog();
         $this->detectors[] = new DewdropMonolog();
@@ -22,6 +28,7 @@ class DetectorSet
         $this->detectors[] = new VagrantApacheAccessLog();
         $this->detectors[] = new VagrantNginxErrorLog();
         $this->detectors[] = new VagrantNginxAccessLog();
+        $this->detectors[] = new SticklerLog($databaseManager);
     }
 
     public function getAll()

@@ -97,7 +97,11 @@ abstract class DatabaseAbstract implements DatabaseInterface
             $rowWithHeaders = [];
 
             foreach ($rowData as $index => $column) {
-                $header = $headers[$index];
+                if (isset($headers[$index])) {
+                    $header = $headers[$index];
+                } else {
+                    $header = $index;
+                }
 
                 $rowWithHeaders[$header] = $column;
             }

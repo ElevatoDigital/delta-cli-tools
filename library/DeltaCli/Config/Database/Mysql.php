@@ -58,9 +58,14 @@ class Mysql extends DatabaseAbstract
         );
     }
 
+    public function getTableNames()
+    {
+        return $this->fetchCol('SHOW TABLES;');
+    }
+
     public function emptyDb()
     {
-        foreach ($this->fetchCol('SHOW TABLES;') AS $table) {
+        foreach ($this->getTableNames() AS $table) {
             $this->query("DROP TABLE {$table};");
         }
     }

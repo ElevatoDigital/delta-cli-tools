@@ -54,6 +54,11 @@ interface DatabaseInterface
     public function emptyDb();
 
     /**
+     * @return string[]
+     */
+    public function getTableNames();
+
+    /**
      * @param string $sql
      * @return mixed
      */
