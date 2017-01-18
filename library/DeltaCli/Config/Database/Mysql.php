@@ -49,7 +49,7 @@ class Mysql extends DatabaseAbstract
     public function getDumpCommand()
     {
         return sprintf(
-            'mysqldump --user=%s --password=%s --host=%s --port=%s %s',
+            'mysqldump --skip-extended-insert --user=%s --password=%s --host=%s --port=%s %s',
             escapeshellarg($this->username),
             escapeshellarg($this->password),
             escapeshellarg($this->host),
