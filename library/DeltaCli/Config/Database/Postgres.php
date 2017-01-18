@@ -12,7 +12,7 @@ class Postgres extends DatabaseAbstract
     public function getShellCommand()
     {
         return sprintf(
-            'PGPASSWORD=%s psql -U %s -h %s -p %s %s',
+            'PGPASSWORD=%s psql -q -U %s -h %s -p %s %s',
             escapeshellarg($this->password),
             escapeshellarg($this->username),
             escapeshellarg($this->host),
