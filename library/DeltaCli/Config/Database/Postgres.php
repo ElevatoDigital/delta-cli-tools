@@ -59,26 +59,10 @@ class Postgres implements TypeHandlerInterface
         );
     }
 
-    public function createPdoConnection($username, $password, $hostname, $databaseName, $port)
+    public function emptyDb()
     {
-        if (!extension_loaded('pdo_pgsql')) {
-            throw new PgsqlPdoDriverNotInstalled('The pgsql PDO driver is not installed.');
-        }
-
-        $dsn = sprintf(
-            'pgsql:dbname=%s;host=%s;port=%s',
-            $databaseName,
-            $hostname,
-            $port
-        );
-
-        return new PDO($dsn, $username, $password);
-    }
-
-    public function emptyDb(PDO $pdo)
-    {
-        $pdo->query('DROP SCHEMA public CASCADE;');
-        $pdo->query('CREATE SCHEMA public;');
+        //$pdo->query('DROP SCHEMA public CASCADE;');
+        //$pdo->query('CREATE SCHEMA public;');
     }
 
     public function getDefaultPort()

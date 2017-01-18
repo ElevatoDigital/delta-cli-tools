@@ -2,7 +2,6 @@
 
 namespace DeltaCli\Config\Database\TypeHandler;
 
-use PDO;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -57,23 +56,9 @@ class Mysql implements TypeHandlerInterface
         );
     }
 
-    public function createPdoConnection($username, $password, $hostname, $databaseName, $port)
+    public function emptyDb()
     {
-        $dsn = sprintf(
-            'mysql:dbname=%s;host=%s;port=%s',
-            $databaseName,
-            $hostname,
-            $port
-        );
 
-        return new PDO($dsn, $username, $password);
-    }
-
-    public function emptyDb(PDO $pdo)
-    {
-        foreach ($pdo->query('SHOW TABLES') as $tableName) {
-            $pdo->query("DROP TABLE {$tableName}");
-        }
     }
 
     public function getDefaultPort()

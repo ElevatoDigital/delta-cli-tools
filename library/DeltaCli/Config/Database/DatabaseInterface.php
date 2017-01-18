@@ -2,7 +2,6 @@
 
 namespace DeltaCli\Config\Database\TypeHandler;
 
-use PDO;
 use Symfony\Component\Console\Output\OutputInterface;
 
 interface TypeHandlerInterface
@@ -11,16 +10,6 @@ interface TypeHandlerInterface
      * @return string
      */
     public function getName();
-
-    /**
-     * @param string $username
-     * @param string $password
-     * @param string $hostname
-     * @param string $databaseName
-     * @param integer $port
-     * @return PDO
-     */
-    public function createPdoConnection($username, $password, $hostname, $databaseName, $port);
 
     /**
      * @param string $username
@@ -45,10 +34,9 @@ interface TypeHandlerInterface
     public function getDefaultPort();
 
     /**
-     * @param PDO $pdo
      * @return void
      */
-    public function emptyDb(PDO $pdo);
+    public function emptyDb();
 
     /**
      * @param OutputInterface $output

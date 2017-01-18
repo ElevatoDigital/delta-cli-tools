@@ -115,8 +115,6 @@ class SshTunnel
         $options = [
             'Compression'           => 'yes',
             'StrictHostKeyChecking' => 'no',
-            'ControlMaster'         => 'auto',
-            'ControlPath'           => '~/.ssh/%r@%h:%p',
             'ConnectTimeout'        => 8,
             'ConnectionAttempts'    => 3
         ];

@@ -6,7 +6,7 @@ use DeltaCli\Exception\InvalidDatabaseType;
 
 class TypeHandlerFactory
 {
-    public static function createInstance($typeName)
+    public static function createInstance($typeName, $databaseName, $username, $password, $host)
     {
         switch ($typeName) {
             case 'postgres':
