@@ -97,8 +97,6 @@ abstract class AbstractDatabaseLog implements LogInterface
         $sqlAndParams = $this->assembleSql($afterId);
         $messages     = $this->database->query($sqlAndParams['sql'], $sqlAndParams['params']);
 
-        rsort($messages);
-
         return $messages;
     }
 
