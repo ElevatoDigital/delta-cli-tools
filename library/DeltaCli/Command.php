@@ -14,6 +14,13 @@ class Command extends SymfonyCommand
         parent::__construct($name);
 
         $this->addOption(
+            'colors',
+            null,
+            InputOption::VALUE_NONE,
+            'Force color output.  Useful with `less -R`.'
+        );
+
+        $this->addOption(
             'tunnel-via',
             null,
             InputOption::VALUE_REQUIRED,
@@ -39,6 +46,10 @@ class Command extends SymfonyCommand
     {
         if ($input instanceof ArgvInput) {
             $input->setCommand($this);
+        }
+
+        if ($input->hasOption('colors') && $input->getOption('colors')) {
+            $output->setDecorated(true);
         }
     }
 }
