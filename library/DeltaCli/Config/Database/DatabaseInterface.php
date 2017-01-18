@@ -27,6 +27,21 @@ interface DatabaseInterface
     public function getType();
 
     /**
+     * @return string
+     */
+    public function getUsername();
+
+    /**
+     * @return string
+     */
+    public function getPassword();
+
+    /**
+     * @return string
+     */
+    public function getHost();
+
+    /**
      * @param string $username
      * @param string $password
      * @param string $hostname
@@ -57,6 +72,12 @@ interface DatabaseInterface
      * @return string[]
      */
     public function getTableNames();
+
+    /**
+     * @param string $tableName
+     * @return array
+     */
+    public function getColumns($tableName);
 
     /**
      * @param string $sql

@@ -2,7 +2,7 @@
 
 namespace DeltaCli\Script;
 
-use DeltaCli\Config\Database;
+use DeltaCli\Config\Database\DatabaseInterface;
 use DeltaCli\Host;
 use DeltaCli\Project;
 use DeltaCli\Script;
@@ -35,10 +35,11 @@ class DatabaseTunnel extends Script
                 'open-tunnel',
                 function () use ($findDbsStep) {
                     /* @var Host $tunnelHost */
-                    /* @var Database $database */
+                    /* @var DatabaseInterface $database */
                     $environment = $this->getProject()->getSelectedEnvironment();
                     $tunnelHost  = reset($environment->getHosts());
-                    $database    = reset($findDbsStep->getDatabases());
+                    $databases   = $findDbsStep->getDatabases();
+                    $database    = reset($databases);
                     $dbHost      = new Host($this->getDbHostname($database, $tunnelHost), $environment);
 
                     $tunnelHost->getSshTunnel()->tunnelConnectionsForHost($dbHost, $dbHost->getUsername());
@@ -83,7 +84,7 @@ class DatabaseTunnel extends Script
             );
     }
 
-    private function getDbHostname(Database $database, Host $tunnelHost)
+    private function getDbHostname(DatabaseInterface $database, Host $tunnelHost)
     {
         if ($database->getHost() === 'localhost') {
             return $tunnelHost->getHostname();

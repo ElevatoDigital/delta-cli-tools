@@ -1,0 +1,23 @@
+ "<?php echo $tableName;?>" [
+    shape = "record"
+    <?php
+    $label = "<f0>{$tableName}|";
+    $index = 1;
+
+    $columnFields = [];
+
+    foreach ($columns as $column) {
+        $columnFields[] = sprintf(
+            '{<%s>%s\l|%s\l}',
+            $column['name'],
+            $column['name'],
+            $column['type']
+        );
+
+        $index += 1;
+    }
+
+    $label .= implode('|', $columnFields);
+    ?>
+    label = "<?php echo $label;?>"
+];

@@ -63,6 +63,47 @@ class Mysql extends DatabaseAbstract
         return $this->fetchCol('SHOW TABLES;');
     }
 
+    public function getColumns($tableName)
+    {
+        $sql = sprintf("DESCRIBE `%s`;", $tableName);
+
+        $columns = [];
+
+        foreach ($this->query($sql) as $columnData) {
+            $columns[] = [
+                'name' => $columnData['Field'],
+                'type' => $columnData['Type']
+            ];
+        }
+
+        return $columns;
+    }
+
+    public function getForeignKeys($tableName)
+    {
+        $sql = 'SELECT
+                    column_name,
+                    referenced_table_name,
+                    referenced_column_name
+                FROM information_schema.key_column_usage
+                WHERE
+                    table_name = %s
+                    AND referenced_table_name IS NOT NULL
+                    AND referenced_column_name IS NOT NULL';
+
+        $references = [];
+
+        foreach ($this->query($sql, [$tableName]) as $reference) {
+            $column = $reference['column_name'];
+
+            $references[$column] = array(
+                'table'  => $reference['referenced_table_name'],
+                'column' => $reference['referenced_column_name']
+            );
+        }
+        return $references;
+    }
+
     public function emptyDb()
     {
         foreach ($this->getTableNames() AS $table) {

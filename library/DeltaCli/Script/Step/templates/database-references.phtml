@@ -1,0 +1,5 @@
+<?php foreach ($references as $foreignKeyColumn => $reference):?>
+"<?php echo $tableName;?>":<?php echo $foreignKeyColumn;?> => "<?php echo $reference['table'];?>":<?php echo $reference['column'];?> [
+
+];
+<?php endforeach;?>

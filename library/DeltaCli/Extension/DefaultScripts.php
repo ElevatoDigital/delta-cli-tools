@@ -8,6 +8,7 @@ use DeltaCli\Script\InstallFsevents;
 use DeltaCli\Script\Log;
 use DeltaCli\Script\ClearCaches as ClearCachesScript;
 use DeltaCli\Script\DatabaseCopy as DatabaseCopyScript;
+use DeltaCli\Script\DatabaseDiagram as DatabaseDiagramScript;
 use DeltaCli\Script\DatabaseDump as DatabaseDumpScript;
 use DeltaCli\Script\DatabaseList as DatabaseListScript;
 use DeltaCli\Script\DatabaseRestore as DatabaseRestoreScript;
@@ -36,6 +37,7 @@ class DefaultScripts implements ExtensionInterface
         $project->addScript(new ScpScript($project));
         $project->addScript(new DatabaseCopyScript($project));
         $project->addScript(new DatabaseDumpScript($project));
+        $project->addScript(new DatabaseDiagramScript($project));
         $project->addScript(new DatabaseListScript($project));
         $project->addScript(new DatabaseRestoreScript($project));
         $project->addScript(new DatabaseSearchAndReplaceScript($project));

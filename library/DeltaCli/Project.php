@@ -17,6 +17,7 @@ use DeltaCli\Script\Step\EmptyDatabase as EmptyDatabaseStep;
 use DeltaCli\Script\Step\FindDatabases as FindDatabasesStep;
 use DeltaCli\Script\Step\FindLogs as FindLogsStep;
 use DeltaCli\Script\Step\FixSshKeyPermissions as FixSshKeyPermissionsStep;
+use DeltaCli\Script\Step\GenerateDatabaseDiagram as GenerateDatabaseDiagramStep;
 use DeltaCli\Script\Step\GitBranchMatchesEnvironment as GitBranchMatchesEnvironmentStep;
 use DeltaCli\Script\Step\GitStatusIsClean as GitStatusIsCleanStep;
 use DeltaCli\Script\Step\IsDevEnvironment as IsDevEnvironmentStep;
@@ -419,6 +420,11 @@ class Project
     public function fixSshKeyPermissions()
     {
         return new FixSshKeyPermissionsStep();
+    }
+
+    public function generateDatabaseDiagram(DatabaseInterface $database)
+    {
+        return new GenerateDatabaseDiagramStep($database);
     }
 
     public function gitStatusIsClean()
