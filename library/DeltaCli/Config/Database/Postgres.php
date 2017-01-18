@@ -51,7 +51,7 @@ class Postgres extends DatabaseAbstract
         $tables = [];
 
         foreach ($this->query('\dt') as $table) {
-            $tables[] = $table[1];
+            $tables[] = $table['Name'];
         }
 
         return $tables;
@@ -195,6 +195,10 @@ class Postgres extends DatabaseAbstract
 
         if (!isset($output[0]) || !trim($output[0])) {
             return [];
+        }
+
+        if ('List of relations' === $output[0]) {
+            array_shift($output);
         }
 
         return $this->prepareResultsArrayFromCommandOutput($output, "|");
