@@ -70,7 +70,7 @@ class Postgres extends DatabaseAbstract
         $sql = $this->escapeQueryParams($sql, $params);
 
         $command = sprintf(
-            'echo %s | %s --pset=footer -A -q 2>&1',
+            'echo %s | %s -v ON_ERROR_STOP=1 --pset=footer -A -q 2>&1',
             escapeshellarg($sql),
             $this->getShellCommand()
         );
