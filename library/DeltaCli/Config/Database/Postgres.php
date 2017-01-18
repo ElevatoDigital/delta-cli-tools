@@ -79,7 +79,7 @@ class Postgres extends DatabaseAbstract
     public function query($sql, array $params = [])
     {
         $sql = $this->escapeQueryParams($sql, $params);
-echo $sql . PHP_EOL;
+
         $command = sprintf(
             'echo %s | %s -v ON_ERROR_STOP=1 --pset=footer -A -q 2>&1',
             escapeshellarg($sql),
