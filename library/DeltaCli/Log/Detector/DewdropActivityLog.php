@@ -4,17 +4,17 @@ namespace DeltaCli\Log\Detector;
 
 use DeltaCli\Config\Database\DatabaseInterface;
 use DeltaCli\Host;
-use DeltaCli\Log\SticklerLog as SticklerLogObject;
+use DeltaCli\Log\DewdropActivityLog as DewdropActivityLogObject;
 
-class SticklerLog extends AbstractDatabaseLog
+class DewdropActivityLog extends AbstractDatabaseLog
 {
     public function logIsPresent(DatabaseInterface $database)
     {
-        return 'postgres' === $database->getType() && in_array('delta_log', $database->getTableNames());
+        return in_array('dewdrop_activity_log', $database->getTableNames());
     }
 
     public function createLogObject(Host $host, DatabaseInterface $database)
     {
-        return new SticklerLogObject($host, $database);
+        return new DewdropActivityLogObject($host, $database);
     }
 }

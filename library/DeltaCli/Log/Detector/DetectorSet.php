@@ -29,6 +29,7 @@ class DetectorSet
         $this->detectors[] = new VagrantNginxErrorLog();
         $this->detectors[] = new VagrantNginxAccessLog();
         $this->detectors[] = new SticklerLog($databaseManager);
+        $this->detectors[] = new DewdropActivityLog($databaseManager);
     }
 
     public function getAll()

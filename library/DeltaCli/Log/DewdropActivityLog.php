@@ -2,16 +2,16 @@
 
 namespace DeltaCli\Log;
 
-class SticklerLog extends AbstractDatabaseLog
+class DewdropActivityLog extends AbstractDatabaseLog
 {
     public function getName()
     {
-        return 'stickler-log';
+        return 'dewdrop-activity-log';
     }
 
     public function getDescription()
     {
-        return "delta_log table of the {$this->getDatabase()->getDatabaseName()} database.";
+        return "dewdrop_activity_log table of the {$this->getDatabase()->getDatabaseName()} database.";
     }
 
     public function assembleSql($afterId = null)
@@ -24,14 +24,14 @@ class SticklerLog extends AbstractDatabaseLog
         if (null === $afterId) {
             $limitClause = 'LIMIT 10';
         } else {
-            $whereClause = 'WHERE delta_log_id > %s';
+            $whereClause = 'WHERE dewdrop_activity_log_id > %s';
             $params[]    = $afterId;
         }
 
-        $sql = "SELECT delta_log_id AS id, REPLACE(message, E'\n', ' ') AS message, date_created 
-            FROM delta_log
+        $sql = "SELECT dewdrop_activity_log_id AS id, REPLACE(message, E'\n', ' ') AS message, date_created 
+            FROM dewdrop_activity_log
             {$whereClause}
-            ORDER BY delta_log_id DESC
+            ORDER BY dewdrop_activity_log_id DESC
             {$limitClause}";
 
         return ['sql' => $sql, 'params' => $params];
