@@ -2,7 +2,7 @@
 
 /* @var $project \DeltaCli\Project */
 
-use DeltaCli\Config\Database;
+use DeltaCli\Config\Database\DatabaseFactory;
 
 $project->setName('Delta CLI Tools Example');
 
@@ -39,7 +39,7 @@ $project->createEnvironment('joe-dev')
  * auto-detected by Delta CLI.
  */
 $project->getEnvironment('vagrant')->getManualConfig()
-    ->addDatabase(new Database('mysql', 'manual_config', 'manual_config', 'manual_config', 'localhost'));
+    ->addDatabase(DatabaseFactory::createInstance('mysql', 'manual_config', 'manual_config', 'manual_config', 'localhost'));
 
 /**
  * There is a "deploy" script included out of the box but you'll likely need to add some steps.  Typically,
