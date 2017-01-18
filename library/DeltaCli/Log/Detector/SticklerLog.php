@@ -40,6 +40,8 @@ class SticklerLog implements DetectorInterface
             }
         }
 
+        $host->getSshTunnel()->tearDown();
+
         return false;
     }
 }
