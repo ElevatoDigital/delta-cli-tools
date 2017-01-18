@@ -25,17 +25,17 @@ class GenerateDatabaseDiagram extends StepAbstract
 
     public function run()
     {
-        $tableNodes = [];
-        $references = [];
+        $tableNodes      = [];
+        $referencesNodes = [];
 
         foreach ($this->database->getTableNames() as $tableName) {
-            $tableNodes[] = $this->renderTableNode($tableName);
-            $references[] = $this->renderReferencesForTable($tableName);
+            $tableNodes[]      = $this->renderTableNode($tableName);
+            $referencesNodes[] = $this->renderReferencesForTable($tableName);
         }
 
         $filename = uniqid('delta-cli-db-diagram', true);
 
-        file_put_contents("/tmp/{$filename}.dot", $this->renderDiagram($tableNodes), LOCK_EX);
+        file_put_contents("/tmp/{$filename}.dot", $this->renderDiagram($tableNodes, $referencesNodes), LOCK_EX);
 
         $command = sprintf(
             'dot -T pdf /tmp/%s.dot -o /tmp/%s.pdf 2>&1',
@@ -66,7 +66,7 @@ class GenerateDatabaseDiagram extends StepAbstract
         return ob_get_clean();
     }
 
-    private function renderDiagram(array $tableNodes)
+    private function renderDiagram(array $tableNodes, array $referenceNodes)
     {
         ob_start();
         require __DIR__ . '/templates/database-diagram.phtml';
