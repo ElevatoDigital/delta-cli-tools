@@ -49,16 +49,11 @@ class Log extends Script
 
     protected function addSteps()
     {
-        $this->addStep(
-            'display-log',
-            function () {
-                $displayStep = new DisplayLog($this->getProject());
-                $displayStep
-                    ->setEnvironment($this->environment)
-                    ->setScript($this->script);
-                return $displayStep->run();
-            }
-        );
+        $displayStep = new DisplayLog($this->getProject());
+        $displayStep
+            ->setEnvironment($this->environment)
+            ->setScript($this->script);
+        $this->addStep($displayStep);
     }
 
     public function setEnvironment($environment)
