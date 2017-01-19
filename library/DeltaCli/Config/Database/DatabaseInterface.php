@@ -42,6 +42,11 @@ interface DatabaseInterface
     public function getHost();
 
     /**
+     * @return integer
+     */
+    public function getPort();
+
+    /**
      * @param string $username
      * @param string $password
      * @param string $hostname

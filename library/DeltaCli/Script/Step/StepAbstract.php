@@ -8,6 +8,7 @@ use DeltaCli\Exception\SshConnectionFailure;
 use DeltaCli\Exec;
 use DeltaCli\Host;
 use DeltaCli\Script;
+use Symfony\Component\Console\Input\InputDefinition;
 
 abstract class StepAbstract implements StepInterface
 {
@@ -98,6 +99,15 @@ abstract class StepAbstract implements StepInterface
     {
         $this->name = $name;
 
+        return $this;
+    }
+
+    /**
+     * @param InputDefinition $inputDefinition
+     * @return $this
+     */
+    public function configure(InputDefinition $inputDefinition)
+    {
         return $this;
     }
 

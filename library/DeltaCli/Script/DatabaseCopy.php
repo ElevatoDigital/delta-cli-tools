@@ -10,6 +10,7 @@ use DeltaCli\Script\Step\Script as ScriptStep;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class DatabaseCopy extends Script
@@ -47,6 +48,24 @@ class DatabaseCopy extends Script
             'The environment you want to copy the database to.'
         );
 
+        $this->addOption('database', null, InputOption::VALUE_REQUIRED, 'The database you want to copy from.');
+
+        $this->addOption(
+            'database-type',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'The type of database you want to copy from.'
+        );
+
+        $this->addOption('restore-database', null, InputOption::VALUE_REQUIRED, 'The database you want to restore to.');
+
+        $this->addOption(
+            'restore-database-type',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'The type of database you want to restore to.'
+        );
+
         parent::configure();
     }
 
@@ -66,23 +85,28 @@ class DatabaseCopy extends Script
 
     protected function addSteps()
     {
-        if ($this->sourceEnvironment->getName() === $this->destinationEnvironment->getName()) {
-            throw new InvalidOptions('Cannot copy a database to and from the same environment.');
-        }
-
         /* @var $dumpScript \DeltaCli\Script\DatabaseDump */
-        $dumpScript = $this->getProject()->getScript('db:dump')
-            ->setEnvironment($this->sourceEnvironment);
+        $dumpScript = $this->getProject()->getScript('db:dump');
 
         /* @var $restoreScript \DeltaCli\Script\DatabaseRestore */
-        $restoreScript = $this->getProject()->getScript('db:restore')
-            ->setEnvironment($this->destinationEnvironment)
-            ->setDefinition(new InputDefinition());
-
-        $restoreInput = new ArrayInput([]);
-        $restoreInput->setInteractive(false);
+        $restoreScript = $this->getProject()->getScript('db:restore');
 
         $this
+            ->addStep(
+                'configure-environments',
+                function () use ($dumpScript, $restoreScript) {
+                    if ($this->sourceEnvironment->getName() === $this->destinationEnvironment->getName()) {
+                        throw new InvalidOptions('Cannot copy a database to and from the same environment.');
+                    }
+
+                    $dumpScript->setEnvironment($this->sourceEnvironment);
+                    $restoreScript->setEnvironment($this->destinationEnvironment);
+
+                    $restoreScript
+                        ->setDatabaseOptionName('restore-database')
+                        ->setDatabaseTypeOptionName('restore-database-type');
+                }
+            )
             ->addStep($dumpScript)
             ->addStep(
                 'assign-dump-file-to-restore-script',

@@ -37,13 +37,15 @@ class DatabaseTunnel extends Script
                     /* @var Host $tunnelHost */
                     /* @var DatabaseInterface $database */
                     $environment = $this->getProject()->getSelectedEnvironment();
-                    $tunnelHost  = reset($environment->getHosts());
-                    $databases   = $findDbsStep->getDatabases();
-                    $database    = reset($databases);
+
+                    $environmentHosts = $environment->getHosts();
+                    $tunnelHost       = reset($environmentHosts);
+
+                    $database    = $findDbsStep->getSelectedDatabase($this->getProject()->getInput());
                     $dbHost      = new Host($this->getDbHostname($database, $tunnelHost), $environment);
 
                     $tunnelHost->getSshTunnel()->tunnelConnectionsForHost($dbHost, $dbHost->getUsername());
-                    $tunnelHost->getSshTunnel()->setRemotePort(5432);
+                    $tunnelHost->getSshTunnel()->setRemotePort($database->getPort());
                     $port = $tunnelHost->getSshTunnel()->setUp();
 
                     $output = $this->getProject()->getOutput();

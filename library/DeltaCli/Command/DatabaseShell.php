@@ -21,11 +21,16 @@ class DatabaseShell extends Command
      */
     private $project;
 
+    /**
+     * @var FindDatabases
+     */
+    private $findDatabasesStep;
+
     public function __construct(Project $project)
     {
-        parent::__construct(null);
-
         $this->project = $project;
+
+        parent::__construct(null);
     }
 
     protected function configure()
@@ -35,6 +40,9 @@ class DatabaseShell extends Command
             ->setDescription('Open a database command-line shell.')
             ->addArgument('environment', InputArgument::REQUIRED, 'The environment where you want to open a shell.')
             ->addOption('hostname', null, InputOption::VALUE_REQUIRED, 'The specific hostname you want to connect to.');
+
+        $this->findDatabasesStep = $this->project->findDatabases()
+            ->configure($this->getDefinition());
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -48,34 +56,25 @@ class DatabaseShell extends Command
             $host  = reset($hosts);
         }
 
-        $findDatabasesStep = $this->project->findDatabases()
+        $this->project->findDatabases()
             ->setSelectedEnvironment($env);
 
-        $script = $this->generateScript($env, $findDatabasesStep);
+        $script = $this->generateScript($env, $this->findDatabasesStep, $input);
         $script->run(new ArrayInput([]), $output);
 
-        $databases = $findDatabasesStep->getDatabases();
-        $database  = reset($databases);
-
-        $tunnel = $host->getSshTunnel();
-        $port   = $tunnel->setUp();
-
-        if (false === $port) {
-            $databaseCommand = $database->getShellCommand();
-        } else {
-            $databaseCommand = $database->getShellCommand($tunnel->getHostname(), $port);
-        }
+        $database = $this->findDatabasesStep->getSelectedDatabase($input);
+        $tunnel   = $host->getSshTunnel();
 
         $database->renderShellHelp($output);
 
-        $command = $tunnel->assembleSshCommand($databaseCommand, '-t');
+        $command = $tunnel->assembleSshCommand($database->getShellCommand(), '-t');
         Debug::log("Opening DB shell with `{$command}`...");
         passthru($command);
 
         $tunnel->tearDown();
     }
 
-    private function generateScript(Environment $env, FindDatabases $findDatabasesStep)
+    private function generateScript(Environment $env, FindDatabases $findDatabasesStep, InputInterface $input)
     {
         $script = new Script(
             $this->project,
@@ -90,24 +89,9 @@ class DatabaseShell extends Command
             ->addStep($this->project->logAndSendNotifications())
             ->addStep($findDatabasesStep)
             ->addStep(
-                'validate-databases',
-                function () use ($findDatabasesStep) {
-                    $databases = $findDatabasesStep->getDatabases();
-
-                    if (0 === count($databases)) {
-                        echo 'No databases found.' . PHP_EOL;
-                        exit;
-                    } else if (1 < count($databases)) {
-                        echo 'More than one database found and no mechanism to select which one yet.' . PHP_EOL;
-                        exit;
-                    }
-                }
-            )
-            ->addStep(
                 'open-db-shell',
-                function () use ($findDatabasesStep, $env) {
-                    $databases = $findDatabasesStep->getDatabases();
-                    $database  = reset($databases);
+                function () use ($findDatabasesStep, $env, $input) {
+                    $database  = $findDatabasesStep->getSelectedDatabase($input);
                     echo "Opening database shell for '{$database->getDatabaseName()}' on {$env->getName()}." . PHP_EOL;
                 }
             );

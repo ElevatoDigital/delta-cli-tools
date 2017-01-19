@@ -2,7 +2,6 @@
 
 namespace DeltaCli\Script;
 
-use DeltaCli\Config\Database\DatabaseInterface;
 use DeltaCli\Project;
 use DeltaCli\Script;
 
@@ -35,12 +34,8 @@ class DatabaseDiagram extends Script
                     $hosts = $this->getEnvironment()->getHosts();
                     $host  = reset($hosts);
 
-                    /* @var DatabaseInterface $database */
-                    $databases   = $findDbsStep->getDatabases();
-                    $database    = reset($databases);
-
+                    $database = $findDbsStep->getSelectedDatabase($this->getProject()->getInput());
                     $database->setSshTunnel($host->getSshTunnel());
-
                     return $this->getProject()->generateDatabaseDiagram($database)->run();
                 }
             );

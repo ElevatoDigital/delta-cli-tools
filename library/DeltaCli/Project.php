@@ -36,6 +36,7 @@ use DeltaCli\Template\TemplateInterface;
 use DeltaCli\Template\WordPress as WordpressTemplate;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

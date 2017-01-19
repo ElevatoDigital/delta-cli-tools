@@ -67,6 +67,11 @@ abstract class DatabaseAbstract implements DatabaseInterface
         return $this->host;
     }
 
+    public function getPort()
+    {
+        return $this->port;
+    }
+
     public function getDatabaseName()
     {
         return $this->databaseName;

@@ -1,7 +1,7 @@
 <?php
 foreach ($references as $foreignKeyColumn => $reference) {
     printf(
-        '"%s":%s -> "%s":%s [ id=%d ];',
+        '"%s":%s -> "%s":%s [ id=%d; splines=true; overlap=portho; model=subset; ];',
         $tableName,
         $foreignKeyColumn,
         $reference['table'],

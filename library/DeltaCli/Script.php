@@ -220,6 +220,20 @@ class Script extends Command
         }
     }
 
+    public function run(InputInterface $input, OutputInterface $output)
+    {
+        if (!$this->addStepsRun) {
+            $this->addSteps();
+            $this->addStepsRun = true;
+        }
+
+        foreach ($this->steps as $step) {
+            $step->configure($this->getDefinition());
+        }
+
+        parent::run($input, $output);
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         if ($input->isInteractive()) {

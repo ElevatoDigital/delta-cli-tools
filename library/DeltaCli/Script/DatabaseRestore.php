@@ -5,10 +5,26 @@ namespace DeltaCli\Script;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
 
 class DatabaseRestore extends Script
 {
     private $dumpFile;
+
+    /**
+     * @var InputInterface
+     */
+    private $input;
+
+    /**
+     * @var string
+     */
+    private $databaseOptionName = 'database';
+
+    /**
+     * @var string
+     */
+    private $databaseTypeOptionName = 'database-type';
 
     public function __construct(Project $project)
     {
@@ -39,6 +55,20 @@ class DatabaseRestore extends Script
         return $this;
     }
 
+    public function setDatabaseOptionName($databaseOptionName)
+    {
+        $this->databaseOptionName = $databaseOptionName;
+
+        return $this;
+    }
+
+    public function setDatabaseTypeOptionName($databaseTypeOptionName)
+    {
+        $this->databaseTypeOptionName = $databaseTypeOptionName;
+
+        return $this;
+    }
+
     protected function addSteps()
     {
         $findDbsStep = $this->getProject()->findDatabases();
@@ -54,8 +84,11 @@ class DatabaseRestore extends Script
             ->addStep(
                 'backup-database-prior-to-restore',
                 function () use ($findDbsStep) {
-                    $databases = $findDbsStep->getDatabases();
-                    $database  = reset($databases);
+                    $database = $findDbsStep->getSelectedDatabase(
+                        $this->getProject()->getInput(),
+                        $this->databaseOptionName,
+                        $this->databaseTypeOptionName
+                    );
                     $dumpStep = $this->getProject()->dumpDatabase($database);
                     $dumpStep->setSelectedEnvironment($this->getEnvironment());
                     return $dumpStep->run();
@@ -64,8 +97,12 @@ class DatabaseRestore extends Script
             ->addStep(
                 'empty-database-prior-to-restore',
                 function () use ($findDbsStep) {
-                    $databases = $findDbsStep->getDatabases();
-                    $database  = reset($databases);
+                    $database = $findDbsStep->getSelectedDatabase(
+                        $this->getProject()->getInput(),
+                        $this->databaseOptionName,
+                        $this->databaseTypeOptionName
+                    );
+
                     $emptyStep = $this->getProject()->emptyDatabase($database);
                     $emptyStep->setSelectedEnvironment($this->getEnvironment());
                     return $emptyStep->run();
@@ -74,13 +111,14 @@ class DatabaseRestore extends Script
             ->addStep(
                 'restore-database-from-dump-file',
                 function () use ($findDbsStep) {
-                    $databases = $findDbsStep->getDatabases();
-                    $database  = reset($databases);
+                    $database = $findDbsStep->getSelectedDatabase(
+                        $this->getProject()->getInput(),
+                        $this->databaseOptionName,
+                        $this->databaseTypeOptionName
+                    );
 
                     $restoreStep = $this->getProject()->restoreDatabase($database, $this->dumpFile);
-
                     $restoreStep->setSelectedEnvironment($this->getEnvironment());
-
                     return $restoreStep->run();
                 }
             );
