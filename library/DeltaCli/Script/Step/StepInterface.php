@@ -4,10 +4,13 @@ namespace DeltaCli\Script\Step;
 
 use DeltaCli\Environment;
 use DeltaCli\Script;
+use Symfony\Component\Console\Input\InputDefinition;
 
 interface StepInterface
 {
     public function setEnvironments(array $environments);
+
+    public function configure(InputDefinition $inputDefinition);
 
     public function preRun(Script $script);
 

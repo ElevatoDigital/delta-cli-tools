@@ -10,6 +10,11 @@ use Symfony\Component\Console\Helper\Table;
 
 class DatabaseTunnel extends Script
 {
+    /**
+     * @var Script\Step\FindDatabases
+     */
+    private $findDbsStep;
+
     public function __construct(Project $project)
     {
         parent::__construct(
@@ -22,18 +27,21 @@ class DatabaseTunnel extends Script
     protected function configure()
     {
         $this->requireEnvironment();
+
+        $this->findDbsStep = $this->getProject()->findDatabases();
+        $this->findDbsStep->configure($this->getDefinition());
+
         parent::configure();
     }
 
     protected function addSteps()
     {
-        $findDbsStep = $this->getProject()->findDatabases();
 
         $this
-            ->addStep($findDbsStep)
+            ->addStep($this->findDbsStep)
             ->addStep(
                 'open-tunnel',
-                function () use ($findDbsStep) {
+                function () {
                     /* @var Host $tunnelHost */
                     /* @var DatabaseInterface $database */
                     $environment = $this->getProject()->getSelectedEnvironment();
@@ -41,7 +49,7 @@ class DatabaseTunnel extends Script
                     $environmentHosts = $environment->getHosts();
                     $tunnelHost       = reset($environmentHosts);
 
-                    $database    = $findDbsStep->getSelectedDatabase($this->getProject()->getInput());
+                    $database    = $this->findDbsStep->getSelectedDatabase($this->getProject()->getInput());
                     $dbHost      = new Host($this->getDbHostname($database, $tunnelHost), $environment);
 
                     $tunnelHost->getSshTunnel()->tunnelConnectionsForHost($dbHost, $dbHost->getUsername());

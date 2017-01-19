@@ -7,6 +7,11 @@ use DeltaCli\Script;
 
 class DatabaseDiagram extends Script
 {
+    /**
+     * @var Script\Step\FindDatabases
+     */
+    private $findDbsStep;
+
     public function __construct(Project $project)
     {
         parent::__construct(
@@ -19,22 +24,24 @@ class DatabaseDiagram extends Script
     protected function configure()
     {
         $this->requireEnvironment();
+
+        $this->findDbsStep = $this->getProject()->findDatabases();
+        $this->findDbsStep->configure($this->getDefinition());
+
         parent::configure();
     }
 
     protected function addSteps()
     {
-        $findDbsStep = $this->getProject()->findDatabases();
-
         $this
-            ->addStep($findDbsStep)
+            ->addStep($this->findDbsStep)
             ->addStep(
                 'generate-diagram',
-                function () use ($findDbsStep) {
+                function () {
                     $hosts = $this->getEnvironment()->getHosts();
                     $host  = reset($hosts);
 
-                    $database = $findDbsStep->getSelectedDatabase($this->getProject()->getInput());
+                    $database = $this->findDbsStep->getSelectedDatabase($this->getProject()->getInput());
                     $database->setSshTunnel($host->getSshTunnel());
                     return $this->getProject()->generateDatabaseDiagram($database)->run();
                 }

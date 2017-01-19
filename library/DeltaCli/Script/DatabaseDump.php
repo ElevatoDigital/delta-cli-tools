@@ -12,6 +12,11 @@ class DatabaseDump extends Script
      */
     private $dumpFile;
 
+    /**
+     * @var Script\Step\FindDatabases
+     */
+    private $findDbsStep;
+
     public function __construct(Project $project)
     {
         parent::__construct(
@@ -25,6 +30,9 @@ class DatabaseDump extends Script
     {
         $this->requireEnvironment();
 
+        $this->findDbsStep = $this->getProject()->findDatabases();
+        $this->findDbsStep->configure($this->getDefinition());
+
         parent::configure();
     }
 
@@ -35,15 +43,13 @@ class DatabaseDump extends Script
 
     protected function addSteps()
     {
-        $findDbsStep = $this->getProject()->findDatabases();
-
         $this
-            ->addStep($findDbsStep)
+            ->addStep($this->findDbsStep)
             ->addStep($this->getProject()->logAndSendNotifications())
             ->addStep(
                 'dump-database',
-                function () use ($findDbsStep) {
-                    $database  = $findDbsStep->getSelectedDatabase($this->getProject()->getInput());
+                function () {
+                    $database  = $this->findDbsStep->getSelectedDatabase($this->getProject()->getInput());
                     $dumpStep  = $this->getProject()->dumpDatabase($database);
                     $dumpStep->setSelectedEnvironment($this->getEnvironment());
                     $result = $dumpStep->run();

@@ -100,10 +100,6 @@ class Script extends Command
      */
     public function __construct(Project $project, $name, $description, StepFactory $stepFactory = null)
     {
-        parent::__construct($name);
-
-        $this->setDescription($description);
-
         $this->apiResults            = new ApiResults($this);
         $this->project               = $project;
         $this->composerVersionReader = new ComposerVersion();
@@ -114,6 +110,9 @@ class Script extends Command
 
         $this->stepFactory = $stepFactory;
 
+        parent::__construct($name);
+
+        $this->setDescription($description);
         $this->init();
     }
 
@@ -218,20 +217,6 @@ class Script extends Command
                 $this->$setterMethod($input->getOption($option));
             }
         }
-    }
-
-    public function run(InputInterface $input, OutputInterface $output)
-    {
-        if (!$this->addStepsRun) {
-            $this->addSteps();
-            $this->addStepsRun = true;
-        }
-
-        foreach ($this->steps as $step) {
-            $step->configure($this->getDefinition());
-        }
-
-        parent::run($input, $output);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

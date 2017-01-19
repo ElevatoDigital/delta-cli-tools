@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php
 
+ini_set('memory_limit', '4096M');
+
 if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     define('VENDOR_PATH', realpath(__DIR__ . '/../vendor'));
 } else {

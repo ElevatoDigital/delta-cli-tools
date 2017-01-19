@@ -5,16 +5,10 @@ namespace DeltaCli\Script;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 
 class DatabaseRestore extends Script
 {
     private $dumpFile;
-
-    /**
-     * @var InputInterface
-     */
-    private $input;
 
     /**
      * @var string
@@ -25,6 +19,12 @@ class DatabaseRestore extends Script
      * @var string
      */
     private $databaseTypeOptionName = 'database-type';
+
+
+    /**
+     * @var Script\Step\FindDatabases
+     */
+    private $findDbsStep;
 
     public function __construct(Project $project)
     {
@@ -44,6 +44,9 @@ class DatabaseRestore extends Script
             InputArgument::REQUIRED,
             'The dump file you want to restore.'
         );
+
+        $this->findDbsStep = $this->getProject()->findDatabases();
+        $this->findDbsStep->configure($this->getDefinition());
 
         parent::configure();
     }
@@ -71,10 +74,8 @@ class DatabaseRestore extends Script
 
     protected function addSteps()
     {
-        $findDbsStep = $this->getProject()->findDatabases();
-
         $this
-            ->addStep($findDbsStep)
+            ->addStep($this->findDbsStep)
             ->addStep($this->getProject()->logAndSendNotifications())
             ->addStep(
                 $this->getProject()->sanityCheckPotentiallyDangerousOperation(
@@ -83,8 +84,8 @@ class DatabaseRestore extends Script
             )
             ->addStep(
                 'backup-database-prior-to-restore',
-                function () use ($findDbsStep) {
-                    $database = $findDbsStep->getSelectedDatabase(
+                function () {
+                    $database = $this->findDbsStep->getSelectedDatabase(
                         $this->getProject()->getInput(),
                         $this->databaseOptionName,
                         $this->databaseTypeOptionName
@@ -96,8 +97,8 @@ class DatabaseRestore extends Script
             )
             ->addStep(
                 'empty-database-prior-to-restore',
-                function () use ($findDbsStep) {
-                    $database = $findDbsStep->getSelectedDatabase(
+                function () {
+                    $database = $this->findDbsStep->getSelectedDatabase(
                         $this->getProject()->getInput(),
                         $this->databaseOptionName,
                         $this->databaseTypeOptionName
@@ -110,8 +111,8 @@ class DatabaseRestore extends Script
             )
             ->addStep(
                 'restore-database-from-dump-file',
-                function () use ($findDbsStep) {
-                    $database = $findDbsStep->getSelectedDatabase(
+                function () {
+                    $database = $this->findDbsStep->getSelectedDatabase(
                         $this->getProject()->getInput(),
                         $this->databaseOptionName,
                         $this->databaseTypeOptionName
