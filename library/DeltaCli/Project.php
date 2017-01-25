@@ -373,7 +373,7 @@ class Project
         $environment       = $this->getEnvironment($name);
         $tunnelEnvironment = $this->input->getOption('tunnel-via');
 
-        if ($this->input->getOption('vpn')) {
+        if ($this->input->getOption('vpn') && 'vagrant' !== $environment->getName()) {
             $tunnelEnvironment = 'vpn';
         }
 
