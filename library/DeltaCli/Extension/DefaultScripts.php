@@ -52,7 +52,7 @@ class DefaultScripts implements ExtensionInterface
             ->addDefaultStep($project->fixSshKeyPermissions())
             ->addDefaultStep(
                 $project->logAndSendNotifications()
-                    ->setSendNotificationsOnceScriptFailure(false)
+                    ->setSendNotificationsOnScriptFailure(false)
             )
             ->setPlaceholderCallback(
                 function (OutputInterface $output) {

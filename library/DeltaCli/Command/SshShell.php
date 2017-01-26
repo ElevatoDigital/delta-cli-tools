@@ -67,7 +67,7 @@ class SshShell extends Command
 
         $script
             ->setEnvironment($env)
-            ->addStep($this->project->logAndSendNotifications())
+            ->addStep($this->project->logAndSendNotifications()->setSendNotificationsOnScriptFailure(false))
             ->addStep($this->project->fixSshKeyPermissions())
             ->addStep(
                 'open-ssh-shell',

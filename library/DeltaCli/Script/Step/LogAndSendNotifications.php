@@ -23,7 +23,7 @@ class LogAndSendNotifications extends DeltaApiAbstract implements EnvironmentOpt
         return $this;
     }
 
-    public function setSendNotificationsOnceScriptFailure($sendNotificationsOnScriptFailure)
+    public function setSendNotificationsOnScriptFailure($sendNotificationsOnScriptFailure)
     {
         $this->sendNotificationsOnScriptFailure = $sendNotificationsOnScriptFailure;
 

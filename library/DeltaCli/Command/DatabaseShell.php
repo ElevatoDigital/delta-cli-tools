@@ -86,7 +86,7 @@ class DatabaseShell extends Command
 
         $script
             ->setEnvironment($env)
-            ->addStep($this->project->logAndSendNotifications())
+            ->addStep($this->project->logAndSendNotifications()->setSendNotificationsOnScriptFailure(false))
             ->addStep($findDatabasesStep)
             ->addStep(
                 'open-db-shell',
