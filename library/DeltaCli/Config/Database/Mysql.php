@@ -104,6 +104,24 @@ class Mysql extends DatabaseAbstract
         return $references;
     }
 
+    public function getPrimaryKey($tableName)
+    {
+        $primaryKey = [];
+
+        $keys = $this->query(
+            sprintf(
+                "SHOW KEYS FROM %s WHERE Key_name = 'PRIMARY'",
+                $this->quoteIdentifier($tableName)
+            )
+        );
+
+        foreach ($keys as $key) {
+            $primaryKey[] = $key['Column_name'];
+        }
+
+        return $primaryKey;
+    }
+
     public function emptyDb()
     {
         foreach ($this->getTableNames() AS $table) {
@@ -113,7 +131,7 @@ class Mysql extends DatabaseAbstract
 
     public function query($sql, array $params = [])
     {
-        $sql = $this->escapeQueryParams($sql, $params);
+        $sql = $this->prepare($sql, $params);
 
         $command = sprintf(
             'echo %s | %s --batch 2>&1',
@@ -134,12 +152,17 @@ class Mysql extends DatabaseAbstract
         return $this->prepareResultsArrayFromCommandOutput($output, "\t");
     }
 
+    public function quoteIdentifier($identifier)
+    {
+        return sprintf('`%s`', $identifier);
+    }
+
     public function getDefaultPort()
     {
         return 3306;
     }
 
-    private function escapeQueryParams($sql, array $params)
+    public function prepare($sql, array $params = [])
     {
         $params = array_map(
             function ($value) {

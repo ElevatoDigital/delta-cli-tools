@@ -50,8 +50,13 @@ class Postgres extends DatabaseAbstract
     {
         $tables = [];
 
-        foreach ($this->query('\dt') as $table) {
-            $tables[] = $table['Name'];
+        $sql = "SELECT table_name 
+            FROM information_schema.tables 
+            WHERE table_schema='public' 
+                AND table_type='BASE TABLE';";
+
+        foreach ($this->query($sql) as $table) {
+            $tables[] = $table['table_name'];
         }
 
         return $tables;
@@ -179,11 +184,16 @@ class Postgres extends DatabaseAbstract
 
     public function query($sql, array $params = [])
     {
-        $sql = $this->escapeQueryParams($sql, $params);
+        $sql = $this->prepare(rtrim($sql, ';'), $params);
+
+        $jsonWrappedSql = sprintf(
+            'SELECT ROW_TO_JSON(t) FROM (%s) t;',
+            $sql
+        );
 
         $command = sprintf(
-            'echo %s | %s -v ON_ERROR_STOP=1 --pset=footer -A -q 2>&1',
-            escapeshellarg($sql),
+            'echo %s | %s -v ON_ERROR_STOP=1 -t --pset=footer -A -q 2>&1',
+            escapeshellarg($jsonWrappedSql),
             $this->getShellCommand()
         );
 
@@ -197,11 +207,28 @@ class Postgres extends DatabaseAbstract
             return [];
         }
 
-        if ('List of relations' === $output[0]) {
-            array_shift($output);
-        }
+        return json_decode('[' . implode(',', $output) . ']', true);
+    }
 
-        return $this->prepareResultsArrayFromCommandOutput($output, "|");
+    public function quoteIdentifier($identifier)
+    {
+        return sprintf('"%s"', $identifier);
+    }
+
+    public function getPrimaryKey($tableName)
+    {
+        return $this->fetchCol(
+            "SELECT
+            c.column_name
+            FROM information_schema.table_constraints tc 
+            JOIN information_schema.constraint_column_usage AS ccu USING (constraint_schema, constraint_name) 
+            JOIN information_schema.columns AS c ON 
+              c.table_schema = tc.constraint_schema 
+              AND tc.table_name = c.table_name 
+              AND ccu.column_name = c.column_name
+            WHERE constraint_type = 'PRIMARY KEY' and tc.table_name = %s",
+            [$tableName]
+        );
     }
 
     public function getDefaultPort()
@@ -209,8 +236,7 @@ class Postgres extends DatabaseAbstract
         return 5432;
     }
 
-
-    private function escapeQueryParams($sql, array $params)
+    public function prepare($sql, array $params = [])
     {
         $params = array_map(
             function ($value) {
