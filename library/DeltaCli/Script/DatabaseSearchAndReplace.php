@@ -4,9 +4,6 @@ namespace DeltaCli\Script;
 
 use DeltaCli\Project;
 use DeltaCli\Script;
-use DeltaCli\Script\Step\Result;
-use Exception;
-use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 
 class DatabaseSearchAndReplace extends Script
@@ -25,6 +22,11 @@ class DatabaseSearchAndReplace extends Script
      * @var Script\Step\FindDatabases
      */
     private $findDbsStep;
+
+    /**
+     * @var Script\Step\GenerateSearchAndReplaceSql
+     */
+    private $generateSearchAndReplaceSqlStep;
 
     public function __construct(Project $project)
     {
@@ -74,90 +76,48 @@ class DatabaseSearchAndReplace extends Script
     protected function addSteps()
     {
         $this
+            ->addStep(
+                $this->getProject()->sanityCheckPotentiallyDangerousOperation(
+                    'Perform search and replace on database contents.'
+                )
+            )
             ->addStep($this->findDbsStep)
             ->addStep(
-                'search-and-replace',
+                'generate-search-and-replace-sql',
                 function () {
-                    $hosts = $this->getEnvironment()->getHosts();
-                    $host = reset($hosts);
+                    $this->generateSearchAndReplaceSqlStep = $this->getProject()->generateSearchAndReplaceSql(
+                        $this->findDbsStep->getSelectedDatabase($this->getProject()->getInput()),
+                        $this->searchString,
+                        $this->replacementString
+                    );
 
-                    $host->getSshTunnel()->setUp();
+                    $this->generateSearchAndReplaceSqlStep->setSelectedEnvironment($this->getEnvironment());
 
-                    $database = $this->findDbsStep->getSelectedDatabase($this->getProject()->getInput());
-                    $database->setSshTunnel($host->getSshTunnel());
+                    return $this->generateSearchAndReplaceSqlStep->run();
+                }
+            )
+            ->addStep(
+                'apply-sql-file',
+                function () {
+                    if (file_exists($this->generateSearchAndReplaceSqlStep->getSqlPath())) {
+                        $restoreStep = $this->getProject()->restoreDatabase(
+                            $this->findDbsStep->getSelectedDatabase($this->getProject()->getInput()),
+                            $this->generateSearchAndReplaceSqlStep->getSqlPath()
+                        );
 
-                    $tableNames  = $database->getTableNames();
-                    $progressBar = new ProgressBar($this->getProject()->getOutput(), count($tableNames));
+                        $restoreStep->setSelectedEnvironment($this->getEnvironment());
 
-                    $numberOfReplacements = 0;
-
-                    foreach ($tableNames as $table) {
-                        $data = $database->query("SELECT * FROM {$table};");
-
-                        foreach ($data as $row) {
-                            foreach ($row as $column => $originalValue) {
-                                $filteredValue = $this->recursiveUnserializeReplace(
-                                    $this->searchString,
-                                    $this->replacementString,
-                                    $originalValue
-                                );
-
-                                if ($filteredValue !== $originalValue) {
-                                    $numberOfReplacements += 1;
-                                }
-                            }
-                        }
-
-                        $progressBar->advance();
+                        return $restoreStep->run();
                     }
-
-                    $progressBar->clear();
-
-                    $host->getSshTunnel()->tearDown();
-
-                    return new Result($this->findDbsStep, Result::SUCCESS, ["Replaced {$numberOfReplacements} times."]);
+                }
+            )
+            ->addStep(
+                'remove-sql-file',
+                function () {
+                    if (file_exists($this->generateSearchAndReplaceSqlStep->getSqlPath())) {
+                        unlink($this->generateSearchAndReplaceSqlStep->getSqlPath());
+                    }
                 }
             );
-    }
-
-    private function recursiveUnserializeReplace($from = '', $to = '', $data = '', $serialised = false)
-    {
-        // Some unserialized data cannot be re-serialised eg. SimpleXMLElements
-        try {
-            if (is_string($data) && false !== ($unserialized = @unserialize($data))) {
-                $data = $this->recursiveUnserializeReplace($from, $to, $unserialized, true);
-            } elseif (is_array($data)) {
-                $tmp = [];
-                foreach ($data as $key => $value) {
-                    $tmp[$key] = $this->recursiveUnserializeReplace($from, $to, $value, false);
-                }
-
-                $data = $tmp;
-                unset($tmp);
-            } elseif (is_object($data)) {
-                $dataClass = get_class($data);
-
-                $tmp = new $dataClass();
-
-                foreach ($data as $key => $value) {
-                    $tmp->$key = $this->recursiveUnserializeReplace($from, $to, $value, false);
-                }
-
-                $data = $tmp;
-                unset($tmp);
-            } else {
-                if (is_string($data)) {
-                    $data = str_replace($from, $to, $data);
-                }
-            }
-
-            if ($serialised) {
-                return serialize($data);
-            }
-        } catch (Exception $error) {
-
-        }
-
-        return $data;
     }
 }
