@@ -18,6 +18,7 @@ use DeltaCli\Script\Step\FindDatabases as FindDatabasesStep;
 use DeltaCli\Script\Step\FindLogs as FindLogsStep;
 use DeltaCli\Script\Step\FixSshKeyPermissions as FixSshKeyPermissionsStep;
 use DeltaCli\Script\Step\GenerateDatabaseDiagram as GenerateDatabaseDiagramStep;
+use DeltaCli\Script\Step\GenerateSearchAndReplaceSql as GenerateSearchAndReplaceSqlStep;
 use DeltaCli\Script\Step\GitBranchMatchesEnvironment as GitBranchMatchesEnvironmentStep;
 use DeltaCli\Script\Step\GitStatusIsClean as GitStatusIsCleanStep;
 use DeltaCli\Script\Step\IsDevEnvironment as IsDevEnvironmentStep;
@@ -36,7 +37,6 @@ use DeltaCli\Template\TemplateInterface;
 use DeltaCli\Template\WordPress as WordpressTemplate;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\QuestionHelper;
-use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -426,6 +426,11 @@ class Project
     public function generateDatabaseDiagram(DatabaseInterface $database)
     {
         return new GenerateDatabaseDiagramStep($database, $this->output);
+    }
+
+    public function generateSearchAndReplaceSql(DatabaseInterface $database, $searchString, $replacementString)
+    {
+        return new GenerateSearchAndReplaceSqlStep($database, $this->output, $searchString, $replacementString);
     }
 
     public function gitStatusIsClean()
