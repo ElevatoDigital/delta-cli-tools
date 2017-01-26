@@ -125,20 +125,16 @@ class GenerateSearchAndReplaceSql extends EnvironmentHostsStepAbstract
                     $primaryKeyValues[] = $row[$column];
                 }
 
-                try {
-                    file_put_contents(
-                        $this->sqlPath,
-                        $this->database->assembleUpdateSql(
-                            $table,
-                            $columnsToUpdate,
-                            $primaryKeyColumns,
-                            $primaryKeyValues
-                        ) . PHP_EOL,
-                        LOCK_EX | FILE_APPEND
-                    );
-                } catch (DatabaseQueryFailed $exception) {
-
-                }
+                file_put_contents(
+                    $this->sqlPath,
+                    $this->database->assembleUpdateSql(
+                        $table,
+                        $columnsToUpdate,
+                        $primaryKeyColumns,
+                        $primaryKeyValues
+                    ) . PHP_EOL,
+                    LOCK_EX | FILE_APPEND
+                );
             }
         }
 
