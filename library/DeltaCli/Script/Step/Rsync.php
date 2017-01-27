@@ -3,6 +3,7 @@
 namespace DeltaCli\Script\Step;
 
 use Cocur\Slugify\Slugify;
+use DeltaCli\Console\Output\Spinner;
 use DeltaCli\FileTransferPaths;
 use DeltaCli\Host;
 use DeltaCli\Script as ScriptObject;
@@ -195,7 +196,7 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
             $pathArguments[1]
         );
 
-        $this->execSsh($host, $command, $output, $exitStatus);
+        $this->execSsh($host, $command, $output, $exitStatus, Spinner::forStep($this, $host));
 
         $tunnel->tearDown();
 

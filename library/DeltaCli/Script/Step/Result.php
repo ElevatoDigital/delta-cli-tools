@@ -199,7 +199,7 @@ class Result
             case self::FAILURE:
                 return '✖';
             case self::WARNING:
-                return '☢';
+                return '⚠';
             case self::SKIPPED:
                 return '↷';
         }
