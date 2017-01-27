@@ -47,11 +47,10 @@ class Exec
         $stopwatch = new Stopwatch();
         $stopwatch->start('exec');
 
-        $loop   = EventLoopFactory::create();
-        $output = [];
+        $loop = EventLoopFactory::create();
 
-        $childProcess = new ChildProcess($command);
-
+        $processOutput = '';
+        $childProcess  = new ChildProcess($command);
 
         $childProcess->on(
             'exit',
@@ -67,28 +66,20 @@ class Exec
 
         $loop->addTimer(
             0.001,
-            function (TimerInterface $timer) use ($childProcess, &$output) {
+            function (TimerInterface $timer) use ($childProcess, &$processOutput) {
                 $childProcess->start($timer->getLoop());
 
                 $childProcess->stdout->on(
                     'data',
-                    function ($processOutput) use (&$output) {
-                        $lines = explode(PHP_EOL, $processOutput);
-
-                        foreach ($lines as $line) {
-                            $output[] = $line;
-                        }
+                    function ($output) use (&$processOutput) {
+                        $processOutput .= $output;
                     }
                 );
 
                 $childProcess->stderr->on(
                     'data',
-                    function ($processOutput) use (&$output) {
-                        $lines = explode(PHP_EOL, $processOutput);
-
-                        foreach ($lines as $line) {
-                            $output[] = $line;
-                        }
+                    function ($output) use (&$processOutput) {
+                        $processOutput .= $output;
                     }
                 );
             }
@@ -105,8 +96,7 @@ class Exec
 
         $loop->run();
 
-        array_pop($output);
-
+        $output      = explode(PHP_EOL, rtrim($processOutput));
         $exitStatus  = (int) $exitStatus;
         $event       = $stopwatch->stop('exec');
         $timeElapsed = $event->getDuration();
