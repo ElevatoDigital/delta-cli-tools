@@ -4,6 +4,7 @@ namespace DeltaCli\Config\Database;
 
 use DeltaCli\Exception\DatabaseQueryFailed;
 use DeltaCli\Exec;
+use DeltaCli\SshTunnel;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -178,8 +179,8 @@ class Postgres extends DatabaseAbstract
 
     public function emptyDb()
     {
-        $this->query('DROP SCHEMA public CASCADE;');
-        $this->query('CREATE SCHEMA public;');
+        $this->executeWithoutFetching('DROP SCHEMA public CASCADE;');
+        $this->executeWithoutFetching('CREATE SCHEMA public;');
     }
 
     public function query($sql, array $params = [])
@@ -191,13 +192,7 @@ class Postgres extends DatabaseAbstract
             $sql
         );
 
-        $command = sprintf(
-            'echo %s | %s -v ON_ERROR_STOP=1 -t --pset=footer -A -q 2>&1',
-            escapeshellarg($jsonWrappedSql),
-            $this->getShellCommand()
-        );
-
-        Exec::run($this->sshTunnel->assembleSshCommand($command), $output, $exitStatus);
+        Exec::run($this->generateShellCommandToRunSql($jsonWrappedSql), $output, $exitStatus);
 
         if ($exitStatus) {
             throw new DatabaseQueryFailed(implode(PHP_EOL, $output));
@@ -208,6 +203,30 @@ class Postgres extends DatabaseAbstract
         }
 
         return json_decode('[' . implode(',', $output) . ']', true);
+    }
+
+    private function executeWithoutFetching($sql, $params = [])
+    {
+        $sql = $this->prepare(rtrim($sql, ';'), $params);
+
+        Exec::run($this->generateShellCommandToRunSql($sql), $output, $exitStatus);
+
+        if ($exitStatus) {
+            throw new DatabaseQueryFailed(implode(PHP_EOL, $output));
+        }
+
+        return true;
+    }
+
+    private function generateShellCommandToRunSql($sql)
+    {
+        $command = sprintf(
+            'echo %s | %s -v ON_ERROR_STOP=1 -t --pset=footer -A -q 2>&1',
+            escapeshellarg($sql),
+            $this->getShellCommand()
+        );
+
+        return $this->sshTunnel->assembleSshCommand($command);
     }
 
     public function quoteIdentifier($identifier)

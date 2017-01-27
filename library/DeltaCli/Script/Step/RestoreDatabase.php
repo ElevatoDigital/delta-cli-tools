@@ -57,9 +57,10 @@ class RestoreDatabase extends EnvironmentHostsStepAbstract
 
         if (0 === $exitStatus) {
             $output[] = sprintf(
-                'Successfully ran SQL file %s on %s.',
+                'Successfully ran SQL file %s on %s in %s.',
                 $this->dumpFileName,
-                $this->database->getDatabaseName()
+                $this->database->getDatabaseName(),
+                $host->getEnvironment()->getName()
             );
         }
 
