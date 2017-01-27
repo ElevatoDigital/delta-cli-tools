@@ -108,6 +108,11 @@ class Project
     private $projectCache;
 
     /**
+     * @var TemplateInterface[]
+     */
+    private $templates = [];
+
+    /**
      * Project constructor.
      * @param InputInterface $input
      * @param OutputInterface $output
@@ -172,6 +177,10 @@ class Project
             $this->setDefaultSshPrivateKeyOnEnvironments($cwd);
 
             $this->configFileLoaded = true;
+
+            foreach ($this->templates as $template) {
+                $template->postLoadConfig($this);
+            }
         }
     }
 
@@ -183,6 +192,8 @@ class Project
     public function applyTemplate(TemplateInterface $template)
     {
         $template->apply($this);
+
+        $this->templates[] = $template;
 
         return $this;
     }

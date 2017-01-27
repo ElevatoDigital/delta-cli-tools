@@ -53,10 +53,6 @@ class WordPress implements TemplateInterface
 
         $watchPaths = [];
 
-        if ($project->hasEnvironment('production')) {
-            $deployScript->addEnvironmentSpecificStep('production', $project->ssh('backup'));
-        }
-
         foreach ($this->syncedThemes as $theme) {
             $localPath  = "{$this->localWordPressRoot}/wp-content/themes/{$theme}/";
             $remotePath = "{$this->remoteWordPressRoot}/wp-content/themes/{$theme}/";
@@ -97,6 +93,15 @@ class WordPress implements TemplateInterface
                 $project->watch($project->getScript('deploy'))
                     ->addPaths($watchPaths)
             );
+    }
+
+    public function postLoadConfig(Project $project)
+    {
+        $deployScript = $project->getScript($this->deployScriptName);
+
+        if ($project->hasEnvironment('production')) {
+            $deployScript->addEnvironmentSpecificStep('production', $project->ssh('backup'));
+        }
     }
 
     public function getLocalWordPressRoot()

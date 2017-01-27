@@ -21,10 +21,15 @@ class Custom implements TemplateInterface
 
     public function install(QuestionHelper $questionHelper, InputInterface $input, OutputInterface $output)
     {
-        // TODO: Implement install() method.
+
     }
 
     public function apply(Project $project)
+    {
+
+    }
+
+    public function postLoadConfig(Project $project)
     {
 
     }

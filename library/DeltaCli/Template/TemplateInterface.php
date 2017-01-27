@@ -16,4 +16,6 @@ interface TemplateInterface
     public function install(QuestionHelper $questionHelper, InputInterface $input, OutputInterface $output);
 
     public function apply(Project $project);
+
+    public function postLoadConfig(Project $project);
 }
