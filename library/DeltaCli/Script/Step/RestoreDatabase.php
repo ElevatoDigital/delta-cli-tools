@@ -55,6 +55,10 @@ class RestoreDatabase extends EnvironmentHostsStepAbstract
             Spinner::forStep($this, $host)
         );
 
+        if ('postgres' === $this->database->getType()) {
+            $output = $this->filterPostgresRestoreOutput($output);
+        }
+
         $tunnel->tearDown();
 
         if (0 === $exitStatus) {
@@ -107,5 +111,35 @@ class RestoreDatabase extends EnvironmentHostsStepAbstract
             $output,
             $exitStatus
         );
+    }
+
+    private function filterPostgresRestoreOutput(array $output)
+    {
+        $filteredOutput = [];
+        $setValIndex    = null;
+
+        foreach ($output as $index => $line) {
+            if (preg_match('/^ERROR:\s+must be/', $line)) {
+                continue;
+            }
+
+            if (preg_match('/^ERROR:\s+role/', $line)) {
+                continue;
+            }
+
+            if (trim($line) === 'setval') {
+                $setValIndex = $index + 3;
+            }
+
+            if (null !== $setValIndex && $setValIndex >= $index) {
+                continue;
+            }
+
+            if (trim($line)) {
+                $filteredOutput[] = $line;
+            }
+        }
+
+        return $filteredOutput;
     }
 }
