@@ -47,9 +47,11 @@ class Exec
         $stopwatch = new Stopwatch();
         $stopwatch->start('exec');
 
-        $loop = EventLoopFactory::create();
+        $loop   = EventLoopFactory::create();
+        $output = [];
 
         $childProcess = new ChildProcess($command);
+
 
         $childProcess->on(
             'exit',
@@ -70,14 +72,14 @@ class Exec
 
                 $childProcess->stdout->on(
                     'data',
-                    function ($processOutput) use ($output) {
+                    function ($processOutput) use (&$output) {
                         $output[] = $processOutput;
                     }
                 );
 
                 $childProcess->stderr->on(
                     'data',
-                    function ($processOutput) use ($output) {
+                    function ($processOutput) use (&$output) {
                         $output[] = $processOutput;
                     }
                 );
