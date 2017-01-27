@@ -51,11 +51,14 @@ class Exec
 
         $processOutput = '';
         $childProcess  = new ChildProcess($command);
+        $processExited = false;
 
         $childProcess->on(
             'exit',
-            function ($processExitStatus) use (&$exitStatus, $loop, $spinner) {
-                $exitStatus = $processExitStatus;
+            function ($processExitStatus) use (&$exitStatus, &$processExited, $loop, $spinner) {
+                $exitStatus    = $processExitStatus;
+                $processExited = true;
+
                 $loop->stop();
 
                 if ($spinner) {
@@ -88,8 +91,10 @@ class Exec
         if ($spinner) {
             $loop->addPeriodicTimer(
                 0.25,
-                function () use ($spinner) {
-                    $spinner->spin();
+                function () use ($spinner, $processExited) {
+                    if (!$processExited) {
+                        $spinner->spin();
+                    }
                 }
             );
         }
@@ -101,7 +106,7 @@ class Exec
         } else {
             $output = [];
         }
-        
+
         $exitStatus  = (int) $exitStatus;
         $event       = $stopwatch->stop('exec');
         $timeElapsed = $event->getDuration();
