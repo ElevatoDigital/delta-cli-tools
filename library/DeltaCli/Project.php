@@ -418,7 +418,7 @@ class Project
 
     public function findLogs()
     {
-        return new FindLogsStep(new LogDetectorSet(), $this->output);
+        return new FindLogsStep(new LogDetectorSet());
     }
 
     public function fixSshKeyPermissions()
@@ -458,7 +458,7 @@ class Project
 
     public function phpCallableSupportingDryRun(callable $callable, callable $dryRunCallable)
     {
-        return new PhpCallableSupportingDryRunStep($callable, $dryRunCallable, $this->output);
+        return new PhpCallableSupportingDryRunStep($callable, $dryRunCallable);
     }
 
     public function phpCallbackSupportingDryRun(callable $callback, callable $dryRunCallback)
@@ -497,12 +497,12 @@ class Project
 
     public function ssh($command)
     {
-        return new SshStep($command);
+        return new SshStep($command, $this->output);
     }
 
     public function sshSupportingDryRun($command, $dryRunCommand)
     {
-        return new SshStep($command, $dryRunCommand);
+        return new SshStep($command, $this->output, $dryRunCommand);
     }
 
     public function killProcessMatchingName($searchString)

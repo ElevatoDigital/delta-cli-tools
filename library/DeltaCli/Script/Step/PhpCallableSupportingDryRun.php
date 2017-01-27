@@ -11,9 +11,9 @@ class PhpCallableSupportingDryRun extends PhpCallable implements DryRunInterface
      */
     private $dryRunCallable;
 
-    public function __construct(callable $callable, callable $dryRunCallable, OutputInterface $output)
+    public function __construct(callable $callable, callable $dryRunCallable)
     {
-        parent::__construct($callable, $output);
+        parent::__construct($callable);
 
         $this->dryRunCallable = $dryRunCallable;
     }

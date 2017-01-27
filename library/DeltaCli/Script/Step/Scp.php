@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Script\Step;
 
+use DeltaCli\Console\Output\Spinner;
 use DeltaCli\FileTransferPaths;
 use DeltaCli\Host;
 use DeltaCli\SshTunnel;
@@ -99,7 +100,7 @@ class Scp extends EnvironmentHostsStepAbstract
             $command = $tunnel->wrapCommandInExpectScript($command, $host->getSshPassword());
         }
 
-        $this->execSsh($host, $command, $output, $exitStatus);
+        $this->execSsh($host, $command, $output, $exitStatus, Spinner::forStep($this, $host));
 
         return [$output, $exitStatus];
     }

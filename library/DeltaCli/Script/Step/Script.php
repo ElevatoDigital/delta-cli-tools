@@ -4,6 +4,7 @@ namespace DeltaCli\Script\Step;
 
 use DeltaCli\Environment;
 use DeltaCli\Script as ScriptObject;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -79,7 +80,7 @@ class Script extends StepAbstract implements EnvironmentOptionalInterface, DryRu
         }
 
         $output = $this->getOutput();
-        $status = $this->script->runSteps($output);
+        $status = $this->script->runSteps($output, $this->getProgressBar());
 
         return new Result(
             $this,
@@ -110,5 +111,33 @@ class Script extends StepAbstract implements EnvironmentOptionalInterface, DryRu
             $output->setVerbosity($this->output->getVerbosity());
             return $output;
         }
+    }
+
+    private function getProgressBar()
+    {
+        if ($this->useConsoleOutput) {
+            return null;
+        }
+
+        $progressBar = new ProgressBar($this->output, $this->script->getStepCount());
+
+        if ($this->script->getEnvironment()) {
+            $progressBar->setFormatDefinition(
+                'custom',
+                "<comment>☰ Running script {$this->getName()} on {$this->script->getEnvironment()->getName()}..."
+                . '</comment>' . PHP_EOL
+                . "%current%/%max% [%bar%] %message%" . PHP_EOL
+            );
+        } else {
+            $progressBar->setFormatDefinition(
+                'custom',
+                "<comment>☰ Running script {$this->getName()}...</comment>" . PHP_EOL
+                . "%current%/%max% [%bar%] %message%"
+            );
+        }
+
+        $progressBar->setFormat('custom');
+
+        return $progressBar;
     }
 }

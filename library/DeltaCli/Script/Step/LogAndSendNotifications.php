@@ -4,6 +4,7 @@ namespace DeltaCli\Script\Step;
 
 use DeltaCli\Environment;
 use DeltaCli\Script as ScriptObject;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class LogAndSendNotifications extends DeltaApiAbstract implements EnvironmentOptionalInterface
 {
@@ -72,13 +73,17 @@ class LogAndSendNotifications extends DeltaApiAbstract implements EnvironmentOpt
         return $result;
     }
 
-    public function postRun(ScriptObject $script)
+    public function postRun(ScriptObject $script, OutputInterface $output = null)
     {
         if ($this->environment && !$this->environment->getLogAndSendNotifications()) {
             return;
         }
 
-        $this->output->writeln('<comment>Logging and sending notifications via Delta API...</comment>');
+        if (!$output) {
+            $output = $this->output;
+        }
+
+        $output->writeln('<comment>Logging and sending notifications via Delta API...</comment>');
 
         $sendNotifications = $this->shouldSendNotifications($script->getApiResults()->getScriptResult());
 
@@ -90,18 +95,18 @@ class LogAndSendNotifications extends DeltaApiAbstract implements EnvironmentOpt
 
         if (200 === $response->getStatusCode()) {
             if ($sendNotifications) {
-                $this->output->writeln('<info>Successfully logged results and sent notifications.</info>');
+                $output->writeln('<info>Successfully logged results and sent notifications.</info>');
             } else {
-                $this->output->writeln('<info>Successfully logged results.</info>');
+                $output->writeln('<info>Successfully logged results.</info>');
             }
         } else {
-            $this->output->writeln('<error>There was an error sending the results to the Delta API</error>');
+            $output->writeln('<error>There was an error sending the results to the Delta API</error>');
 
             if ('application/json' !== $response->getHeaderLine('Content-Type')) {
-                $this->output->writeln('  ' . $response->getReasonPhrase());
+                $output->writeln('  ' . $response->getReasonPhrase());
             } else {
                 $json = json_decode($response->getBody(), true);
-                $this->output->writeln(sprintf('  %s (%s)', $json['message'], $json['code']));
+                $output->writeln(sprintf('  %s (%s)', $json['message'], $json['code']));
             }
         }
     }

@@ -6,6 +6,7 @@ use DeltaCli\Environment;
 use DeltaCli\Exception\NoOtherStepsCanBeAddedAfterWatch;
 use DeltaCli\FileWatcher\FileWatcherInterface;
 use DeltaCli\Script as ScriptObject;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Watch extends StepAbstract implements EnvironmentOptionalInterface
 {
@@ -107,7 +108,7 @@ class Watch extends StepAbstract implements EnvironmentOptionalInterface
         }
     }
 
-    public function postRun(ScriptObject $script)
+    public function postRun(ScriptObject $script, OutputInterface $output = null)
     {
         $this->fileWatcher->startLoop();
     }

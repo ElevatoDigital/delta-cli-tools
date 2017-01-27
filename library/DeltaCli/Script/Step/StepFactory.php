@@ -25,7 +25,6 @@ class StepFactory
      */
     public function factory(array $args)
     {
-
         if ($this->isNamedStepObject($args)) {
             /* @var $step StepInterface */
             $step = $args[1];

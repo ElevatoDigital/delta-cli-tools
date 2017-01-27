@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Script\Step;
 
+use DeltaCli\Console\Output\Spinner;
 use DeltaCli\Environment;
 use DeltaCli\Exception\CommandNotFound;
 use DeltaCli\Exception\SshConnectionFailure;
@@ -9,6 +10,7 @@ use DeltaCli\Exec;
 use DeltaCli\Host;
 use DeltaCli\Script;
 use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class StepAbstract implements StepInterface
 {
@@ -74,16 +76,16 @@ abstract class StepAbstract implements StepInterface
         return $this->commandRunner;
     }
 
-    public function exec($command, &$output, &$exitStatus)
+    public function exec($command, &$output, &$exitStatus, Spinner $spinner = null)
     {
         /* @var $commandRunner callable */
         $commandRunner = $this->getCommandRunner();
-        $commandRunner($command, $output, $exitStatus);
+        $commandRunner($command, $output, $exitStatus, $spinner);
     }
 
-    public function execSsh(Host $host, $command, &$output, &$exitStatus)
+    public function execSsh(Host $host, $command, &$output, &$exitStatus, Spinner $spinner = null)
     {
-        $this->exec($command, $output, $exitStatus);
+        $this->exec($command, $output, $exitStatus, $spinner);
 
         if ($exitStatus && $this->outputContains($output, ['permission denied', 'publickey'])) {
             $exception = new SshConnectionFailure();
@@ -121,7 +123,7 @@ abstract class StepAbstract implements StepInterface
 
     }
 
-    public function postRun(Script $script)
+    public function postRun(Script $script, OutputInterface $output = null)
     {
 
     }

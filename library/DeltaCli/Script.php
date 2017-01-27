@@ -12,6 +12,7 @@ use DeltaCli\Script\Step\EnvironmentOptionalInterface;
 use DeltaCli\Script\Step\Result;
 use DeltaCli\Script\Step\StepFactory;
 use DeltaCli\Script\Step\StepInterface;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -354,7 +355,12 @@ class Script extends Command
         return $this;
     }
 
-    public function runSteps(OutputInterface $output)
+    public function getStepCount()
+    {
+        return count($this->getStepsForEnvironment());
+    }
+
+    public function runSteps(OutputInterface $output, ProgressBar $progressBar = null)
     {
         $scriptResult = Result::SUCCESS;
 
@@ -371,6 +377,11 @@ class Script extends Command
 
         /* @var $step StepInterface */
         foreach ($steps as $step) {
+            if ($progressBar) {
+                $progressBar->setMessage($step->getName());
+                $progressBar->display();
+            }
+
             if ($this->stepShouldBeSkipped($step)) {
                 $result = new Result($step, Result::SKIPPED);
                 $result->setExplanation("at the user's request");
@@ -384,9 +395,17 @@ class Script extends Command
 
             $result->render($output, $this->showStatusOutput);
 
+            if ($progressBar) {
+                $progressBar->advance();
+            }
+
             $this->apiResults->addStepResult($result);
 
             if ($this->stopOnFailure && $result->isFailure()) {
+                if ($progressBar) {
+                    $progressBar->clear();
+                }
+
                 $scriptResult = Result::FAILURE;
 
                 $output->writeln('');
@@ -401,12 +420,16 @@ class Script extends Command
             }
         }
 
+        if ($progressBar) {
+            $progressBar->clear();
+        }
+
         $this->apiResults->setScriptResult($scriptResult);
 
         /* @var $step StepInterface */
         foreach ($steps as $step) {
             if (!$this->stepShouldBeSkipped($step)) {
-                $step->postRun($this);
+                $step->postRun($this, $output);
             }
         }
 

@@ -3,6 +3,7 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Config\Database\DatabaseInterface;
+use DeltaCli\Console\Output\Spinner;
 use DeltaCli\Host;
 use Cocur\Slugify\Slugify;
 use DeltaCli\SshTunnel;
@@ -50,7 +51,8 @@ class RestoreDatabase extends EnvironmentHostsStepAbstract
                 escapeshellarg($this->dumpFileName)
             ),
             $output,
-            $exitStatus
+            $exitStatus,
+            Spinner::forStep($this, $host)
         );
 
         $tunnel->tearDown();
@@ -70,7 +72,11 @@ class RestoreDatabase extends EnvironmentHostsStepAbstract
     public function getName()
     {
         $slugify = new Slugify();
-        return 'restore-' . $slugify->slugify($this->database->getDatabaseName()) . '-database';
+        return sprintf(
+            'restore-%s-db-to-%s',
+            $slugify->slugify($this->database->getDatabaseName()),
+            $this->environment->getName()
+        );
     }
 
     /**

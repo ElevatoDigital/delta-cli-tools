@@ -5,6 +5,7 @@ namespace DeltaCli\Script\Step;
 use DeltaCli\Environment;
 use DeltaCli\Script;
 use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Output\OutputInterface;
 
 interface StepInterface
 {
@@ -21,7 +22,7 @@ interface StepInterface
 
     public function addStepToScript(Script $script, StepInterface $step);
 
-    public function postRun(Script $script);
+    public function postRun(Script $script, OutputInterface $output = null);
 
     public function getName();
 

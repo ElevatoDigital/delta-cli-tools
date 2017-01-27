@@ -3,9 +3,11 @@
 namespace DeltaCli\Script\Step;
 
 use Cocur\Slugify\Slugify;
+use DeltaCli\Console\Output\Spinner;
 use DeltaCli\Exception\InvalidSshCommandMode;
 use DeltaCli\Host;
 use DeltaCli\Script as ScriptObject;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Ssh extends EnvironmentHostsStepAbstract implements DryRunInterface
 {
@@ -57,7 +59,11 @@ class Ssh extends EnvironmentHostsStepAbstract implements DryRunInterface
         if ($this->name) {
             return $this->name;
         } else {
-            return $this->getSlugify()->slugify($this->command . '-over-ssh');
+            return sprintf(
+                'run-%s-over-ssh-on-%s',
+                $this->getSlugify()->slugify($this->command),
+                $this->environment->getName()
+            );
         }
     }
 
@@ -98,7 +104,13 @@ class Ssh extends EnvironmentHostsStepAbstract implements DryRunInterface
 
         $tunnel = $host->getSshTunnel();
         $tunnel->setUp();
-        $this->execSsh($host, $tunnel->assembleSshCommand($command), $output, $exitStatus);
+        $this->execSsh(
+            $host,
+            $tunnel->assembleSshCommand($command),
+            $output,
+            $exitStatus,
+            Spinner::forStep($this, $host)
+        );
         $tunnel->tearDown();
 
         return [$output, $exitStatus];

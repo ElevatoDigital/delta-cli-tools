@@ -3,6 +3,7 @@
 namespace DeltaCli\Script\Step;
 
 use DeltaCli\Config\Database\DatabaseInterface;
+use DeltaCli\Console\Output\Spinner;
 use DeltaCli\Environment;
 use DeltaCli\Host;
 use Cocur\Slugify\Slugify;
@@ -43,7 +44,8 @@ class DumpDatabase extends EnvironmentHostsStepAbstract
                 escapeshellarg($this->dumpFileName)
             ),
             $output,
-            $exitStatus
+            $exitStatus,
+            Spinner::forStep($this, $host)
         );
 
         $tunnel->tearDown();
@@ -61,7 +63,12 @@ class DumpDatabase extends EnvironmentHostsStepAbstract
     public function getName()
     {
         $slugify = new Slugify();
-        return 'dump-' . $slugify->slugify($this->database->getDatabaseName()) . '-database';
+
+        return sprintf(
+            'dump-%s-db-from-%s',
+            $slugify->slugify($this->database->getDatabaseName()),
+            $this->environment->getName()
+        );
     }
 
     /**
