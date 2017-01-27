@@ -497,12 +497,12 @@ class Project
 
     public function ssh($command)
     {
-        return new SshStep($command, $this->output);
+        return new SshStep($command);
     }
 
     public function sshSupportingDryRun($command, $dryRunCommand)
     {
-        return new SshStep($command, $this->output, $dryRunCommand);
+        return new SshStep($command, $dryRunCommand);
     }
 
     public function killProcessMatchingName($searchString)
