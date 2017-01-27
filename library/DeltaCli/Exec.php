@@ -73,14 +73,22 @@ class Exec
                 $childProcess->stdout->on(
                     'data',
                     function ($processOutput) use (&$output) {
-                        $output[] = $processOutput;
+                        $lines = explode(PHP_EOL, $processOutput);
+
+                        foreach ($lines as $line) {
+                            $output[] = $line;
+                        }
                     }
                 );
 
                 $childProcess->stderr->on(
                     'data',
                     function ($processOutput) use (&$output) {
-                        $output[] = $processOutput;
+                        $lines = explode(PHP_EOL, $processOutput);
+
+                        foreach ($lines as $line) {
+                            $output[] = $line;
+                        }
                     }
                 );
             }
@@ -96,6 +104,8 @@ class Exec
         }
 
         $loop->run();
+
+        array_pop($output);
 
         $exitStatus  = (int) $exitStatus;
         $event       = $stopwatch->stop('exec');
