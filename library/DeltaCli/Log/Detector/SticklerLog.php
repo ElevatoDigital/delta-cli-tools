@@ -17,4 +17,9 @@ class SticklerLog extends AbstractDatabaseLog
     {
         return new SticklerLogObject($host, $database);
     }
+
+    public function getName()
+    {
+        return 'stickler-log';
+    }
 }

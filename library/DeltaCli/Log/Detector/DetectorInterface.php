@@ -7,4 +7,6 @@ use DeltaCli\Host;
 interface DetectorInterface
 {
     public function detectLogOnHost(Host $host);
+
+    public function getName();
 }

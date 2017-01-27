@@ -418,7 +418,7 @@ class Project
 
     public function findLogs()
     {
-        return new FindLogsStep(new LogDetectorSet());
+        return new FindLogsStep(new LogDetectorSet(), $this->output);
     }
 
     public function fixSshKeyPermissions()

@@ -17,4 +17,9 @@ class DewdropActivityLog extends AbstractDatabaseLog
     {
         return new DewdropActivityLogObject($host, $database);
     }
+
+    public function getName()
+    {
+        return 'dewdrop-activity-log';
+    }
 }
