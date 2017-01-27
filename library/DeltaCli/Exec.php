@@ -96,7 +96,12 @@ class Exec
 
         $loop->run();
 
-        $output      = explode(PHP_EOL, rtrim($processOutput));
+        if (trim($processOutput)) {
+            $output = explode(PHP_EOL, rtrim($processOutput));
+        } else {
+            $output = [];
+        }
+        
         $exitStatus  = (int) $exitStatus;
         $event       = $stopwatch->stop('exec');
         $timeElapsed = $event->getDuration();
