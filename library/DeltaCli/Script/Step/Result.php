@@ -2,6 +2,8 @@
 
 namespace DeltaCli\Script\Step;
 
+use DeltaCli\Exception\ConsoleOutputInterface;
+use Exception;
 use DeltaCli\Exception\InvalidStepResult;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -49,6 +51,11 @@ class Result
      */
     private $statusMessage;
 
+    /**
+     * @var Exception|ConsoleOutputInterface
+     */
+    private $exception;
+
     public function __construct(StepInterface $step, $status, $output = null)
     {
         if (!$this->statusIsValid($status)) {
@@ -84,13 +91,21 @@ class Result
         return $this;
     }
 
+    public function setException(Exception $exception)
+    {
+        $this->exception = $exception;
+
+        return $this;
+    }
+
     public function render(OutputInterface $output, $showStatus = true)
     {
         if ($showStatus) {
             $output->writeln(
                 sprintf(
-                    '<fg=%s>%s</>',
+                    '<fg=%s;options=bold>%s %s</>',
                     $this->getStatusColor(),
+                    $this->getUtf8StatusCharacter(),
                     $this->getMessageText()
                 )
             );
@@ -154,6 +169,10 @@ class Result
             $output->writeln($indentedOutput);
         }
 
+        if ($this->exception && $this->exception instanceof ConsoleOutputInterface) {
+            $this->exception->outputToConsole($output);
+        }
+
         return $this;
     }
 
@@ -168,6 +187,24 @@ class Result
         }
 
         return $output;
+    }
+
+    private function getUtf8StatusCharacter()
+    {
+        switch ($this->status) {
+            case self::SUCCESS:
+                return '✓';
+            case self::INVALID:
+                return '✖';
+            case self::FAILURE:
+                return '✖';
+            case self::WARNING:
+                return '☢';
+            case self::SKIPPED:
+                return '↷';
+        }
+
+        return '';
     }
 
     private function getStatusColor()

@@ -344,7 +344,10 @@ class Project
     {
         if (!$this->hasEnvironment($name)) {
             $exception = new EnvironmentNotFound();
-            $exception->setName($name);
+            $exception
+                ->setName($name)
+                ->setEnvironments($this->environments)
+                ->setOutput($this->output);
             throw $exception;
         }
 
@@ -455,7 +458,7 @@ class Project
 
     public function phpCallableSupportingDryRun(callable $callable, callable $dryRunCallable)
     {
-        return new PhpCallableSupportingDryRunStep($callable, $dryRunCallable);
+        return new PhpCallableSupportingDryRunStep($callable, $dryRunCallable, $this->output);
     }
 
     public function phpCallbackSupportingDryRun(callable $callback, callable $dryRunCallback)

@@ -35,13 +35,6 @@ $project->createEnvironment('joe-dev')
     ->setIsDevEnvironment(true);
 
 /**
- * You can manually edit the config for an environment, which allows you to add databases that are not
- * auto-detected by Delta CLI.
- */
-$project->getEnvironment('vagrant')->getManualConfig()
-    ->addDatabase(DatabaseFactory::createInstance('mysql', 'manual_config', 'manual_config', 'manual_config', 'localhost'));
-
-/**
  * There is a "deploy" script included out of the box but you'll likely need to add some steps.  Typically,
  * on a WordPress project, you'll use the WordPress template.  On other projects, you'll have a few rsyncs,
  * some permissions changes, etc.  Your deploy script automatically includes logging and sending

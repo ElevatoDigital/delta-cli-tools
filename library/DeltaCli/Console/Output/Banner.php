@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Console\Output;
 
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Banner
@@ -34,6 +35,10 @@ class Banner
     public function __construct(OutputInterface $output)
     {
         $this->output = $output;
+
+        if ($this->output instanceof BufferedOutput) {
+            $this->padding = 0;
+        }
     }
 
     public function setBackground($background)

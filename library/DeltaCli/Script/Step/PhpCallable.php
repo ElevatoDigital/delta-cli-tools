@@ -3,7 +3,9 @@
 namespace DeltaCli\Script\Step;
 
 use Closure;
+use DeltaCli\Exception\ConsoleOutputInterface;
 use Exception;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class PhpCallable extends StepAbstract
 {
@@ -12,9 +14,15 @@ class PhpCallable extends StepAbstract
      */
     protected $callable;
 
-    public function __construct(callable $callable)
+    /**
+     * @var OutputInterface
+     */
+    private $output;
+
+    public function __construct(callable $callable, OutputInterface $output)
     {
         $this->callable = $callable;
+        $this->output   = $output;
     }
 
     public function run()
@@ -61,6 +69,8 @@ class PhpCallable extends StepAbstract
                     $e->getMessage()
                 ]
             );
+
+            $result->setException($e);
         }
 
         return $result;

@@ -7,10 +7,12 @@ use DeltaCli\Config\ConfigFactory;
 use DeltaCli\Config\Database\DatabaseInterface;
 use DeltaCli\Exception\DatabaseNotFound;
 use DeltaCli\Exception\MultipleDatabasesFound;
+use DeltaCli\Exception\NoDatabasesAvailable;
 use DeltaCli\Host;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class FindDatabases extends EnvironmentHostsStepAbstract
 {
@@ -91,6 +93,12 @@ class FindDatabases extends EnvironmentHostsStepAbstract
         $databaseTypeOptionName = 'database-type'
     )
     {
+        if (0 === count($this->databases)) {
+            $exception = new NoDatabasesAvailable();
+            $exception->setEnvironment($this->environment);
+            throw $exception;
+        }
+
         $matches = [];
 
         if ($input->hasOption($databaseOptionName) && $input->getOption($databaseOptionName)) {
@@ -116,21 +124,23 @@ class FindDatabases extends EnvironmentHostsStepAbstract
         }
 
         if (0 === count($matches)) {
-            throw new DatabaseNotFound(
-                sprintf(
-                    'No database found matching criteria.  Name: %s.  Type: %s.',
-                    $this->getOptionValue($input, $databaseOptionName),
-                    $this->getOptionValue($input, $databaseTypeOptionName)
-                )
-            );
+            $exception = new DatabaseNotFound();
+            $exception
+                ->setEnvironment($this->environment)
+                ->setDatabaseOption($databaseOptionName)
+                ->setDatabaseTypeOption($databaseTypeOptionName)
+                ->setMatchedDatabases($matches)
+                ->setAvailableDatabases($this->databases);
+            throw $exception;
         } elseif (1 < count($matches)) {
-            throw new MultipleDatabasesFound(
-                sprintf(
-                    'Multiple databases found matching criteria.  Name: %s.  Type: %s.',
-                    $this->getOptionValue($input, $databaseOptionName),
-                    $this->getOptionValue($input, $databaseTypeOptionName)
-                )
-            );
+            $exception = new MultipleDatabasesFound();
+            $exception
+                ->setEnvironment($this->environment)
+                ->setDatabaseOption($databaseOptionName)
+                ->setDatabaseTypeOption($databaseTypeOptionName)
+                ->setMatchedDatabases($matches)
+                ->setAvailableDatabases($this->databases);
+            throw $exception;
         }
 
         return reset($matches);

@@ -2,6 +2,8 @@
 
 namespace DeltaCli\Script\Step;
 
+use Symfony\Component\Console\Output\OutputInterface;
+
 class PhpCallableSupportingDryRun extends PhpCallable implements DryRunInterface
 {
     /**
@@ -9,9 +11,9 @@ class PhpCallableSupportingDryRun extends PhpCallable implements DryRunInterface
      */
     private $dryRunCallable;
 
-    public function __construct(callable $callable, callable $dryRunCallable)
+    public function __construct(callable $callable, callable $dryRunCallable, OutputInterface $output)
     {
-        parent::__construct($callable);
+        parent::__construct($callable, $output);
 
         $this->dryRunCallable = $dryRunCallable;
     }

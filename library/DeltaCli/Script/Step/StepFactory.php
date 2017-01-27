@@ -60,7 +60,7 @@ class StepFactory
 
     protected function createPhpCallable(callable $callable, $name = null)
     {
-        $step = new PhpCallable($callable);
+        $step = new PhpCallable($callable, $this->output);
         $step->setName($name);
         return $step;
     }

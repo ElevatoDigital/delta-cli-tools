@@ -15,6 +15,7 @@ use DeltaCli\Script\Step\StepInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Script extends Command
@@ -390,9 +391,12 @@ class Script extends Command
 
                 $output->writeln('');
 
-                $banner = new Banner($output);
-                $banner->setBackground('red');
-                $banner->render('Halting script execution due to failure of previous step.');
+                if (!$output instanceof BufferedOutput) {
+                    $banner = new Banner($output);
+                    $banner->setBackground('red');
+                    $banner->render('Halting script execution due to failure of previous step.');
+                }
+
                 break;
             }
         }
