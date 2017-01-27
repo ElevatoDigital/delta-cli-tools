@@ -67,7 +67,7 @@ class Exec
 
         $loop->addTimer(
             0.001,
-            function (TimerInterface $timer) use ($childProcess, $output) {
+            function (TimerInterface $timer) use ($childProcess, &$output) {
                 $childProcess->start($timer->getLoop());
 
                 $childProcess->stdout->on(
