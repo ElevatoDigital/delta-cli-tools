@@ -86,7 +86,7 @@ class WordPress implements TemplateInterface
             'watch-dev',
             'Watch for changes in synced plugins and themes and automatically deploy to dev environments.'
         );
-        
+
         $watchScript
             ->addStep($project->isDevEnvironment())
             ->addStep(
@@ -99,8 +99,15 @@ class WordPress implements TemplateInterface
     {
         $deployScript = $project->getScript($this->deployScriptName);
 
-        if ($project->hasEnvironment('production')) {
-            $deployScript->addEnvironmentSpecificStep('production', $project->ssh('backup'));
+        foreach ($project->getEnvironments() as $environment) {
+            if ($environment->isDevEnvironment()) {
+                continue;
+            }
+
+            $deployScript->prependStep(
+                'backup',
+                $project->ssh('backup')->setEnvironments([$environment])
+            );
         }
     }
 

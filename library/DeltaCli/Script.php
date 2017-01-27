@@ -319,6 +319,21 @@ class Script extends Command
         return false;
     }
 
+    public function prependStep()
+    {
+        $this->addDefaultSteps();
+
+        $newStep = $this->stepFactory->factory(func_get_args());
+
+        foreach ($this->steps as $step) {
+            $step->addStepToScript($this, $newStep);
+        }
+
+        array_unshift($this->steps, $newStep);
+
+        return $this;
+    }
+
     /**
      * @return Script $this
      */
