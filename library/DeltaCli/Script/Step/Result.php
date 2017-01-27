@@ -169,7 +169,7 @@ class Result
             $output->writeln($indentedOutput);
         }
 
-        if ($this->exception && $this->exception instanceof ConsoleOutputInterface) {
+        if ($this->exception && !$output->isDecorated() && $this->exception instanceof ConsoleOutputInterface) {
             $this->exception->outputToConsole($output);
         }
 
