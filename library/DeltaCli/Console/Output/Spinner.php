@@ -71,7 +71,7 @@ class Spinner
 
     public function clear()
     {
-        if (!$this->output->isDecorated()) {
+        if ($this->firstCall || !$this->output->isDecorated()) {
             return;
         }
 
