@@ -67,6 +67,12 @@ class Scp extends Script
             $scp->setIsDirectory(true);
         }
 
+        if ($paths->getDirection() === FileTransferPaths::UP) {
+            $this->addStep(
+                $this->getProject()->sanityCheckPotentiallyDangerousOperation('Ad-hoc scp to a non-dev environment.')
+            );
+        }
+
         $this
             ->addStep($scp)
             ->addStep($this->getProject()->logAndSendNotifications());

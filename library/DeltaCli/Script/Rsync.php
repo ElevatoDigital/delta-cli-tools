@@ -96,6 +96,12 @@ class Rsync extends Script
             $rsync->delete();
         }
 
+        if ($paths->getDirection() === FileTransferPaths::UP) {
+            $this->addStep(
+                $this->getProject()->sanityCheckPotentiallyDangerousOperation('Ad-hoc rsync to a non-dev environment.')
+            );
+        }
+
         $this
             ->addStep($rsync)
             ->addStep($this->getProject()->logAndSendNotifications());
