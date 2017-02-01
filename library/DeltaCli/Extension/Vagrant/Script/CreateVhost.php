@@ -126,7 +126,10 @@ class CreateVhost extends Script
                     $template->write($nginxPath);
                 }
             )
-            ->addStep($this->getProject()->getScript('vagrant:restart-services'))
+            ->addStep(
+                $this->getProject()->getScript('vagrant:restart-services')
+                    ->setEnvironment('vagrant')
+            )
             ->addStep(
                 'display-hosts-file-help',
                 function () {
