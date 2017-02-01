@@ -31,9 +31,9 @@ class PhpCallable extends StepAbstract
         } else if (is_string($this->callable)) {
             return $this->callable;
         } else if ($this->callable instanceof Closure) {
-            return 'PHP Closure';
+            return 'php-closure';
         } else {
-            return 'PHP Callback';
+            return 'php-callable';
         }
     }
 
@@ -71,9 +71,9 @@ class PhpCallable extends StepAbstract
     private function generateNameForArrayCallable(array $callable)
     {
         if (is_string($callable[0])) {
-            return sprintf('%s::%s()', $callable[0], $callable[1]);
+            return sprintf('%s-%s-static-method', $callable[0], $callable[1]);
         } else {
-            return sprintf('%s->%s()', get_class($callable[0]), $callable[1]);
+            return sprintf('%s-%s-method', get_class($callable[0]), $callable[1]);
         }
     }
 }

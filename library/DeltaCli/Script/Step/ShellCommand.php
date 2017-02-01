@@ -2,7 +2,7 @@
 
 namespace DeltaCli\Script\Step;
 
-use DeltaCli\Exec;
+use Cocur\Slugify\Slugify;
 
 class ShellCommand extends StepAbstract
 {
@@ -33,7 +33,7 @@ class ShellCommand extends StepAbstract
         if ($this->name) {
             return $this->name;
         } else {
-            return $this->command;
+            return (new Slugify)->slugify($this->command);
         }
     }
 
