@@ -128,9 +128,6 @@ class Project
 
         $defaultScriptsExtension = new DefaultScriptsExtension();
         $defaultScriptsExtension->extend($this);
-
-        $vagrantExtension = new VagrantExtension();
-        $vagrantExtension->extend($this);
     }
 
     public function requiresVersion($minimumVersionRequired)
@@ -557,59 +554,10 @@ class Project
             }
         }
 
-        $vagrantPath = $this->findVagrantPath();
-
-        $vagrantPrivateKeyPath = null;
-
-        if ($vagrantPath) {
-            $vagrantPrivateKeyPath = $this->findVagrantPath() . '/.vagrant/machines/default/virtualbox/private_key';
-        }
-
-        if (!$this->hasEnvironment('vagrant') && file_exists($vagrantPrivateKeyPath)) {
-            $this->createEnvironment('vagrant')
-                ->setUsername('vagrant')
-                ->setSshPrivateKey($vagrantPrivateKeyPath)
-                ->setApplicationEnv('development')
-                ->setIsDevEnvironment(true)
-                ->addHost('127.0.0.1');
-
-            if ('/delta' === $cwd || 0 === strpos($cwd, '/delta/')) {
-                $homeFolder = $cwd;
-            } else {
-                $homeFolder = '/delta';
-            }
-
-            $this->getEnvironment('vagrant')->getHost('127.0.0.1')
-                ->setSshPort(2222)
-                ->setSshHomeFolder($homeFolder)
-                ->setAdditionalSshOptions(
-                    [
-                        'Compression'           => 'yes',
-                        'DSAAuthentication'     => 'yes',
-                        'LogLevel'              => 'FATAL',
-                        'StrictHostKeyChecking' => 'no',
-                        'UserKnownHostsFile'    => '/dev/null',
-                        'IdentitiesOnly'        => 'yes'
-                    ]
-                );
-        }
-    }
-
-    private function findVagrantPath()
-    {
-        if ((!$vagrantPath = $this->globalCache->fetch('vagrant-path'))) {
-            /* @var $helper QuestionHelper */
-            $helper = $this->application->getHelperSet()->get('question');
-            $finder = new VagrantFinder($helper, $this->input, $this->output);
-
-            $vagrantPath = $finder->locateVagrantPath();
-
-            if ($vagrantPath) {
-                $this->globalCache->store('vagrant-path', $vagrantPath);
-            }
-        }
-
-        return $vagrantPath;
+        /* @var $questionHelper QuestionHelper */
+        $questionHelper = $this->application->getHelperSet()->get('question');
+        $vagrantExtension = new VagrantExtension($this->globalCache, $questionHelper, $this->input, $this->output);
+        $vagrantExtension->extend($this);
     }
 
     /**
