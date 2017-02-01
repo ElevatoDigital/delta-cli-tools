@@ -57,41 +57,53 @@ class Vagrant implements ExtensionInterface
             $vagrantPrivateKeyPath = $this->findVagrantPath() . '/.vagrant/machines/default/virtualbox/private_key';
         }
 
-        if (!$project->hasEnvironment('vagrant') && file_exists($vagrantPrivateKeyPath)) {
-            $project->addScript(new BackupDbs($project));
-            $project->addScript(new CheckEnvironment($project));
-            $project->addScript(new RestartServices($project));
-            $project->addScript(new CreateVhost($project));
-            $project->addScript(new CreatePostgres($project));
-            $project->addScript(new CreateMysql($project));
+        if (file_exists($vagrantPrivateKeyPath)) {
+            $this->addScripts($project);
 
-            $project->createEnvironment('vagrant')
-                ->setUsername('vagrant')
-                ->setSshPrivateKey($vagrantPrivateKeyPath)
-                ->setApplicationEnv('development')
-                ->setIsDevEnvironment(true)
-                ->addHost('127.0.0.1');
-
-            if ('/delta' === $cwd || 0 === strpos($cwd, '/delta/')) {
-                $homeFolder = $cwd;
-            } else {
-                $homeFolder = '/delta';
+            if (!$project->hasEnvironment('vagrant')) {
+                $this->createEnvironment($project, $vagrantPrivateKeyPath, $cwd);
             }
-
-            $project->getEnvironment('vagrant')->getHost('127.0.0.1')
-                ->setSshPort(2222)
-                ->setSshHomeFolder($homeFolder)
-                ->setAdditionalSshOptions(
-                    [
-                        'Compression' => 'yes',
-                        'DSAAuthentication' => 'yes',
-                        'LogLevel' => 'FATAL',
-                        'StrictHostKeyChecking' => 'no',
-                        'UserKnownHostsFile' => '/dev/null',
-                        'IdentitiesOnly' => 'yes'
-                    ]
-                );
         }
+    }
+
+    private function addScripts(Project $project)
+    {
+        $project->addScript(new BackupDbs($project));
+        $project->addScript(new CheckEnvironment($project));
+        $project->addScript(new RestartServices($project));
+        $project->addScript(new CreateVhost($project));
+        $project->addScript(new CreatePostgres($project));
+        $project->addScript(new CreateMysql($project));
+    }
+
+    private function createEnvironment(Project $project, $vagrantPrivateKeyPath, $cwd)
+    {
+        $project->createEnvironment('vagrant')
+            ->setUsername('vagrant')
+            ->setSshPrivateKey($vagrantPrivateKeyPath)
+            ->setApplicationEnv('development')
+            ->setIsDevEnvironment(true)
+            ->addHost('127.0.0.1');
+
+        if ('/delta' === $cwd || 0 === strpos($cwd, '/delta/')) {
+            $homeFolder = $cwd;
+        } else {
+            $homeFolder = '/delta';
+        }
+
+        $project->getEnvironment('vagrant')->getHost('127.0.0.1')
+            ->setSshPort(2222)
+            ->setSshHomeFolder($homeFolder)
+            ->setAdditionalSshOptions(
+                [
+                    'Compression' => 'yes',
+                    'DSAAuthentication' => 'yes',
+                    'LogLevel' => 'FATAL',
+                    'StrictHostKeyChecking' => 'no',
+                    'UserKnownHostsFile' => '/dev/null',
+                    'IdentitiesOnly' => 'yes'
+                ]
+            );
     }
 
     private function findVagrantPath()
