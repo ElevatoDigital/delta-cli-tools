@@ -2,47 +2,11 @@
 
 Command-line tools used at Delta Systems for common development workflow needs.
 
-Video introduction:
-https://www.youtube.com/watch?v=lm4iAuW4sIk&feature=youtu.be
+## Documentation
 
-## Installation
-
-Watch the brief installation tutorial video if you'd like a bit more help getting Composer installed globally and added to your shell's $PATH: https://youtu.be/JTM429G2fps.
-
-0. Install Composer globally (https://getcomposer.org/doc/00-intro.md#globally).
-0. Add $HOME/.composer/vendor/bin/ to your $PATH.
-0. Install the Delta CLI tools by running `composer global require deltasystems/delta-cli`
-0. Change to your project's directory and run `delta` to get started.
-
-## Configuring Your Project
-
-All CLI tools configuration is done via the delta-cli.php file.  You can generate one for your project
-using the create-project-config command:
-
-    delta create-project-config
-
-At this point, the generated file will be quite sparse.  It will just have your project's name.
-
-Typically, the first thing you'll want to do in delta-cli.php is configure the environments and
-deployment script for your project.  Take a look at the example delta-cli.php file to get started
-(https://github.com/DeltaSystems/delta-cli-tools/blob/master/delta-cli.php).
-
-Some key concepts to note from the example:
-
-0. You can pass a shell command directly to addStep().  You can either pass just the command or you can provide two arguments: a step name and your command.
-0. You can do the same with any valid PHP callable (an inline Closure or any class method, for example).
-0. You can specify some steps as being specific to only some of your environments.
-0. While the deploy script is built-in, you can add custom scripts with the same API.
-0. You can call one script from another script.  (See composing-scripts in the example.)
-
-Whenever you're running a CLI tools script, you have some options available to you that are worth
-noting:
-
-0. The environment name is the primary required argument.  Example: `delta my-script production`.
-0. --skip-step=[STEP-NAME]: Allows you to skip one or more steps in the script.
-0. --dry-run: Will attempt to perform a dry run.  Steps that don't support it will be skipped.
-0. --list-steps: Will just list the steps in a script rather than trying to run them.  (Helpful especially if many steps were added by a template rather than directly in your delta-cli.php.)
+http://dev.deltasys.com/
 
 ## Video Tutorials
 
-0. Delta-cli v3.27.0 New Feature Update 2017-01-05 https://youtu.be/5I_fq9yEl1A
+0. Original Intro to the Project https://www.youtube.com/watch?v=lm4iAuW4sIk&feature=youtu.be
+0. Delta CLI v3.27.0 New Feature Update 2017-01-05 https://youtu.be/5I_fq9yEl1A
