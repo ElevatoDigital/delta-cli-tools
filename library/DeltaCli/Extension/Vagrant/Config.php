@@ -59,7 +59,7 @@ class Config extends BaseConfig
         $sshTunnel->tearDown();
 
         if ($serverName) {
-            $this->setBrowserUrl($serverName);
+            $this->setBrowserUrl("{$serverName}:8080");
         }
 
         return $this;
