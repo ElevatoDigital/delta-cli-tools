@@ -76,6 +76,13 @@ class Environment
         return $this->name;
     }
 
+    public function setManualConfig(Config $config)
+    {
+        $this->manualConfig = $config;
+
+        return $this;
+    }
+
     public function getManualConfig()
     {
         return $this->manualConfig;

@@ -3,6 +3,7 @@
 namespace DeltaCli\Extension;
 
 use DeltaCli\Cache;
+use DeltaCli\Extension\Vagrant\Config;
 use DeltaCli\Extension\Vagrant\Script\BackupDbs;
 use DeltaCli\Extension\Vagrant\Script\CheckEnvironment;
 use DeltaCli\Extension\Vagrant\Script\CreateVhost;
@@ -78,7 +79,7 @@ class Vagrant implements ExtensionInterface
 
     private function createEnvironment(Project $project, $vagrantPrivateKeyPath, $cwd)
     {
-        $project->createEnvironment('vagrant')
+        $environment = $project->createEnvironment('vagrant')
             ->setUsername('vagrant')
             ->setSshPrivateKey($vagrantPrivateKeyPath)
             ->setApplicationEnv('development')
@@ -91,19 +92,21 @@ class Vagrant implements ExtensionInterface
             $homeFolder = '/delta';
         }
 
-        $project->getEnvironment('vagrant')->getHost('127.0.0.1')
+        $environment->getHost('127.0.0.1')
             ->setSshPort(2222)
             ->setSshHomeFolder($homeFolder)
             ->setAdditionalSshOptions(
                 [
-                    'Compression' => 'yes',
-                    'DSAAuthentication' => 'yes',
-                    'LogLevel' => 'FATAL',
+                    'Compression'           => 'yes',
+                    'DSAAuthentication'     => 'yes',
+                    'LogLevel'              => 'FATAL',
                     'StrictHostKeyChecking' => 'no',
-                    'UserKnownHostsFile' => '/dev/null',
-                    'IdentitiesOnly' => 'yes'
+                    'UserKnownHostsFile'    => '/dev/null',
+                    'IdentitiesOnly'        => 'yes'
                 ]
             );
+
+        $environment->setManualConfig(new Config($environment->getHost('127.0.0.1')));
     }
 
     private function findVagrantPath()

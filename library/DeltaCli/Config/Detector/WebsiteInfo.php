@@ -28,6 +28,10 @@ class WebsiteInfo implements DetectorInterface
         $data   = parse_ini_file($configFile);
         $config = new Config();
 
+        if (isset($data['website_url']) && $data['website_url']) {
+            $config->setBrowserUrl($data['website_url']);
+        }
+
         if ($this->databaseIsPresent('mysql', $data)) {
             $config->addDatabase(
                 DatabaseFactory::createInstance(

@@ -15,6 +15,8 @@ use DeltaCli\Script\DatabaseRestore as DatabaseRestoreScript;
 use DeltaCli\Script\DatabaseSearchAndReplace as DatabaseSearchAndReplaceScript;
 use DeltaCli\Script\DatabaseTunnel as DatabaseTunnelScript;
 use DeltaCli\Script\Diff as DiffScript;
+use DeltaCli\Script\EnvironmentCreate as EnvironmentCreateScript;
+use DeltaCli\Script\Open as OpenScript;
 use DeltaCli\Script\Rsync as RsyncScript;
 use DeltaCli\Script\Scp as ScpScript;
 use DeltaCli\Script\LogsList as LogsListScript;
@@ -29,6 +31,7 @@ class DefaultScripts implements ExtensionInterface
     {
         $project->addScript(new ClearCachesScript($project));
         $project->addScript(new DiffScript($project));
+        //$project->addScript(new EnvironmentCreateScript($project));
         $project->addScript(new InstallFsevents($project));
         $project->addScript(new Log($project));
         $project->addScript(new RsyncScript($project));
@@ -44,6 +47,7 @@ class DefaultScripts implements ExtensionInterface
         $project->addScript(new DatabaseTunnelScript($project));
         $project->addScript(new LogsListScript($project));
         $project->addScript(new LogsWatchScript($project));
+        $project->addScript(new OpenScript($project));
 
         $project->createScript('deploy', 'Deploy this project.')
             ->requireEnvironment()
