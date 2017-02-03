@@ -540,6 +540,14 @@ class Project
         return $this->projectCache;
     }
 
+    /**
+     * @return Cache
+     */
+    public function getGlobalCache()
+    {
+        return $this->globalCache;
+    }
+
     private function createDefaultEnvironments($cwd)
     {
         if (!$this->hasEnvironment('vpn')) {

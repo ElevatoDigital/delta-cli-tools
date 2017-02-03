@@ -39,6 +39,14 @@ class VagrantFinder
             return '';
         }
 
+        /**
+         * When there are no environments found, Vagrant unhelpfully still show the normal headers and has a zero
+         * exit status.  So, we just look for the message beneath those headers about the lack of environments.  Ugh.
+         */
+        if (false !== stripos($output[0], 'no active Vagrant')) {
+            return '';
+        }
+
         $machines = $this->parseMachinesFromOutput($output);
 
         if (1 === count($machines)) {
