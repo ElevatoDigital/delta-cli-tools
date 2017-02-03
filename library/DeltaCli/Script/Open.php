@@ -27,28 +27,20 @@ class Open extends Script
     protected function addSteps()
     {
         $browserUrl = null;
+        $cacheKey   = sprintf('%s_browser_url', $this->getEnvironment()->getName());
 
         $this
             ->addStep(
                 'detect-browser-url',
-                function () use (&$browserUrl) {
-                    $configFactory = new ConfigFactory($this->getProject()->getCache());
-                    $environment   = $this->getEnvironment();
-                    $hosts         = $environment->getHosts();
-                    $host          = reset($hosts);
-                    $configs       = $configFactory->detectConfigsOnHost($host);
-
-                    foreach ($configs as $config) {
-                        if ($config->hasBrowserUrl()) {
-                            $browserUrl = $config->getBrowserUrl();
-                            break;
-                        }
+                function () use (&$browserUrl, $cacheKey) {
+                    if (!($browserUrl = $this->getProject()->getCache()->fetch($cacheKey))) {
+                        $browserUrl = $this->detectBrowserUrl();
                     }
 
                     if ($browserUrl) {
                         return new Result($this->getStep('detect-browser-url'), Result::SUCCESS);
                     } else {
-                        $envName = $environment->getName();
+                        $envName = $this->getEnvironment()->getName();
 
                         return new Result(
                             $this->getStep('detect-browser-url'),
@@ -80,6 +72,34 @@ class Open extends Script
                         );
                     }
                 }
+            )
+            ->addStep(
+                'refresh-browser-url-cache',
+                function () use ($cacheKey) {
+                    $this->getProject()->getCache()->store(
+                        $cacheKey,
+                        $this->detectBrowserUrl()
+                    );
+                }
             );
+    }
+
+    private function detectBrowserUrl()
+    {
+        $configFactory = new ConfigFactory($this->getProject()->getCache());
+        $environment   = $this->getEnvironment();
+        $hosts         = $environment->getHosts();
+        $host          = reset($hosts);
+        $configs       = $configFactory->detectConfigsOnHost($host);
+        $browserUrl    = null;
+
+        foreach ($configs as $config) {
+            if ($config->hasBrowserUrl()) {
+                $browserUrl = $config->getBrowserUrl();
+                break;
+            }
+        }
+
+        return $browserUrl;
     }
 }
