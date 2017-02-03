@@ -59,6 +59,8 @@ class Vagrant implements ExtensionInterface
             $vagrantPrivateKeyPath = $this->findVagrantPath() . '/.vagrant/machines/default/virtualbox/private_key';
         }
 
+        $project->addScript(new SetPath($project));
+
         if (file_exists($vagrantPrivateKeyPath)) {
             $this->addScripts($project);
 
@@ -76,7 +78,6 @@ class Vagrant implements ExtensionInterface
         $project->addScript(new CreateVhost($project));
         $project->addScript(new CreatePostgres($project));
         $project->addScript(new CreateMysql($project));
-        $project->addScript(new SetPath($project));
     }
 
     private function createEnvironment(Project $project, $vagrantPrivateKeyPath, $cwd)
