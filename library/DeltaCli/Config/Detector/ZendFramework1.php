@@ -79,8 +79,14 @@ class ZendFramework1 implements DetectorInterface
 
         foreach ($configValues as $name => $configValue) {
             if ('resources.db.params.dbname' === $name) {
+                if (isset($configValues['resources.db.adapter'])) {
+                    $adapter = $configValues['resources.db.adapter'];
+                } else {
+                    $adapter = 'Pdo_Pgsql';
+                }
+
                 $databases[] = DatabaseFactory::createInstance(
-                    $this->getDatabaseType($configValue),
+                    $this->getDatabaseType($adapter),
                     $configValues['resources.db.params.dbname'],
                     $configValues['resources.db.params.username'],
                     $configValues['resources.db.params.password'],
