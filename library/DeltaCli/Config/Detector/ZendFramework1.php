@@ -78,7 +78,7 @@ class ZendFramework1 implements DetectorInterface
         $databases = [];
 
         foreach ($configValues as $name => $configValue) {
-            if ('resources.db.adapter' === $name) {
+            if ('resources.db.params.dbname' === $name) {
                 $databases[] = DatabaseFactory::createInstance(
                     $this->getDatabaseType($configValue),
                     $configValues['resources.db.params.dbname'],
