@@ -65,6 +65,8 @@ class DatabaseShell extends Command
         $database = $this->findDatabasesStep->getSelectedDatabase($input);
         $tunnel   = $host->getSshTunnel();
 
+        $tunnel->setUp();
+
         $database->renderShellHelp($output);
 
         $command = $tunnel->assembleSshCommand($database->getShellCommand(), '-t');
