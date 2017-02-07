@@ -2,6 +2,7 @@
 
 namespace DeltaCli;
 
+use Cocur\Slugify\Slugify;
 use DeltaCli\Config\ConfigFactory;
 use DeltaCli\Config\Database\DatabaseInterface;
 use DeltaCli\Environment\ApiEnvironmentLoader;
@@ -14,6 +15,7 @@ use DeltaCli\FileWatcher\FileWatcherInterface;
 use DeltaCli\FileWatcher\FileWatcherFactory;
 use DeltaCli\Log\Detector\DetectorSet as LogDetectorSet;
 use DeltaCli\Script\Step\AllowWritesToRemoteFolder as AllowWritesToRemoteFolderStep;
+use DeltaCli\Script\Step\CreateDatabase as CreateDatabaseStep;
 use DeltaCli\Script\Step\CreateEnvironment as CreateEnvironmentStep;
 use DeltaCli\Script\Step\DisplayEnvironmentResources as DisplayEnvironmentResourcesStep;
 use DeltaCli\Script\Step\DumpDatabase as DumpDatabaseStep;
@@ -51,6 +53,11 @@ class Project
      * @var string
      */
     private $name = 'Delta Systems CLI Tools';
+
+    /**
+     * @var string
+     */
+    private $slug;
 
     /**
      * @var array
@@ -227,6 +234,22 @@ class Project
         }
 
         return $this->name;
+    }
+
+    public function setSlug($slug)
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function getSlug()
+    {
+        if (!$this->slug) {
+            $this->slug = (new Slugify)->slugify($this->getName());
+        }
+
+        return $this->slug;
     }
 
     /**
@@ -452,6 +475,11 @@ class Project
     public function allowWritesToRemoteFolder($remoteFolder)
     {
         return new AllowWritesToRemoteFolderStep($remoteFolder);
+    }
+
+    public function createDatabase($type)
+    {
+        return new CreateDatabaseStep($this, $type);
     }
 
     public function createEnvironmentStep(ProviderInterface $provider, $name)

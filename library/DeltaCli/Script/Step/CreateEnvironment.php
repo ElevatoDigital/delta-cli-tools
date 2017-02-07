@@ -58,7 +58,12 @@ class CreateEnvironment extends DeltaApiAbstract
             );
         }
 
-        $response = $this->apiClient->createEnvironment($this->provider->getName(), $this->environmentName, $publicKey);
+        $response = $this->apiClient->createEnvironment(
+            $this->project->getSlug(),
+            $this->provider->getName(),
+            $this->environmentName,
+            $publicKey
+        );
 
         if (200 !== $response->getStatusCode()) {
             $this->apiClient->handleUnsuccessfulResponse($response, $this->output);
