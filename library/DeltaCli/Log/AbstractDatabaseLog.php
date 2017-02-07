@@ -54,10 +54,10 @@ abstract class AbstractDatabaseLog implements LogInterface
 
     public function attachToEventLoop(LoopInterface $loop, OutputInterface $output)
     {
-        $deltaLogId = $this->handleMessages($output);
-
         $this->host->getSshTunnel()->setUp();
 
+        $deltaLogId = $this->handleMessages($output);
+        
         $this->timer = $loop->addPeriodicTimer(
             5,
             function () use ($output, &$deltaLogId) {
@@ -69,7 +69,7 @@ abstract class AbstractDatabaseLog implements LogInterface
     public function stop()
     {
         $this->host->getSshTunnel()->tearDown();
-        
+
         if ($this->timer) {
             $this->timer->cancel();
         }
