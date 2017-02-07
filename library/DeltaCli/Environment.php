@@ -3,9 +3,11 @@
 namespace DeltaCli;
 
 use DeltaCli\Config\Config;
+use DeltaCli\Environment\ResourceRenderer;
 use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\HostNotFound;
 use DeltaCli\Exception\MustSpecifyHostnameForShell;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Environment
 {
@@ -289,5 +291,12 @@ class Environment
         }
 
         return $this;
+    }
+
+
+    public function displayResources(OutputInterface $output)
+    {
+        $renderer = new ResourceRenderer($this, $output);
+        $renderer->render();
     }
 }
