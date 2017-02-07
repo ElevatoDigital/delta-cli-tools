@@ -23,9 +23,17 @@ class FixSshKeyPermissions extends StepAbstract implements DryRunInterface, Envi
         $privateKey = $this->getKeyFullPath();
 
         if (!file_exists($folder) || !is_dir($folder)) {
-            return new Result($this, Result::FAILURE, 'ssh-keys folder not found.  Run ssh:generate-key to create it.');
+            return new Result(
+                $this,
+                Result::FAILURE,
+                "ssh-keys folder not found at {$folder}.  Run ssh:generate-key to create it."
+            );
         } elseif (!file_exists($privateKey)) {
-            return new Result($this, Result::FAILURE, 'SSH private key not found.  Run ssh:generate-key to create it.');
+            return new Result(
+                $this,
+                Result::FAILURE,
+                "SSH private key not found in {$privateKey}.  Run ssh:generate-key to create it."
+            );
         } else {
             Exec::run(
                 sprintf('chmod 0600 %s', escapeshellarg($privateKey)),
@@ -53,9 +61,17 @@ class FixSshKeyPermissions extends StepAbstract implements DryRunInterface, Envi
         $privateKey = $this->getKeyFullPath();
 
         if (!file_exists($folder) || !is_dir($folder)) {
-            return new Result($this, Result::FAILURE, 'ssh-keys folder not found.  Run ssh:generate-key to create it.');
+            return new Result(
+                $this,
+                Result::FAILURE,
+                "ssh-keys folder not found at {$folder}.  Run ssh:generate-key to create it."
+            );
         } elseif (!file_exists($privateKey)) {
-            return new Result($this, Result::FAILURE, 'SSH private key not found.  Run ssh:generate-key to create it.');
+            return new Result(
+                $this,
+                Result::FAILURE,
+                "SSH private key not found in {$privateKey}.  Run ssh:generate-key to create it."
+            );
         } elseif ('0700' === $this->getOctalPermissions($folder) && '0600' === $this->getOctalPermissions($privateKey)) {
             return new Result($this, Result::SUCCESS, 'SSH key permissions are correct.');
         } else {
