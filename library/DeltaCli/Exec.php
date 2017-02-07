@@ -91,7 +91,7 @@ class Exec
         if ($spinner) {
             $loop->addPeriodicTimer(
                 0.25,
-                function () use ($spinner, $processExited) {
+                function () use ($spinner, &$processExited) {
                     if (!$processExited) {
                         $spinner->spin();
                     }
