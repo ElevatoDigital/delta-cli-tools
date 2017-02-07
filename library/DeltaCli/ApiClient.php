@@ -4,6 +4,8 @@ namespace DeltaCli;
 
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Psr7\Response;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ApiClient
 {
@@ -85,11 +87,49 @@ class ApiClient
         }
     }
 
-    public function writeProjectKey($apiKey)
+    public function hasResourcePrivateKey()
+    {
+        return $this->hasKey($this->getProjectKeyJsonPath(), 'resourcePrivateKey');
+    }
+
+    public function getResourcePrivateKey()
+    {
+        if (!$this->hasResourcePrivateKey()) {
+            return '';
+        } else {
+            $contents = file_get_contents($this->getProjectKeyJsonPath());
+            $json     = json_decode($contents, true);
+            return $json['resourcePrivateKey'];
+        }
+    }
+
+    public function hasResourcePublicKey()
+    {
+        return $this->hasKey($this->getProjectKeyJsonPath(), 'resourcePublicKey');
+    }
+
+    public function getResourcePublicKey()
+    {
+        if (!$this->hasResourcePublicKey()) {
+            return '';
+        } else {
+            $contents = file_get_contents($this->getProjectKeyJsonPath());
+            $json     = json_decode($contents, true);
+            return $json['resourcePublicKey'];
+        }
+    }
+
+    public function writeProjectKey($apiKey, $resourcePrivateKey = null, $resourcePublicKey = null)
     {
         file_put_contents(
             $this->getProjectKeyJsonPath(),
-            json_encode(['apiKey' => $apiKey]),
+            json_encode(
+                [
+                    'apiKey'             => $apiKey,
+                    'resourcePrivateKey' => $resourcePrivateKey,
+                    'resourcePublicKey'  => $resourcePublicKey
+                ]
+            ),
             LOCK_EX
         );
 
@@ -166,6 +206,44 @@ class ApiClient
         );
     }
 
+    public function createEnvironment($providerName, $environmentName, $publicKey)
+    {
+        return $this->guzzleClient->request(
+            'POST',
+            $this->url("/project/{$this->getProjectKey()}/environment"),
+            [
+                'auth'        => [$this->getAccountKey(), $this->getAccountKey()],
+                'form_params' => [
+                    'provider'    => $providerName,
+                    'environment' => $environmentName,
+                    'public_key'  => $publicKey
+                ]
+            ]
+        );
+    }
+
+    public function getEnvironment($environmentName)
+    {
+        return $this->guzzleClient->request(
+            'GET',
+            $this->url("/project/{$this->getProjectKey()}/environment/{$environmentName}"),
+            [
+                'auth' => [$this->getAccountKey(), $this->getAccountKey()]
+            ]
+        );
+    }
+
+    public function listEnvironments()
+    {
+        return $this->guzzleClient->request(
+            'GET',
+            $this->url("/project/{$this->getProjectKey()}/environments"),
+            [
+                'auth' => [$this->getAccountKey(), $this->getAccountKey()]
+            ]
+        );
+    }
+
     public function postResults(ApiResults $apiResults, Project $project, $sendNotifications)
     {
         return $this->guzzleClient->request(
@@ -199,7 +277,24 @@ class ApiClient
         );
     }
 
-    private function hasKey($jsonFile)
+    public function handleUnsuccessfulResponse(Response $response, OutputInterface $output)
+    {
+        if ('application/json' !== $response->getHeaderLine('Content-Type')) {
+            $output->writeln("<error>Invalid API response returned: {$response->getReasonPhrase()}.</error>");
+        } else {
+            $responseDetails = json_decode($response->getBody(), true);
+
+            if (isset($responseDetails['message']) && isset($responseDetails['code'])) {
+                $output->writeln("<error>{$responseDetails['message']} ({$responseDetails['code']})</error>");
+            } else {
+                $output->writeln("<error>Delta API response didn't have the expected message and code fields.</error>");
+            }
+        }
+
+        $output->writeln('');
+    }
+
+    private function hasKey($jsonFile, $keyIndex = 'apiKey')
     {
         if (!file_exists($jsonFile) || !is_readable($jsonFile)) {
             return false;
@@ -208,11 +303,17 @@ class ApiClient
         $content = file_get_contents($jsonFile);
         $data    = json_decode($content, true);
 
-        return isset($data['apiKey']) && $data['apiKey'];
+        return isset($data[$keyIndex]) && $data[$keyIndex];
     }
 
     private function url($url)
     {
-        return self::BASE_URL . self::VERSION . '/' . ltrim($url, '/');
+        if (isset($_SERVER['DELTA_API_TEST']) && $_SERVER['DELTA_API_TEST']) {
+            $baseUrl = 'http://delta-api.local:8080/';
+        } else {
+            $baseUrl = self::BASE_URL;
+        }
+
+        return $baseUrl . self::VERSION . '/' . ltrim($url, '/');
     }
 }
