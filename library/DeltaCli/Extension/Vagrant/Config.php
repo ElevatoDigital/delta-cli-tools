@@ -91,7 +91,6 @@ class Config extends BaseConfig
 
     private function projectMatchesDocumentRoot($documentRoot)
     {
-        echo getcwd() . ' => ' . $documentRoot . PHP_EOL;
         return 0 === strpos($documentRoot, getcwd());
     }
 
