@@ -56,6 +56,8 @@ abstract class AbstractDatabaseLog implements LogInterface
     {
         $deltaLogId = $this->handleMessages($output);
 
+        $this->host->getSshTunnel()->setUp();
+
         $this->timer = $loop->addPeriodicTimer(
             5,
             function () use ($output, &$deltaLogId) {
@@ -66,6 +68,8 @@ abstract class AbstractDatabaseLog implements LogInterface
 
     public function stop()
     {
+        $this->host->getSshTunnel()->tearDown();
+        
         if ($this->timer) {
             $this->timer->cancel();
         }
