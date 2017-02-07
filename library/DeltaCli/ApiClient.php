@@ -206,7 +206,7 @@ class ApiClient
         );
     }
 
-    public function createEnvironment($providerName, $environmentName, $publicKey)
+    public function createEnvironment($slug, $providerName, $environmentName, $publicKey)
     {
         return $this->guzzleClient->request(
             'POST',
@@ -214,9 +214,25 @@ class ApiClient
             [
                 'auth'        => [$this->getAccountKey(), $this->getAccountKey()],
                 'form_params' => [
+                    'slug'        => $slug,
                     'provider'    => $providerName,
                     'environment' => $environmentName,
                     'public_key'  => $publicKey
+                ]
+            ]
+        );
+    }
+
+    public function createDatabase($slug, $environmentName, $type)
+    {
+        return $this->guzzleClient->request(
+            'POST',
+            $this->url("/project/{$this->getProjectKey()}/environment/{$environmentName}/database"),
+            [
+                'auth'        => [$this->getAccountKey(), $this->getAccountKey()],
+                'form_params' => [
+                    'slug' => $slug,
+                    'type' => $type
                 ]
             ]
         );
