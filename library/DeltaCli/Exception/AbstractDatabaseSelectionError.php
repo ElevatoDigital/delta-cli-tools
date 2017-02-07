@@ -4,6 +4,7 @@ namespace DeltaCli\Exception;
 
 use DeltaCli\Config\Database\DatabaseInterface;
 use DeltaCli\Console\Output\Banner;
+use DeltaCli\Console\Output\DatabasesTable;
 use DeltaCli\Environment;
 use Exception;
 use Symfony\Component\Console\Helper\Table;
@@ -140,23 +141,8 @@ abstract class AbstractDatabaseSelectionError extends Exception implements Conso
             ]
         );
 
-        $table = new Table($output);
-
-        $table->setHeaders(['DB Name', 'Host', 'Username', 'Password', 'Type']);
-
-        foreach ($this->availableDatabases as $database) {
-            $table->addRow(
-                [
-                    $database->getDatabaseName(),
-                    $database->getHost(),
-                    $database->getUsername(),
-                    $database->getPassword(),
-                    $database->getType()
-                ]
-            );
-        }
-
-        $table->render();
+        $databasesTable = new DatabasesTable($output, $this->availableDatabases);
+        $databasesTable->render();
     }
 
     public function hasBanner()

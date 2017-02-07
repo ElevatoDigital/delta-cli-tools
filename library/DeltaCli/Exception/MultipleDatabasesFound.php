@@ -2,8 +2,6 @@
 
 namespace DeltaCli\Exception;
 
-use DeltaCli\Console\Output\Banner;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class MultipleDatabasesFound extends AbstractDatabaseSelectionError

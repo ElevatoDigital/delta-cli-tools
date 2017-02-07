@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Script;
 
+use DeltaCli\Console\Output\DatabasesTable;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use Symfony\Component\Console\Helper\Table;
@@ -32,23 +33,12 @@ class DatabaseList extends Script
             ->addStep(
                 'list-databases',
                 function () use ($findDbsStep) {
-                    $table = new Table($this->getProject()->getOutput());
+                    $databasesTable = new DatabasesTable(
+                        $this->getProject()->getOutput(),
+                        $findDbsStep->getDatabases()
+                    );
 
-                    $table->setHeaders(['DB Name', 'Host', 'Username', 'Password', 'Type']);
-
-                    foreach ($findDbsStep->getDatabases() as $database) {
-                        $table->addRow(
-                            [
-                                $database->getDatabaseName(),
-                                $database->getHost(),
-                                $database->getUsername(),
-                                $database->getPassword(),
-                                $database->getType()
-                            ]
-                        );
-                    }
-
-                    $table->render();
+                    $databasesTable->render();
                 }
             );
     }
