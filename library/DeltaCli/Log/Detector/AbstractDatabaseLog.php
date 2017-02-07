@@ -30,18 +30,21 @@ abstract class AbstractDatabaseLog implements DetectorInterface
             return false;
         }
 
+        $log = false;
+
         $host->getSshTunnel()->setUp();
 
         foreach ($this->databaseManager->getAll($host) as $database) {
             if ($this->logIsPresent($database)) {
                 $this->alreadyFoundOnPreviousHost = true;
-                return $this->createLogObject($host, $database);
+                $log = $this->createLogObject($host, $database);
+                break;
             }
         }
 
         $host->getSshTunnel()->tearDown();
 
-        return false;
+        return $log;
     }
 
     abstract public function logIsPresent(DatabaseInterface $database);
