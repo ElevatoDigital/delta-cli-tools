@@ -5,6 +5,7 @@ namespace DeltaCli\Config;
 use DeltaCli\Cache;
 use DeltaCli\Config\Detector\DetectorInterface;
 use DeltaCli\Config\Detector\DetectorSet;
+use DeltaCli\Environment\ApiEnvironment;
 use DeltaCli\Exec;
 use DeltaCli\FileTransferPaths;
 use DeltaCli\Host;
@@ -35,12 +36,34 @@ class ConfigFactory
      */
     public function detectConfigsOnHost(Host $host)
     {
-        $configs = [];
-        $tunnel  = $host->getSshTunnel();
+        $tunnel = $host->getSshTunnel();
 
         $tunnel->setUp();
 
         $temporaryFile = null;
+
+        if (!$host->getEnvironment() instanceof ApiEnvironment) {
+            $configs = $this->detectConfigs($tunnel, $host);
+        } else {
+            /* @var $environment ApiEnvironment */
+            $environment = $host->getEnvironment();
+            $configs     = [$environment->getApiConfig()];
+        }
+
+        $configs[] = $host->getEnvironment()->getManualConfig();
+
+        if ($temporaryFile && file_exists($temporaryFile)) {
+            unlink($temporaryFile);
+        }
+
+        $tunnel->tearDown();
+
+        return (count($configs) === 0 ? false : $configs);
+    }
+
+    private function detectConfigs(SshTunnel $tunnel, Host $host)
+    {
+        $configs = [];
 
         // First check previously successful detector from the cache
         if ($this->cache && $this->cache->fetch('config-detector')) {
@@ -97,15 +120,7 @@ class ConfigFactory
             }
         }
 
-        $configs[] = $host->getEnvironment()->getManualConfig();
-
-        if ($temporaryFile && file_exists($temporaryFile)) {
-            unlink($temporaryFile);
-        }
-
-        $tunnel->tearDown();
-
-        return (count($configs) === 0 ? false : $configs);
+        return $configs;
     }
 
     private function checkFilePath(DetectorInterface $detector, SshTunnel $tunnel, Host $host, $potentialFilePath)

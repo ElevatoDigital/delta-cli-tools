@@ -64,7 +64,7 @@ class Vagrant implements ExtensionInterface
         if (file_exists($vagrantPrivateKeyPath)) {
             $this->addScripts($project);
 
-            if (!$project->hasEnvironment('vagrant')) {
+            if (!$project->hasEnvironmentInternal('vagrant')) {
                 $this->createEnvironment($project, $vagrantPrivateKeyPath, $cwd);
             }
         }

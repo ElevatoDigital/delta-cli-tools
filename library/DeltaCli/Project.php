@@ -4,6 +4,8 @@ namespace DeltaCli;
 
 use DeltaCli\Config\ConfigFactory;
 use DeltaCli\Config\Database\DatabaseInterface;
+use DeltaCli\Environment\ApiEnvironmentLoader;
+use DeltaCli\Environment\Provider\ProviderInterface;
 use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\ScriptNotFound;
 use DeltaCli\Extension\DefaultScripts as DefaultScriptsExtension;
@@ -12,6 +14,8 @@ use DeltaCli\FileWatcher\FileWatcherInterface;
 use DeltaCli\FileWatcher\FileWatcherFactory;
 use DeltaCli\Log\Detector\DetectorSet as LogDetectorSet;
 use DeltaCli\Script\Step\AllowWritesToRemoteFolder as AllowWritesToRemoteFolderStep;
+use DeltaCli\Script\Step\CreateEnvironment as CreateEnvironmentStep;
+use DeltaCli\Script\Step\DisplayEnvironmentResources as DisplayEnvironmentResourcesStep;
 use DeltaCli\Script\Step\DumpDatabase as DumpDatabaseStep;
 use DeltaCli\Script\Step\EmptyDatabase as EmptyDatabaseStep;
 use DeltaCli\Script\Step\FindDatabases as FindDatabasesStep;
@@ -29,6 +33,7 @@ use DeltaCli\Script\Step\RestoreDatabase as RestoreDatabaseStep;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
 use DeltaCli\Script\Step\SanityCheckPotentiallyDangerousOperation as SanityCheckPotentiallyDangerousOperationStep;
 use DeltaCli\Script\Step\Scp as ScpStep;
+use DeltaCli\Script\Step\Script as ScriptStep;
 use DeltaCli\Script\Step\ShellCommandSupportingDryRun as ShellCommandSupportingDryRunStep;
 use DeltaCli\Script\Step\Ssh as SshStep;
 use DeltaCli\Script\Step\StartBackgroundProcess as StartBackgroundProcessStep;
@@ -51,6 +56,11 @@ class Project
      * @var array
      */
     private $environments = [];
+
+    /**
+     * @var bool
+     */
+    private $apiEnvironmentsLoaded = false;
 
     /**
      * @var array
@@ -171,7 +181,9 @@ class Project
                 require_once $cwd . '/delta-cli.php';
             }
 
-            $this->setDefaultSshPrivateKeyOnEnvironments($cwd);
+            foreach ($this->environments as $environment) {
+                $this->setDefaultSshPrivateKeyOnEnvironment($environment);
+            }
 
             $this->configFileLoaded = true;
 
@@ -322,6 +334,7 @@ class Project
      */
     public function getEnvironments()
     {
+        $this->loadApiEnvironments();
         return $this->environments;
     }
 
@@ -339,6 +352,24 @@ class Project
     }
 
     public function hasEnvironment($name)
+    {
+        $hasEnvironment = array_key_exists($name, $this->environments);
+
+        if (!$hasEnvironment) {
+            $this->loadApiEnvironments();
+        }
+
+        return array_key_exists($name, $this->environments);
+    }
+
+    /**
+     * This method allows Delta CLI to check internally whether an environment exists
+     * without triggering a call to the API to find environments loaded there.
+     *
+     * @param $name
+     * @return bool
+     */
+    public function hasEnvironmentInternal($name)
     {
         return array_key_exists($name, $this->environments);
     }
@@ -360,6 +391,20 @@ class Project
         }
 
         return $this->environments[$name];
+    }
+
+    private function loadApiEnvironments()
+    {
+        if ($this->apiEnvironmentsLoaded) {
+            return $this;
+        }
+
+        $this->apiEnvironmentsLoaded = true;
+
+        $loader = new ApiEnvironmentLoader($this);
+        $loader->load();
+
+        return $this;
     }
 
     /**
@@ -407,6 +452,16 @@ class Project
     public function allowWritesToRemoteFolder($remoteFolder)
     {
         return new AllowWritesToRemoteFolderStep($remoteFolder);
+    }
+
+    public function createEnvironmentStep(ProviderInterface $provider, $name)
+    {
+        return new CreateEnvironmentStep($this, $provider, $name);
+    }
+
+    public function displayEnvironmentResources()
+    {
+        return new DisplayEnvironmentResourcesStep($this);
     }
 
     public function dumpDatabase(DatabaseInterface $database)
@@ -503,6 +558,13 @@ class Project
         return new ScpStep($localFile, $remoteFile);
     }
 
+    public function scriptStep(Script $script, $useConsoleOutput = false)
+    {
+        $step = new ScriptStep($script, $this->getInput(), $this->getOutput());
+        $step->setUseConsoleOutput($useConsoleOutput);
+        return $step;
+    }
+
     public function ssh($command)
     {
         return new SshStep($command);
@@ -550,7 +612,7 @@ class Project
 
     private function createDefaultEnvironments($cwd)
     {
-        if (!$this->hasEnvironment('vpn')) {
+        if (!$this->hasEnvironmentInternal('vpn')) {
             $this->createEnvironment('vpn')
                 ->setUsername('delta')
                 ->addHost('vpn.deltasys.com');
@@ -572,17 +634,15 @@ class Project
      * If a private key exists in the default location used by Delta CLI, automatically assign it to any
      * environments that did not already a key specified in the delta-cli.php file.
      *
-     * @param string $workingDirectory
+     * @param Environment $environment
      * @return $this
      */
-    private function setDefaultSshPrivateKeyOnEnvironments($workingDirectory)
+    private function setDefaultSshPrivateKeyOnEnvironment(Environment $environment)
     {
-        $defaultSshPrivateKey = $workingDirectory . '/ssh-keys/id_rsa';
+        $defaultSshPrivateKey = getcwd() . '/ssh-keys/id_rsa';
 
-        foreach ($this->getEnvironments() as $environment) {
-            if (!$environment->getSshPrivateKey() && file_exists($defaultSshPrivateKey)) {
-                $environment->setSshPrivateKey($defaultSshPrivateKey);
-            }
+        if (!$environment->getSshPrivateKey() && file_exists($defaultSshPrivateKey)) {
+            $environment->setSshPrivateKey($defaultSshPrivateKey);
         }
 
         return $this;
