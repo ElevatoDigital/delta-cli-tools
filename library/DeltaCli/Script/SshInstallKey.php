@@ -11,6 +11,8 @@ use Symfony\Component\Console\Question\Question;
 
 class SshInstallKey extends Script
 {
+    private $password;
+
     public function __construct(Project $project)
     {
         parent::__construct(
@@ -26,45 +28,65 @@ class SshInstallKey extends Script
         parent::configure();
     }
 
+    public function setPassword($password)
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
     protected function addSteps()
     {
         $publicKey = getcwd() . '/ssh-keys/id_rsa.pub';
 
-        /* @var $helper QuestionHelper */
-        $helper = $this->getHelper('question');
-        $input  = $this->getProject()->getInput();
-        $output = $this->getProject()->getOutput();
-
-        foreach ($this->getEnvironment()->getHosts() as $host) {
-            $question = new Question(
-                "<question>What is the SSH password for {$host->getUsername()}@{$host->getHostname()}?</question>\n"
-            );
-
-            $question
-                ->setHidden(true)
-                ->setMaxAttempts(10);
-
-            $question->setValidator(
-                function ($value) {
-                    if (!trim($value)) {
-                        throw new Exception('The password can not be empty.');
+        $this
+            ->addStep(
+                'apply-ssh-password',
+                function () {
+                    if ($this->password) {
+                        foreach ($this->getEnvironment()->getHosts() as $host) {
+                            $host->setSshPassword($this->password);
+                            $host->getSshTunnel()->setBatchMode(false);
+                        }
+                        return;
                     }
 
-                    return $value;
+                    /* @var $helper QuestionHelper */
+                    $helper = $this->getHelper('question');
+                    $input  = $this->getProject()->getInput();
+                    $output = $this->getProject()->getOutput();
+
+                    foreach ($this->getEnvironment()->getHosts() as $host) {
+                        $question = new Question(
+                            "<question>What is the SSH password for {$host->getUsername()}@{$host->getHostname()}?"
+                            . "</question>\n"
+                        );
+
+                        $question
+                            ->setHidden(true)
+                            ->setMaxAttempts(10);
+
+                        $question->setValidator(
+                            function ($value) {
+                                if (!trim($value)) {
+                                    throw new Exception('The password can not be empty.');
+                                }
+
+                                return $value;
+                            }
+                        );
+
+                        $password = null;
+
+                        while (!$password) {
+                            $password = trim($helper->ask($input, $output, $question));
+                            $host->setSshPassword($password);
+                        }
+
+                        $host->getSshTunnel()->setBatchMode(false);
+                    }
                 }
-            );
-
-            $password = null;
-
-            while (!$password) {
-                $password = trim($helper->ask($input, $output, $question));
-                $host->setSshPassword($password);
-            }
-
-            $host->getSshTunnel()->setBatchMode(false);
-        }
-
-        $this
+            )
             ->addStep($this->getProject()->getScript('ssh:fix-key-permissions'))
             ->addStep(
                 'ensure-expect-script-is-executable',
