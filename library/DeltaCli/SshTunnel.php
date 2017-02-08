@@ -116,7 +116,8 @@ class SshTunnel
             'Compression'           => 'yes',
             'StrictHostKeyChecking' => 'no',
             'ConnectTimeout'        => 8,
-            'ConnectionAttempts'    => 3
+            'ConnectionAttempts'    => 3,
+            'IdentitiesOnly'        => 'yes'
         ];
 
         if ($this->batchMode) {
