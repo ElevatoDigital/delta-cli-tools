@@ -12,6 +12,7 @@ class DetectorSet
     public function __construct()
     {
         $this->detectors[] = new WebsiteInfo();
+        $this->detectors[] = new ApacheEnv();
         $this->detectors[] = new WordPress();
         $this->detectors[] = new Dewdrop();
         $this->detectors[] = new ZendFramework1();
