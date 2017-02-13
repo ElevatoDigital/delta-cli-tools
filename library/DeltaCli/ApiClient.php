@@ -3,6 +3,7 @@
 namespace DeltaCli;
 
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Handler\StreamHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -26,7 +27,12 @@ class ApiClient
     public function __construct(GuzzleClient $guzzleClient = null)
     {
         $stack = new HandlerStack();
-        $stack->setHandler(\GuzzleHttp\choose_handler());
+
+        if ('vagrant' === $_SERVER['USER']) {
+            $stack->setHandler(new StreamHandler());
+        } else {
+            $stack->setHandler(\GuzzleHttp\choose_handler());
+        }
 
         $this->guzzleClient = ($guzzleClient ?: new GuzzleClient(['exceptions' => false, 'handler' => $stack]));
         $this->homeFolder   = $_SERVER['HOME'];

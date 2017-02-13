@@ -61,13 +61,18 @@ class Vagrant implements ExtensionInterface
 
         $project->addScript(new SetPath($project));
 
-        if (file_exists($vagrantPrivateKeyPath)) {
+        if (file_exists($vagrantPrivateKeyPath) || self::isInsideVagrant()) {
             $this->addScripts($project);
 
             if (!$project->hasEnvironmentInternal('vagrant')) {
                 $this->createEnvironment($project, $vagrantPrivateKeyPath, $cwd);
             }
         }
+    }
+
+    public static function isInsideVagrant()
+    {
+        return 'vagrant' === $_SERVER['USER'];
     }
 
     private function addScripts(Project $project)
@@ -82,12 +87,25 @@ class Vagrant implements ExtensionInterface
 
     private function createEnvironment(Project $project, $vagrantPrivateKeyPath, $cwd)
     {
+        if ($vagrantPrivateKeyPath) {
+            $isInsideVagrant = false;
+        } else {
+            $isInsideVagrant = true;
+        }
+
         $environment = $project->createEnvironment('vagrant')
             ->setUsername('vagrant')
-            ->setSshPrivateKey($vagrantPrivateKeyPath)
             ->setApplicationEnv('development')
             ->setIsDevEnvironment(true)
             ->addHost('127.0.0.1');
+
+        if ($isInsideVagrant) {
+            $port = 22;
+        } else {
+            $port = 2222;
+
+            $environment->setSshPrivateKey($vagrantPrivateKeyPath);
+        }
 
         if ('/delta' === $cwd || 0 === strpos($cwd, '/delta/')) {
             $homeFolder = $cwd;
@@ -96,7 +114,7 @@ class Vagrant implements ExtensionInterface
         }
 
         $environment->getHost('127.0.0.1')
-            ->setSshPort(2222)
+            ->setSshPort($port)
             ->setSshHomeFolder($homeFolder)
             ->setAdditionalSshOptions(
                 [

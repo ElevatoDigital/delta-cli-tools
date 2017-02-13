@@ -3,8 +3,10 @@
 namespace DeltaCli\Script;
 
 use DeltaCli\Exec;
+use DeltaCli\Extension\Vagrant as VagrantExtension;
 use DeltaCli\Project;
 use DeltaCli\Script;
+use DeltaCli\VagrantFinder;
 use Exception;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Question\Question;
@@ -84,6 +86,15 @@ class SshInstallKey extends Script
                         }
 
                         $host->getSshTunnel()->setBatchMode(false);
+                    }
+                }
+            )
+            ->addStep(
+                'handle-running-inside-vagrant',
+                function () {
+                    if (VagrantExtension::isInsideVagrant()) {
+                        $this->getProject()->getEnvironment('vagrant')->getHost('127.0.0.1')
+                            ->setSshHomeFolder('/home/vagrant');
                     }
                 }
             )
