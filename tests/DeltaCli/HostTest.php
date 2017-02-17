@@ -3,6 +3,7 @@
 namespace DeltaCli;
 
 use PHPUnit_Framework_TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -15,7 +16,7 @@ class HostTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $project     = new Project(new ArgvInput(), new BufferedOutput());
+        $project     = new Project(new Application(), new ArgvInput(), new BufferedOutput());
         $environment = new Environment($project, 'test');
 
         $this->host = new Host('localhost', $environment);
