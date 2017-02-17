@@ -5,6 +5,7 @@ namespace DeltaCli\Script\Step;
 use DeltaCli\Environment;
 use DeltaCli\Project;
 use PHPUnit_Framework_TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -22,7 +23,7 @@ class RsyncTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $project = new Project(new ArgvInput(), new BufferedOutput());
+        $project = new Project(new Application(), new ArgvInput(), new BufferedOutput());
 
         $this->environment = new Environment($project, 'test');
         $this->step        = new Rsync(__DIR__, '/path/to/remote-folder');
