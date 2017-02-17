@@ -3,11 +3,12 @@
 namespace DeltaCli;
 
 use PHPUnit_Framework_TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class ProjectText extends PHPUnit_Framework_TestCase
+class ProjectTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Project
@@ -16,10 +17,7 @@ class ProjectText extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $input  = new ArgvInput();
-        $output = new ConsoleOutput();
-
-        $this->project = new Project($input, $output);
+        $this->project = new Project(new Application(), new ArgvInput(), new ConsoleOutput());
     }
 
     public function testCanProperlyInstantiatePhpCallableSupportingDryRunStep()
