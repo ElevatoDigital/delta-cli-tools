@@ -103,7 +103,7 @@ class ProjectTest extends PHPUnit_Framework_TestCase
         $project = $this->getMock(
             '\DeltaCli\Project',
             ['configFileExists'],
-            [$input, $output]
+            [new Application(), $input, $output]
         );
 
         $project->expects($this->any())
@@ -123,7 +123,7 @@ class ProjectTest extends PHPUnit_Framework_TestCase
         $project = $this->getMock(
             '\DeltaCli\Project',
             ['configFileExists', 'loadConfigFile'],
-            [$input, $output]
+            [new Application(), $input, $output]
         );
 
         $project->expects($this->any())
@@ -145,7 +145,7 @@ class ProjectTest extends PHPUnit_Framework_TestCase
         $project = $this->getMock(
             '\DeltaCli\Project',
             ['configFileExists', 'loadConfigFile'],
-            [$input, $output]
+            [new Application(), $input, $output]
         );
 
         $project->expects($this->any())
