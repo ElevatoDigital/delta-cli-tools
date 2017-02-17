@@ -5,6 +5,7 @@ namespace DeltaCli\Script\Step;
 use DeltaCli\Environment;
 use DeltaCli\Project;
 use PHPUnit_Framework_TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -24,7 +25,7 @@ class IsDevEnvironmentTest extends PHPUnit_Framework_TestCase
     {
         parent::__construct();
 
-        $this->project = new Project(new ArgvInput(), new BufferedOutput());
+        $this->project = new Project(new Application(), new ArgvInput(), new BufferedOutput());
         $this->step    = new IsDevEnvironment();
     }
 
