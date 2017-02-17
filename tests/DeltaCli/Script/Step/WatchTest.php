@@ -6,6 +6,7 @@ use DeltaCli\Environment;
 use DeltaCli\Project;
 use DeltaCli\Script as ScriptObject;
 use PHPUnit_Framework_TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -26,7 +27,7 @@ class WatchTest extends PHPUnit_Framework_TestCase
         $input  = new ArgvInput();
         $output = new BufferedOutput();
 
-        $this->project = new Project($input, $output);
+        $this->project = new Project(new Application(), $input, $output);
         $this->script  = new ScriptObject($this->project, 'watch', 'Watch test.');
     }
 
