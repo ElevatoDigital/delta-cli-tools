@@ -4,6 +4,7 @@ namespace DeltaCli;
 
 use DeltaCli\Script\Step\Result;
 use PHPUnit_Framework_TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -31,7 +32,7 @@ class ScriptTest extends PHPUnit_Framework_TestCase
         $input = new ArgvInput();
 
         $this->output  = new BufferedOutput();
-        $this->project = new Project($input, $this->output);
+        $this->project = new Project(new Application(), $input, $this->output);
         $this->script  = new Script($this->project, 'Test', 'Test Script');
     }
 
