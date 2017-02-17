@@ -148,7 +148,7 @@ class ScriptTest extends PHPUnit_Framework_TestCase
         $input  = new ArgvInput();
         $output = new ConsoleOutput();
 
-        $project = new Project($input, $output);
+        $project = new Project(new Application(), $input, $output);
         $project->requiresVersion('1.50.8');
 
         /* @var $versionMock \PHPUnit_Framework_MockObject_MockObject|ComposerVersion */
