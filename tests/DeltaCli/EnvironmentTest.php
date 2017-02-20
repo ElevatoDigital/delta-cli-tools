@@ -3,6 +3,7 @@
 namespace DeltaCli;
 
 use PHPUnit_Framework_TestCase;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 
@@ -28,7 +29,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
         $input = new ArgvInput();
 
         $this->output  = new BufferedOutput();
-        $this->project = new Project($input, $this->output);
+        $this->project = new Project(new Application(), $input, $this->output);
 
         $this->environment = new Environment($this->project, 'test');
     }

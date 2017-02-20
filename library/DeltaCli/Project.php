@@ -131,6 +131,7 @@ class Project
 
     /**
      * Project constructor.
+     * @param Application $application
      * @param InputInterface $input
      * @param OutputInterface $output
      */
