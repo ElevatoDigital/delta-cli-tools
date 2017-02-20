@@ -159,7 +159,7 @@ class SshTunnel
 
             $command = sprintf(
                 'ssh %s -o Compression=yes -o StrictHostKeyChecking=no -o BatchMode=yes -p %s %s@%s -L %d:%s:%d ' .
-                    '-fN > /dev/null 2>&1 & echo $!',
+                    '-N > /dev/null 2>&1 & echo $!',
                 $keyFlag,
                 escapeshellarg($this->host->getSshPort()),
                 escapeshellarg($this->host->getUsername()),
@@ -269,15 +269,16 @@ class SshTunnel
 
     private function waitUntilTunnelIsOpen()
     {
-        $waitedIterations = 0;
+        $start = time();
+
+        static $timeout = 30; // seconds
 
         while (!$this->someoneAlreadyListeningOnPort($this->tunnelPort)) {
-            usleep(500);
 
-            $waitedIterations += 1;
+            usleep(50000);
 
-            if (100 < $waitedIterations) {
-                break;
+            if (time() - $start > $timeout) {
+                throw new TunnelConnectionFailureException('Timed out waiting for SSH tunnel to open.');
             }
         }
     }
