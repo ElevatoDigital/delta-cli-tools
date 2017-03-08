@@ -125,7 +125,7 @@ class Mysql extends DatabaseAbstract
     public function emptyDb()
     {
         foreach ($this->getTableNames() AS $table) {
-            $this->query("DROP TABLE {$table};");
+            $this->query("SET FOREIGN_KEY_CHECKS=0; DROP TABLE {$table};");
         }
     }
 
