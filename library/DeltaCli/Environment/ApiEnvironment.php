@@ -85,6 +85,10 @@ class ApiEnvironment extends Environment
 
     private function getDatabaseResources(array $resources)
     {
+        if (!$this->privateKey) {
+            $this->privateKey = openssl_pkey_get_private($this->apiPrivateKeyString);
+        }
+        
         $databases = [];
 
         foreach ($resources as $resourceData) {
