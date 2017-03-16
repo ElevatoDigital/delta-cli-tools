@@ -56,6 +56,11 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
     private $excludeOsCruft = true;
 
     /**
+     * @var bool
+     */
+    private $excludeCommonDeltaFiles = true;
+
+    /**
      * @var string
      */
     private $flags = '-az --no-p';
@@ -110,6 +115,20 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
     public function excludeOsCruft()
     {
         $this->excludeOsCruft = true;
+
+        return $this;
+    }
+
+    public function includeCommonDeltaFiles()
+    {
+        $this->excludeCommonDeltaFiles = false;
+
+        return $this;
+    }
+
+    public function excludeCommonDeltaFiles()
+    {
+        $this->excludeCommonDeltaFiles = true;
 
         return $this;
     }
@@ -279,6 +298,10 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
             $args[] = '--exclude=ehthumbs.db';
             $args[] = '--exclude=Thumbs.db';
             $args[] = '--exclude=google*.html';
+        }
+
+        if ($this->excludeCommonDeltaFiles) {
+            $args[] = '--exclude=delta_maintenance_page.php';
         }
 
         foreach ($this->excludes as $exclude) {
