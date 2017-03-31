@@ -62,6 +62,10 @@ class Spinner
 
         $this->currentCharacter += 1;
 
+        if (40 < strlen($message)) {
+            $message = substr($message, 0, 40) . '...';
+        }
+
         $this->output->writeln("<comment>{$character} {$message} </comment>");
 
         $this->firstCall = false;
