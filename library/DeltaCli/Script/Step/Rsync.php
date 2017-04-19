@@ -302,6 +302,7 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
 
         if ($this->excludeCommonDeltaFiles) {
             $args[] = '--exclude=delta_maintenance_page.php';
+            $args[] = '--exclude=dewdrop-config.local.php';
         }
 
         foreach ($this->excludes as $exclude) {
