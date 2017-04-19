@@ -33,8 +33,13 @@ class ResourceRenderer
             ->addRow(['Name', $this->environment->getName()])
             ->addRow(['Is Dev Environment?', ($this->environment->isDevEnvironment() ? 'Yes' : 'No')])
             ->addRow(['Host(s)', $this->renderHostNames()])
-            ->addRow(['SSH Username', $this->environment->getUsername()])
-            ->addRow(['Browser URL', $this->renderBrowserUrl($configs)]);
+            ->addRow(['SSH Username', $this->environment->getUsername()]);
+
+        if ($this->environment instanceof ApiEnvironment) {
+            $table->addRow(['SSH Password', $this->environment->getPassword()]);
+        }
+
+        $table->addRow(['Browser URL', $this->renderBrowserUrl($configs)]);
 
         $table->render();
 
