@@ -24,9 +24,7 @@ class RestartServices extends Script
             ->addStep('restart-nginx', $this->getProject()->ssh('sudo /etc/init.d/nginx restart'))
             ->addStep(
                 'restart-postgres',
-                $this->getProject()->ssh(
-                    'sudo /etc/init.d/postgresql-9.4 restart || sudo /etc/init.d/postgresql-9.5 restart'
-                )
+                $this->getProject()->ssh('sudo /etc/init.d/postgresql-* restart')
             )
             ->addStep('restart-mysql', $this->getProject()->ssh('sudo /etc/init.d/mysqld restart'));
     }
