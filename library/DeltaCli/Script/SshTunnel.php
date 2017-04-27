@@ -103,7 +103,7 @@ class SshTunnel extends Script
                 $table->addRows(
                     [
                         ['Host', 'localhost'],
-                        ['Port', $port ?: $this->remotePort],
+                        ['Port', $host->getSshTunnel()->getPort()],
                         ['Username', $environment->getUsername()],
                         ['SSH Key', $environment->getSshPrivateKey()]
                     ]
