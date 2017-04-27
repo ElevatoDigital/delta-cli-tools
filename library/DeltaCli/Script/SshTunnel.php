@@ -84,10 +84,10 @@ class SshTunnel extends Script
                 $host->getSshTunnel()->setRemotePort($this->remotePort);
 
                 if ($this->localPort) {
-                    $host->getSshTunnel()->setLocalPort($this->localPort);
+                    $host->getTunnelHost()->getSshTunnel()->setLocalPort($this->localPort);
                 }
 
-                $port = $host->getSshTunnel()->setUp();
+                $host->getSshTunnel()->setUp();
 
                 $output = $this->getProject()->getOutput();
 
