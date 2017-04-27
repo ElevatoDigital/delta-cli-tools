@@ -25,6 +25,7 @@ use DeltaCli\Script\LogsList as LogsListScript;
 use DeltaCli\Script\SshFixKeyPermissions as SshFixKeyPermissionsScript;
 use DeltaCli\Script\SshInstallKey as SshInstallKeyScript;
 use DeltaCli\Script\LogsWatch as LogsWatchScript;
+use DeltaCli\Script\SshTunnel;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class DefaultScripts implements ExtensionInterface
@@ -40,6 +41,7 @@ class DefaultScripts implements ExtensionInterface
         $project->addScript(new RsyncScript($project));
         $project->addScript(new SshFixKeyPermissionsScript($project));
         $project->addScript(new SshInstallKeyScript($project));
+        $project->addScript(new SshTunnel($project));
         $project->addScript(new ScpScript($project));
         $project->addScript(new DatabaseCopyScript($project));
         $project->addScript(new DatabaseCreateScript($project));

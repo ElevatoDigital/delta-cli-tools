@@ -17,6 +17,11 @@ class SshTunnel
     private $remotePort;
 
     /**
+     * @var int
+     */
+    private $localPort;
+
+    /**
      * @var Host
      */
     private $tunnelConnectionsForHost;
@@ -108,6 +113,13 @@ class SshTunnel
                 $this->getSshOptions($this->host)
             );
         }
+    }
+
+    public function setLocalPort($localPort)
+    {
+        $this->localPort = $localPort;
+
+        return $this;
     }
 
     public function getSshOptions(Host $host)
@@ -285,7 +297,7 @@ class SshTunnel
 
     private function findAvailableLocalPort()
     {
-        $availablePortNumber = false;
+        $availablePortNumber = $this->localPort;
 
         while (!$availablePortNumber) {
             $potentialPortNumber = mt_rand(1025, 65535);
