@@ -4,7 +4,6 @@ namespace DeltaCli\Config\Database;
 
 use DeltaCli\Exception\DatabaseQueryFailed;
 use DeltaCli\Exec;
-use DeltaCli\SshTunnel;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
