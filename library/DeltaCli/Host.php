@@ -168,6 +168,11 @@ class Host
         return $this->sshTunnel;
     }
 
+    public function createSshTunnel()
+    {
+        return new SshTunnel($this);
+    }
+
     public function setSshTunnel(SshTunnel $sshTunnel)
     {
         $this->sshTunnel = $sshTunnel;
