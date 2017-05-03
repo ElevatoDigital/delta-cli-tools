@@ -26,8 +26,11 @@ class DatabaseManager
 
             $databases = $findDbsSteps->getDatabases();
 
+            $tunnel = $host->createSshTunnel();
+            $tunnel->setUp();
+
             foreach ($databases as $database) {
-                $database->setSshTunnel($host->getSshTunnel());
+                $database->setSshTunnel($tunnel);
             }
 
             $this->databases = $databases;
