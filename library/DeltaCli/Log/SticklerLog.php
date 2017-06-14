@@ -28,7 +28,10 @@ class SticklerLog extends AbstractDatabaseLog
             $params[]    = $afterId;
         }
 
-        $sql = "SELECT delta_log_id AS id, REPLACE(message, E'\n', ' ') AS message, date_created 
+        $sql = "SELECT 
+                delta_log_id AS id, 
+                {$this->getDatabase()->getReplaceNewlinesExpression()} AS message, 
+                date_created 
             FROM delta_log
             {$whereClause}
             ORDER BY delta_log_id DESC

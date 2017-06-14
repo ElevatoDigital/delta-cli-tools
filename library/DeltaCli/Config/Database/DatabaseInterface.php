@@ -141,4 +141,12 @@ interface DatabaseInterface
      * @return $this
      */
     public function setSshTunnel(SshTunnel $sshTunnel);
+
+    /**
+     * Return a SQL expression that can be used to replace newlines with a single space.
+     *
+     * @param string $column
+     * @return string
+     */
+    public function getReplaceNewlinesExpression($column);
 }

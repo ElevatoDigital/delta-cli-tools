@@ -265,4 +265,9 @@ class Postgres extends DatabaseAbstract
 
         return vsprintf($sql, $params);
     }
+
+    public function getReplaceNewlinesExpression($column)
+    {
+        return "REPLACE({$column}, E'\\n', ' ')";
+    }
 }

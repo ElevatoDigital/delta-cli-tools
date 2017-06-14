@@ -28,7 +28,10 @@ class DewdropActivityLog extends AbstractDatabaseLog
             $params[]    = $afterId;
         }
 
-        $sql = "SELECT dewdrop_activity_log_id AS id, REPLACE(message, E'\n', ' ') AS message, date_created 
+        $sql = "SELECT 
+                delta_log_id AS id, 
+                {$this->getDatabase()->getReplaceNewlinesExpression()} AS message, 
+                date_created 
             FROM dewdrop_activity_log
             {$whereClause}
             ORDER BY dewdrop_activity_log_id DESC
