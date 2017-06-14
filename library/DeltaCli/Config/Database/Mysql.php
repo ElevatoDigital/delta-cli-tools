@@ -176,6 +176,6 @@ class Mysql extends DatabaseAbstract
 
     public function getReplaceNewlinesExpression($column)
     {
-        return "REPLACE({$column}, '\n', '')";
+        return "REPLACE({$column}, '\\n', '')";
     }
 }

@@ -30,7 +30,7 @@ class DewdropActivityLog extends AbstractDatabaseLog
 
         $sql = "SELECT 
                 delta_log_id AS id, 
-                {$this->getDatabase()->getReplaceNewlinesExpression()} AS message, 
+                {$this->getDatabase()->getReplaceNewlinesExpression('message')} AS message, 
                 date_created 
             FROM dewdrop_activity_log
             {$whereClause}

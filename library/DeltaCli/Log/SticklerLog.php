@@ -30,7 +30,7 @@ class SticklerLog extends AbstractDatabaseLog
 
         $sql = "SELECT 
                 delta_log_id AS id, 
-                {$this->getDatabase()->getReplaceNewlinesExpression()} AS message, 
+                {$this->getDatabase()->getReplaceNewlinesExpression('message')} AS message, 
                 date_created 
             FROM delta_log
             {$whereClause}
