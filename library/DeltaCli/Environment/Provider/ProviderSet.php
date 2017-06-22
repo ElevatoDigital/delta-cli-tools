@@ -12,6 +12,7 @@ class ProviderSet
     public function __construct()
     {
         $this->providers[] = new Dev();
+        $this->providers[] = new Staging();
     }
 
     public function getAll()
