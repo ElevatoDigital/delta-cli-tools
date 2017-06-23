@@ -4,6 +4,7 @@ namespace DeltaCli\Extension;
 
 use DeltaCli\Console\Output\Banner;
 use DeltaCli\Project;
+use DeltaCli\Script\EnvironmentNotebook;
 use DeltaCli\Script\InstallFsevents;
 use DeltaCli\Script\Log;
 use DeltaCli\Script\ClearCaches as ClearCachesScript;
@@ -35,6 +36,7 @@ class DefaultScripts implements ExtensionInterface
         $project->addScript(new ClearCachesScript($project));
         $project->addScript(new DiffScript($project));
         $project->addScript(new EnvironmentCreateScript($project));
+        $project->addScript(new EnvironmentNotebook($project));
         $project->addScript(new EnvironmentResourcesScript($project));
         $project->addScript(new InstallFsevents($project));
         $project->addScript(new Log($project));

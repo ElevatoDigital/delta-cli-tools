@@ -44,4 +44,37 @@ class DatabasesTable
 
         $table->render();
     }
+
+    public function renderNotebookHtml()
+    {
+        $this->output->writeln('<table>');
+
+        $this->output->writeln(
+            '<thead>
+                <tr>
+                    <th>DB Name</th>
+                    <th>Host</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                    <th>Type</th>
+                </tr>
+            </thead>'
+        );
+
+        $this->output->writeln('<tbody>');
+
+        foreach ($this->databases as $database) {
+            $this->output->writeln(
+                "<tr>
+                    <td>{$database->getDatabaseName()}</td>
+                    <td>{$database->getHost()}</td>
+                    <td>{$database->getUsername()}</td>
+                    <td>{$database->getPassword()}</td>
+                    <td>{$database->getType()}</td>
+                </tr>"
+            );
+        }
+
+        $this->output->writeln('</tbody></table>');
+    }
 }

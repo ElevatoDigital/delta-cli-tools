@@ -17,6 +17,7 @@ use DeltaCli\Log\Detector\DetectorSet as LogDetectorSet;
 use DeltaCli\Script\Step\AllowWritesToRemoteFolder as AllowWritesToRemoteFolderStep;
 use DeltaCli\Script\Step\CreateDatabase as CreateDatabaseStep;
 use DeltaCli\Script\Step\CreateEnvironment as CreateEnvironmentStep;
+use DeltaCli\Script\Step\DisplayEnvironmentNotebookHtml as DisplayEnvironmentNotebookHtml;
 use DeltaCli\Script\Step\DisplayEnvironmentResources as DisplayEnvironmentResourcesStep;
 use DeltaCli\Script\Step\DumpDatabase as DumpDatabaseStep;
 use DeltaCli\Script\Step\EmptyDatabase as EmptyDatabaseStep;
@@ -486,6 +487,11 @@ class Project
     public function createEnvironmentStep(ProviderInterface $provider, $name)
     {
         return new CreateEnvironmentStep($this, $provider, $name);
+    }
+
+    public function displayEnvironmentNotebookHtml()
+    {
+        return new DisplayEnvironmentNotebookHtml($this);
     }
 
     public function displayEnvironmentResources()

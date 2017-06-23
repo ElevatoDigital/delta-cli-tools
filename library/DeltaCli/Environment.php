@@ -3,6 +3,7 @@
 namespace DeltaCli;
 
 use DeltaCli\Config\Config;
+use DeltaCli\Environment\NotebookHtmlRenderer;
 use DeltaCli\Environment\ResourceRenderer;
 use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\HostNotFound;
@@ -293,10 +294,15 @@ class Environment
         return $this;
     }
 
-
     public function displayResources(OutputInterface $output)
     {
         $renderer = new ResourceRenderer($this, $output);
+        $renderer->render();
+    }
+
+    public function displayNotebookHtml(OutputInterface $output)
+    {
+        $renderer = new NotebookHtmlRenderer($this, $output);
         $renderer->render();
     }
 }

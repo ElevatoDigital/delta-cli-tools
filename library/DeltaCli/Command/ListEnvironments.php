@@ -28,7 +28,8 @@ class ListEnvironments extends Command
     protected function configure()
     {
         $this
-            ->setName('list-environments')
+            ->setName('env:list')
+            ->setAliases(['list-environments'])
             ->setDescription('List the environments available on this project.');
     }
 
