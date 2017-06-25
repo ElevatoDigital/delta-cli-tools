@@ -16,7 +16,8 @@ class Cache
 
     public function __construct($jsonFile = null)
     {
-        $this->jsonFile = ($jsonFile ?: $_SERVER['HOME'] . '/.delta-cli-cache.json');
+        //$this->jsonFile = ($jsonFile ?: $_SERVER['HOME'] . '/.delta-cli-cache.json');
+        $this->jsonFile = ($jsonFile ?: '~/.delta-cli-cache.json');
     }
 
     public function store($key, $value)
