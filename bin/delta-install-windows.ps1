@@ -19,7 +19,7 @@
 Write-Host "Checking for elevated priveleges...[" -nonewline
 
 If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]"Administrator")) {
-    Start-Process powershell.exe "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
+    Start-Process powershell.exe "-NoProfile -NoExit -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
     Exit
 }
 
@@ -36,6 +36,7 @@ if([System.Environment]::OSVersion.Version.Major -eq 10){
     Write-Host "FAIL" -foreground "red" -NoNewline
     Write-Host "]"
     Write-Host "This script was created for windows 10 only" -foreground "red"
+    Read-Host -Prompt "Press Enter to exit"
     Exit
 }
 
@@ -50,12 +51,13 @@ if($currentVersion -ge 1703){
     Write-Host "FAIL" -foreground "red" -NoNewline
     Write-Host "]"
     Write-Host "You need to install the Windows 10 Creators update (version 1703). https://www.microsoft.com/en-us/software-download/windows10" -foreground "red"
-    Exit
-}
+    Read-Host -Prompt "Press Enter to exit"
+    Exit}
 
 Write-Host "This script will install Chocolatey and other software on your computer. Continue? [Y/n]" -NoNewline
 $proceed = Read-Host
 if($proceed -eq "n"){
+    Read-Host -Prompt "Press Enter to exit"
     Exit
 }
 
@@ -109,5 +111,6 @@ else
 {
 
 	Write-Host "Choclatey failed to install properly" -foreground "red"
-
+    Read-Host -Prompt "Press Enter to exit"
+    Exit
 }
