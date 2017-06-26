@@ -14,6 +14,14 @@ if (!ini_get('date.timezone')) {
     date_default_timezone_set('America/Chicago');
 }
 
+if(!isset($_SERVER['HOME'])){
+    $_SERVER['HOME'] = '~';
+}
+
+if(!isset($_SERVER['USER'])){
+    $_SERVER['USER'] = null;
+}
+
 use DeltaCli\ArgvInput;
 use DeltaCli\Command\CreateProjectConfig;
 use DeltaCli\Command\DatabaseShell;
