@@ -26,6 +26,8 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 Write-Host "OK" -foreground "green" -NoNewLine
 Write-Host "]"
 
+powershell -NoExit
+
 #make sure windows 10
 Write-Host "Checking if Windows 10...[" -NoNewline
 
@@ -50,7 +52,8 @@ if($currentVersion -ge 1703){
 }else{
     Write-Host "FAIL" -foreground "red" -NoNewline
     Write-Host "]"
-    Write-Host "You need to install the Windows 10 Creators update (version 1703). https://www.microsoft.com/en-us/software-download/windows10" -foreground "red"
+    Write-Host "You need to install the Windows 10 Creators update (version 1703)." -foreground "red"
+    Write-Host "https://www.microsoft.com/en-us/software-download/windows10" -foreground "red"
     Read-Host -Prompt "Press Enter to exit"
     Exit}
 
