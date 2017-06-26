@@ -22,6 +22,14 @@ if(!isset($_SERVER['USER'])){
     $_SERVER['USER'] = null;
 }
 
+if(PHP_OS=='WIN') {
+    define('IS_WINDOWS',true);
+    define('SHELL_WRAPPER','bash -c "%s"');
+}else{
+    define('IS_WINDOWS',false);
+    define('SHELL_WRAPPER','%s');
+}
+
 use DeltaCli\ArgvInput;
 use DeltaCli\Command\CreateProjectConfig;
 use DeltaCli\Command\DatabaseShell;

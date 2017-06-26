@@ -50,7 +50,7 @@ class SshShell extends Command
 
         $command = $tunnel->assembleSshCommand(null, '-t');
         Debug::log("Opening SSH shell with `{$command}`...");
-        passthru($command);
+        passthru(sprintf(SHELL_WRAPPER,escapeshellcmd($command)));
 
         $tunnel->tearDown();
     }

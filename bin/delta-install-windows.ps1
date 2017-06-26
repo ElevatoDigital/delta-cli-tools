@@ -10,6 +10,10 @@
 # 
 #      Set-ExecutionPolicy Bypass
 #
+#  You can then install Delta CLI and dependencies by executing this:
+#
+#      iex((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/bdelamatre/delta-cli-tools/master/bin/delta-install-windows.ps1'))
+#
    
 # Ask for elevated privelege if needed
 Write-Host "Checking for elevated priveleges...[" -nonewline
@@ -70,19 +74,24 @@ if (Get-Command "choco" -errorAction SilentlyContinue)
 # From Choclately: https://chocolatey.org/install
 # Don't forget to ensure ExecutionPolicy above
     iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-
 }
 
 # proceed with enabling linux subsystem
 if (Get-Command "choco" -errorAction SilentlyContinue)
 {
 
-	# Install puppet using chocalately
+	# Install puppet using chocolaty
 	choco install Microsoft-Windows-Subsystem-Linux  --yes --source windowsfeatures
     
     # Enable developer mode
     # https://gallery.technet.microsoft.com/scriptcenter/Enable-developer-mode-27008e86
     reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock" /t REG_DWORD /f /v "AllowDevelopmentWithoutDevLicense" /d "1"
+
+    # Install Composer
+    choco install composer --yes
+
+    # Install DeltaCli
+    composer global install bdelamatre/delta-cli
 
     Write-Host "Would you like to restart your computer [Y/n]" -NoNewline
     $reboot = Read-Host

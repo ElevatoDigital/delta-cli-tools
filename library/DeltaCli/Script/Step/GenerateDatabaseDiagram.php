@@ -72,7 +72,7 @@ class GenerateDatabaseDiagram extends StepAbstract
         } else {
             unlink("/tmp/{$filename}.dot");
 
-            passthru("open /tmp/{$filename}.pdf");
+            passthru(sprintf(SHELL_WRAPPER,escapeshellcmd("open /tmp/{$filename}.pdf")));
         }
     }
 
