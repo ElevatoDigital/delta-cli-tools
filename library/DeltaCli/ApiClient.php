@@ -28,14 +28,15 @@ class ApiClient
     {
         $stack = new HandlerStack();
 
-        if ('vagrant' === $_SERVER['USER']) {
+        if (isset($_SERVER['USER']) && 'vagrant' === $_SERVER['USER']) {
             $stack->setHandler(new StreamHandler());
         } else {
             $stack->setHandler(\GuzzleHttp\choose_handler());
         }
 
         $this->guzzleClient = ($guzzleClient ?: new GuzzleClient(['exceptions' => false, 'handler' => $stack]));
-        $this->homeFolder   = $_SERVER['HOME'];
+        //$this->homeFolder   = $_SERVER['HOME'];
+        $this->homeFolder     = '~';
     }
 
     public function setHomeFolder($homeFolder)
