@@ -45,11 +45,10 @@ if(strstr(PHP_OS,'WIN')) {
 function deltacli_wrap_command(&$command){
 
     if(defined('SHELL_WRAPPER')){
-        return sprintf(SHELL_WRAPPER,escapeshellarg($command));
-    }else{
-        return $command;
+        $command = sprintf(SHELL_WRAPPER,escapeshellarg($command));
     }
 
+    return $command;
 }
 
 use DeltaCli\ArgvInput;
