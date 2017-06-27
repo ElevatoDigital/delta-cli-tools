@@ -71,8 +71,11 @@ class GenerateDatabaseDiagram extends StepAbstract
             return new Result($this, Result::FAILURE, $output);
         } else {
             unlink("/tmp/{$filename}.dot");
-
-            passthru(sprintf(SHELL_WRAPPER,escapeshellcmd("open /tmp/{$filename}.pdf")));
+            $command = "open /tmp/{$filename}.pdf";
+            if(defined('SHELL_WRAPPER')){
+                $command = sprintf(SHELL_WRAPPER,escapeshellcmd($command));
+            }
+            passthru($command);
         }
     }
 
