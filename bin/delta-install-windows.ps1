@@ -94,7 +94,7 @@ if (Get-Command "choco" -errorAction SilentlyContinue)
     choco install composer --yes
 
     # Install DeltaCli
-    composer global install bdelamatre/delta-cli
+    composer global require bdelamatre/delta-cli
 
     Write-Host "Would you like to restart your computer [Y/n]" -NoNewline
     $reboot = Read-Host
