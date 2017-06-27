@@ -32,7 +32,7 @@ if(strstr(PHP_OS,'WIN')) {
     if(PHP_WINDOWS_VERSION_MAJOR===10){
         //assuming that bash is available through Windows Substem for Linux
         //https://msdn.microsoft.com/en-us/commandline/wsl/install_guide
-        define('SHELL_WRAPPER','%windir%\Sysnative\bash.exe -c "%s"');
+        define('SHELL_WRAPPER','%%windir%%\Sysnative\bash.exe -c "%s"');
     }
 }
 
