@@ -26,8 +26,6 @@ If (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
 Write-Host "OK" -foreground "green" -NoNewLine
 Write-Host "]"
 
-powershell -NoExit
-
 #make sure windows 10
 Write-Host "Checking if Windows 10...[" -NoNewline
 
