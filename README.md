@@ -50,6 +50,20 @@ Set-ExecutionPolicy Bypass
 iex((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/bdelamatre/delta-cli-tools/master/bin/delta-install-windows.ps1'))
 ```
 
+After installation, you will need to configure Ubuntu. The first time you connect you will be prompted to setup a username and password. From PowerShell:
+
+```
+bash
+```
+
+Once you are connected, run the following commands:
+
+```
+sudo apt-get update
+sudo apt-get upgrade -y
+sudo apt-get install -y mysql-client
+```
+
 
 
 

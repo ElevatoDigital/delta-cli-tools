@@ -1,6 +1,6 @@
 <?php
 
-ini_set('memory_limit', -1);
+ini_set('memory_limit',-1);
 
 if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     define('VENDOR_PATH', realpath(__DIR__ . '/../vendor'));
@@ -14,6 +14,9 @@ if (!ini_get('date.timezone')) {
     date_default_timezone_set('America/Chicago');
 }
 
+/**
+ * Set server defaults
+ */
 if(!isset($_SERVER['HOME'])){
     $_SERVER['HOME'] = '~';
 }
@@ -22,12 +25,31 @@ if(!isset($_SERVER['USER'])){
     $_SERVER['USER'] = null;
 }
 
-if(PHP_OS=='WIN') {
-    define('IS_WINDOWS',true);
-    define('SHELL_WRAPPER','bash -c "%s"');
-}else{
-    define('IS_WINDOWS',false);
-    define('SHELL_WRAPPER','%s');
+/**
+ * Windows compatibility
+ */
+if(strstr(PHP_OS,'WIN')) {
+    if(PHP_WINDOWS_VERSION_MAJOR===10){
+        //assuming that bash is available through Windows Substem for Linux
+        //https://msdn.microsoft.com/en-us/commandline/wsl/install_guide
+        define('SHELL_WRAPPER','%windir%\Sysnative\bash.exe -c "%s"');
+    }
+}
+
+/**
+ * This simple command checks if the SHELL_WRAPPER constant is defined and then renders the command using it.
+ *
+ * @param $command
+ * @return string
+ */
+function deltacli_wrap_command(&$command){
+
+    if(defined('SHELL_WRAPPER')){
+        return sprintf(SHELL_WRAPPER,escapeshellarg($command));
+    }else{
+        return $command;
+    }
+
 }
 
 use DeltaCli\ArgvInput;

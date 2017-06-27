@@ -42,6 +42,7 @@ class Exec
 
     public function runCommand($command, &$output, &$exitStatus, Spinner $spinner = null)
     {
+        deltacli_wrap_command($command);
         Debug::log("Running `{$command}`...");
 
         $stopwatch = new Stopwatch();
