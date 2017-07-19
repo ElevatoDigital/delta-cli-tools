@@ -30,12 +30,21 @@ class Ssh extends EnvironmentHostsStepAbstract implements DryRunInterface
      */
     private $slugify;
 
+    private $stdIn;
+
     private $mode = self::LIVE;
 
     public function __construct($command, $dryRunCommand = null)
     {
         $this->command       = $command;
         $this->dryRunCommand = $dryRunCommand;
+    }
+
+    public function setStdIn($stdIn)
+    {
+        $this->stdIn = $stdIn;
+
+        return $this;
     }
 
     public function setSlugify(Slugify $slugify)
@@ -106,7 +115,7 @@ class Ssh extends EnvironmentHostsStepAbstract implements DryRunInterface
         $tunnel->setUp();
         $this->execSsh(
             $host,
-            $tunnel->assembleSshCommand($command),
+            $tunnel->assembleSshCommand($command, '', true, $this->stdIn),
             $output,
             $exitStatus,
             Spinner::forStep($this, $host)

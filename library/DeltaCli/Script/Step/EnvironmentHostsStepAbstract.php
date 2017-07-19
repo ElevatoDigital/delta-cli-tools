@@ -69,7 +69,9 @@ abstract class EnvironmentHostsStepAbstract extends StepAbstract implements Envi
 
             $hostResult = $this->runOnHost($host);
 
-            if (3 === count($hostResult)) {
+            if ($hostResult instanceof Result) {
+                return $hostResult;
+            } elseif (3 === count($hostResult)) {
                 list($hostOutput, $exitStatus, $verboseHostOutput) = $hostResult;
             } else {
                 list($hostOutput, $exitStatus) = $hostResult;

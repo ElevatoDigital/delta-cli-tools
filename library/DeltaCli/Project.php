@@ -11,6 +11,7 @@ use DeltaCli\Exception\EnvironmentNotFound;
 use DeltaCli\Exception\ScriptNotFound;
 use DeltaCli\Extension\DefaultScripts as DefaultScriptsExtension;
 use DeltaCli\Extension\Vagrant as VagrantExtension;
+use DeltaCli\Extension\WordPress as WordPressExtension;
 use DeltaCli\FileWatcher\FileWatcherInterface;
 use DeltaCli\FileWatcher\FileWatcherFactory;
 use DeltaCli\Log\Detector\DetectorSet as LogDetectorSet;
@@ -41,6 +42,7 @@ use DeltaCli\Script\Step\ShellCommandSupportingDryRun as ShellCommandSupportingD
 use DeltaCli\Script\Step\Ssh as SshStep;
 use DeltaCli\Script\Step\StartBackgroundProcess as StartBackgroundProcessStep;
 use DeltaCli\Script\Step\Watch as WatchStep;
+use DeltaCli\Extension\WordPress\Script\Step\WpCli as WpCliStep;
 use DeltaCli\Template\TemplateInterface;
 use DeltaCli\Template\WordPress as WordpressTemplate;
 use Symfony\Component\Console\Application;
@@ -147,6 +149,9 @@ class Project
 
         $defaultScriptsExtension = new DefaultScriptsExtension();
         $defaultScriptsExtension->extend($this);
+
+        $wordPressExtension = new WordPressExtension();
+        $wordPressExtension->extend($this);
     }
 
     public function requiresVersion($minimumVersionRequired)
@@ -627,6 +632,11 @@ class Project
         }
 
         return new WatchStep($script, $this->getFileWatcher());
+    }
+
+    public function wpCli(array $args)
+    {
+        return new WpCliStep($args);
     }
 
     /**

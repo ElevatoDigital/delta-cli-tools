@@ -223,8 +223,12 @@ class SshTunnel
         }
     }
 
-    public function assembleSshCommand($command = null, $additionalFlags = '', $includeApplicationEnv = true)
-    {
+    public function assembleSshCommand(
+        $command = null,
+        $additionalFlags = '',
+        $includeApplicationEnv = true,
+        $stdIn = null
+    ) {
         $keyFlag = '';
 
         if ($this->host->getSshPrivateKey()) {
@@ -248,14 +252,15 @@ class SshTunnel
         }
 
         $command = sprintf(
-            'ssh %s -p %s %s %s %s@%s %s',
+            'ssh %s -p %s %s %s %s@%s %s%s',
             $this->getSshOptions($this->host),
             escapeshellarg($this->getPort()),
             $additionalFlags,
             $keyFlag,
             escapeshellarg($this->getUsername()),
             escapeshellarg($this->getHostname()),
-            (null === $command ? '' : escapeshellarg($command))
+            (null === $command ? '' : escapeshellarg($command)),
+            (null === $stdIn ? '' : ' < ' . escapeshellarg($stdIn))
         );
 
         if ($this->host->getSshPassword()) {
