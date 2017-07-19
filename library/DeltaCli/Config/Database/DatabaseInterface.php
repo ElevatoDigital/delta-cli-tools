@@ -149,4 +149,19 @@ interface DatabaseInterface
      * @return string
      */
     public function getReplaceNewlinesExpression($column);
+
+    /**
+     * @return string
+     */
+    public function getTimestampDataType();
+
+    /**
+     * @param string $tableName
+     * @param string $columnName
+     * @param string $type
+     * @param boolean $nullable
+     * @param string $default
+     * @return mixed
+     */
+    public function generateAddColumnDdl($tableName, $columnName, $type, $nullable, $default);
 }

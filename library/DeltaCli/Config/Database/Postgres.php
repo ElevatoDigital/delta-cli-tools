@@ -270,4 +270,21 @@ class Postgres extends DatabaseAbstract
     {
         return "REPLACE({$column}, E'\\n', ' ')";
     }
+
+    public function getTimestampDataType()
+    {
+        return 'TIMESTAMP';
+    }
+
+    public function generateAddColumnDdl($tableName, $columnName, $type, $nullable, $default)
+    {
+        return sprintf(
+            'ALTER TABLE %s ADD %s %s %s %s;',
+            $this->quoteIdentifier($tableName),
+            $this->quoteIdentifier($columnName),
+            $type,
+            ($nullable ? '' : 'NOT NULL'),
+            ($default ? "DEFAULT {$default}" : '')
+        );
+    }
 }

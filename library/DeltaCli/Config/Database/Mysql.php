@@ -178,4 +178,23 @@ class Mysql extends DatabaseAbstract
     {
         return "REPLACE({$column}, '\\n', '')";
     }
+
+    public function getTimestampDataType()
+    {
+        return 'DATETIME';
+    }
+
+    public function generateAddColumnDdl($tableName, $columnName, $type, $nullable, $default)
+    {
+        return sprintf(
+            'ALTER TABLE %s ADD COLUMN %s %s %s %s;',
+            $this->quoteIdentifier($tableName),
+            $this->quoteIdentifier($columnName),
+            $type,
+            ($default ? "DEFAULT {$default}" : ''),
+            ($nullable ? '' : 'NOT NULL')
+        );
+    }
+
+
 }

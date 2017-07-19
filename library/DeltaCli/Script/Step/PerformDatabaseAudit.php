@@ -61,6 +61,8 @@ class PerformDatabaseAudit extends EnvironmentHostsStepAbstract
         $output  = [];
         $changes = [];
 
+        $changeFile = fopen($this->generateChangeFileName($this->environment), 'w');
+
         foreach ($this->database->getTableNames() as $tableName) {
             $spinner->spin("Auditing {$tableName}");
 
@@ -77,30 +79,89 @@ class PerformDatabaseAudit extends EnvironmentHostsStepAbstract
             }
 
             if (!array_intersect($columnNames, $this->createdByColumnNames)) {
-                $changes[] = sprintf('<fg=red>Missing created by column on %s</>', $tableName);
+                $changes[] = sprintf('<fg=red>Missing created by column on %s.</>', $tableName);
+
+                fwrite(
+                    $changeFile,
+                    $this->database->generateAddColumnDdl(
+                        $tableName,
+                        $this->config->getCreatedByColumnName(),
+                        $this->config->getUserColumnDataType(),
+                        true,
+                        null
+                    ) . PHP_EOL
+                );
             }
 
             if (!array_intersect($columnNames, $this->updatedByColumnNames)) {
-                $changes[] = sprintf('<fg=red>Missing updated by column on %s</>', $tableName);
+                $changes[] = sprintf('<fg=red>Missing updated by column on %s.</>', $tableName);
+
+                fwrite(
+                    $changeFile,
+                    $this->database->generateAddColumnDdl(
+                        $tableName,
+                        $this->config->getUpdatedByColumnName(),
+                        $this->config->getUserColumnDataType(),
+                        true,
+                        null
+                    ) . PHP_EOL
+                );
             }
 
             if (!array_intersect($columnNames, $this->dateUpdatedColumnNames)) {
-                $changes[] = sprintf('<fg=red>Missing date updated column on %s</>', $tableName);
+                $changes[] = sprintf('<fg=red>Missing date updated column on %s.</>', $tableName);
+
+                fwrite(
+                    $changeFile,
+                    $this->database->generateAddColumnDdl(
+                        $tableName,
+                        $this->config->getUpdatedAtColumnName(),
+                        $this->database->getTimestampDataType(),
+                        true,
+                        null
+                    ) . PHP_EOL
+                );
             }
 
             if (!array_intersect($columnNames, $this->dateCreatedColumnNames)) {
-                $changes[] = sprintf('<fg=red>Missing date created column on %s</>', $tableName);
+                $changes[] = sprintf('<fg=red>Missing date created column on %s.</>', $tableName);
+
+                fwrite(
+                    $changeFile,
+                    $this->database->generateAddColumnDdl(
+                        $tableName,
+                        $this->config->getCreatedAtColumnName(),
+                        $this->database->getTimestampDataType(),
+                        true,
+                        null
+                    ) . PHP_EOL
+                );
             }
         }
+
+        fclose($changeFile);
 
         $spinner->clear();
 
         $tunnel->tearDown();
 
         return [
-            array_merge($output, $changes),
-            (0 === count($changes) ? 0 : 1)
+            [$this->generateChangeSummary($changes)],
+            (0 === count($changes) ? 0 : 1),
+            array_merge($output, $changes)
         ];
+    }
+
+    private function generateChangeSummary(array $changes)
+    {
+        if (0 === count($changes)) {
+            return 'No changes needed based upon database audit.';
+        } else {
+            return sprintf(
+                '%d suggested database changes found during audit.',
+                count($changes)
+            );
+        }
     }
 
     public function getName()

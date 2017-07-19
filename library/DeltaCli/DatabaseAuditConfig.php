@@ -36,6 +36,16 @@ class DatabaseAuditConfig
      */
     private $wordPressPrefix;
 
+    private $createdByColumnName = 'created_by_user_id';
+
+    private $updatedByColumnName = 'updated_by_user_id';
+
+    private $createdAtColumnName = 'date_created';
+
+    private $updatedAtColumnName = 'date_updated';
+
+    private $userColumnDataType = 'INTEGER';
+
     public function applyDatabaseSpecificConfiguration(callable $configurationCallback)
     {
         $this->databaseSpecificConfigurationCallbacks[] = $configurationCallback;
@@ -52,6 +62,59 @@ class DatabaseAuditConfig
         }
 
         return $config;
+    }
+
+    public function getUserColumnDataType()
+    {
+        return $this->userColumnDataType;
+    }
+
+    public function setCreatedByColumnName($createdByColumnName)
+    {
+        $this->createdAtColumnName = $createdByColumnName;
+
+        return $this;
+    }
+
+    public function getCreatedByColumnName()
+    {
+        return $this->createdByColumnName;
+    }
+
+    public function setUpdatedByColumnName($updatedByColumnName)
+    {
+        $this->updatedAtColumnName = $updatedByColumnName;
+
+        return $this;
+    }
+
+    public function getUpdatedByColumnName()
+    {
+        return $this->updatedByColumnName;
+    }
+
+    public function setCreatedAtColumnName($createdAtColumnName)
+    {
+        $this->createdAtColumnName = $createdAtColumnName;
+
+        return $this;
+    }
+
+    public function getCreatedAtColumnName()
+    {
+        return $this->createdAtColumnName;
+    }
+
+    public function setUpdatedAtColumnName($updatedAtColumnName)
+    {
+        $this->updatedByColumnName = $updatedAtColumnName;
+
+        return $this;
+    }
+
+    public function getUpdatedAtColumnName()
+    {
+        return $this->updatedAtColumnName;
     }
 
     public function excludeTable($table)
