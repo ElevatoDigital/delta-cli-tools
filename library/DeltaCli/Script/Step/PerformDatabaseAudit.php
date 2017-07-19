@@ -14,6 +14,16 @@ class PerformDatabaseAudit extends EnvironmentHostsStepAbstract
     /**
      * @var array
      */
+    private $createdByColumnNames = ['created_by', 'created_by_user_id'];
+
+    /**
+     * @var array
+     */
+    private $updatedByColumnNames = ['updated_by', 'updated_by_user_id'];
+
+    /**
+     * @var array
+     */
     private $dateCreatedColumnNames = ['created_at', 'date_created', 'datetime_created'];
 
     /**
@@ -64,6 +74,14 @@ class PerformDatabaseAudit extends EnvironmentHostsStepAbstract
 
             foreach ($columns as $column) {
                 $columnNames[] = $column['name'];
+            }
+
+            if (!array_intersect($columnNames, $this->createdByColumnNames)) {
+                $changes[] = sprintf('<fg=red>Missing created by column on %s</>', $tableName);
+            }
+
+            if (!array_intersect($columnNames, $this->updatedByColumnNames)) {
+                $changes[] = sprintf('<fg=red>Missing updated by column on %s</>', $tableName);
             }
 
             if (!array_intersect($columnNames, $this->dateUpdatedColumnNames)) {
