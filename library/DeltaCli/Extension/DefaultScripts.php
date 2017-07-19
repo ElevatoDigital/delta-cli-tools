@@ -4,6 +4,7 @@ namespace DeltaCli\Extension;
 
 use DeltaCli\Console\Output\Banner;
 use DeltaCli\Project;
+use DeltaCli\Script\DatabaseAudit;
 use DeltaCli\Script\EnvironmentNotebook;
 use DeltaCli\Script\InstallFsevents;
 use DeltaCli\Script\Log;
@@ -45,6 +46,7 @@ class DefaultScripts implements ExtensionInterface
         $project->addScript(new SshInstallKeyScript($project));
         $project->addScript(new SshTunnel($project));
         $project->addScript(new ScpScript($project));
+        $project->addScript(new DatabaseAudit($project));
         $project->addScript(new DatabaseCopyScript($project));
         $project->addScript(new DatabaseCreateScript($project));
         $project->addScript(new DatabaseDumpScript($project));

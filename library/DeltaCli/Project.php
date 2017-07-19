@@ -32,6 +32,7 @@ use DeltaCli\Script\Step\GitStatusIsClean as GitStatusIsCleanStep;
 use DeltaCli\Script\Step\IsDevEnvironment as IsDevEnvironmentStep;
 use DeltaCli\Script\Step\KillProcessMatchingName as KillProcessMatchingNameStep;
 use DeltaCli\Script\Step\LogAndSendNotifications as LogAndSendNotificationsStep;
+use DeltaCli\Script\Step\PerformDatabaseAudit as PerformDatabaseAuditStep;
 use DeltaCli\Script\Step\PhpCallableSupportingDryRun as PhpCallableSupportingDryRunStep;
 use DeltaCli\Script\Step\RestoreDatabase as RestoreDatabaseStep;
 use DeltaCli\Script\Step\Rsync as RsyncStep;
@@ -133,6 +134,11 @@ class Project
     private $templates = [];
 
     /**
+     * @var DatabaseAuditConfig
+     */
+    private $databaseAuditConfig;
+
+    /**
      * Project constructor.
      * @param Application $application
      * @param InputInterface $input
@@ -146,6 +152,8 @@ class Project
 
         $this->globalCache  = new Cache();
         $this->projectCache = null;
+
+        $this->databaseAuditConfig = new DatabaseAuditConfig();
 
         $defaultScriptsExtension = new DefaultScriptsExtension();
         $defaultScriptsExtension->extend($this);
@@ -174,6 +182,11 @@ class Project
     public function getOutput()
     {
         return $this->output;
+    }
+
+    public function getDatabaseAuditConfig()
+    {
+        return $this->databaseAuditConfig;
     }
 
     public function configFileExists()
@@ -557,6 +570,11 @@ class Project
     public function logAndSendNotifications()
     {
         return new LogAndSendNotificationsStep($this);
+    }
+
+    public function performDatabaseAudit(DatabaseInterface $database)
+    {
+        return new PerformDatabaseAuditStep($database, $this->getDatabaseAuditConfig());
     }
 
     public function phpCallableSupportingDryRun(callable $callable, callable $dryRunCallable)
