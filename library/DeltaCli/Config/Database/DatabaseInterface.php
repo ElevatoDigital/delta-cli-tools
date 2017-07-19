@@ -164,4 +164,9 @@ interface DatabaseInterface
      * @return mixed
      */
     public function generateAddColumnDdl($tableName, $columnName, $type, $nullable, $default);
+
+    /**
+     * @return string
+     */
+    public function getShellConfigurationFile();
 }

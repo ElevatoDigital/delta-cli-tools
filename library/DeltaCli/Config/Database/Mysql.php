@@ -196,5 +196,8 @@ class Mysql extends DatabaseAbstract
         );
     }
 
-
+    public function getShellConfigurationFile()
+    {
+        return null;
+    }
 }

@@ -287,4 +287,9 @@ class Postgres extends DatabaseAbstract
             ($default ? "DEFAULT {$default}" : '')
         );
     }
+
+    public function getShellConfigurationFile()
+    {
+        return __DIR__ . '/shell-configuration-files/.psqlrc';
+    }
 }

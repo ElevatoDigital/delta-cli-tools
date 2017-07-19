@@ -8,6 +8,8 @@ use DeltaCli\Environment;
 use DeltaCli\Project;
 use DeltaCli\Script;
 use DeltaCli\Script\Step\FindDatabases;
+use DeltaCli\Script\Step\Result;
+use DeltaCli\Script\Step\Scp;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -86,10 +88,24 @@ class DatabaseShell extends Command
 
         $script->setApplication($this->getApplication());
 
+        $configureStep = function () use (&$configureStep, $findDatabasesStep, $env, $input) {
+            $database = $findDatabasesStep->getSelectedDatabase($input);
+            $config   = $database->getShellConfigurationFile();
+
+            if ($config) {
+                $scpStep = new Scp($config, basename($config));
+                $scpStep->setSelectedEnvironment($env);
+                return $scpStep->run();
+            }
+
+            return new Result($configureStep, Result::SKIPPED, 'No database shell configuration available.');
+        };
+
         $script
             ->setEnvironment($env)
-            ->addStep($this->project->logAndSendNotifications()->setSendNotificationsOnScriptFailure(false))
             ->addStep($findDatabasesStep)
+            ->addStep($this->project->logAndSendNotifications()->setSendNotificationsOnScriptFailure(false))
+            ->addStep('configure-shell', $configureStep)
             ->addStep(
                 'open-db-shell',
                 function () use ($findDatabasesStep, $env, $input) {
