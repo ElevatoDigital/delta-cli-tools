@@ -202,7 +202,7 @@ class Script extends Command
         return $this;
     }
 
-    protected function processInteractiveArgumentsAndOptions(InputInterface $input, OutputInterface $output)
+    protected function processArgumentsAndOptions(InputInterface $input, OutputInterface $output)
     {
         $this->project->loadConfigFile();
 
@@ -223,9 +223,7 @@ class Script extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        if ($input->isInteractive()) {
-            $this->processInteractiveArgumentsAndOptions($input, $output);
-        }
+        $this->processArgumentsAndOptions($input, $output);
 
         $this->checkRequiredVersionForProject();
 
