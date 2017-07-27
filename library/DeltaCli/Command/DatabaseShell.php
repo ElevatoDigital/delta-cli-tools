@@ -88,18 +88,20 @@ class DatabaseShell extends Command
 
         $script->setApplication($this->getApplication());
 
-        $configureStep = function () use (&$configureStep, $findDatabasesStep, $env, $input) {
-            $database = $findDatabasesStep->getSelectedDatabase($input);
-            $config   = $database->getShellConfigurationFile();
+        $configureStep = new Script\Step\PhpCallable(
+            function () use (&$configureStep, $findDatabasesStep, $env, $input) {
+                $database = $findDatabasesStep->getSelectedDatabase($input);
+                $config   = $database->getShellConfigurationFile();
 
-            if ($config) {
-                $scpStep = new Scp($config, basename($config));
-                $scpStep->setSelectedEnvironment($env);
-                return $scpStep->run();
+                if ($config) {
+                    $scpStep = new Scp($config, basename($config));
+                    $scpStep->setSelectedEnvironment($env);
+                    return $scpStep->run();
+                }
+
+                return new Result($configureStep, Result::SKIPPED, 'No database shell configuration available.');
             }
-
-            return new Result($configureStep, Result::SKIPPED, 'No database shell configuration available.');
-        };
+        );
 
         $script
             ->setEnvironment($env)
