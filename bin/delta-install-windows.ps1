@@ -94,7 +94,7 @@ if (Get-Command "choco" -errorAction SilentlyContinue)
     choco install composer --yes
 
     # Install DeltaCli
-    composer global require bdelamatre/delta-cli "dev-master"
+    composer global require deltasystems/delta-cli "dev-master"
 
     Write-Host "Would you like to restart your computer [Y/n]" -NoNewline
     $reboot = Read-Host
@@ -105,7 +105,7 @@ if (Get-Command "choco" -errorAction SilentlyContinue)
         Write-Host "You will probably need to reboot Windows before you can use the Linux subsystem" -foreground "yellow"
     }
 
-    #fix-me: resume script and run delta-install-windows.ps1
+    #fix-me: resume script and run delta-install-windows.ps1 if the script previously failed
 	
 }
 else

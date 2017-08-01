@@ -1,5 +1,5 @@
 {
-    "name": "bdelamatre/delta-cli",
+    "name": "deltasystems/delta-cli",
     "bin": [
         "bin/delta"
     ],
