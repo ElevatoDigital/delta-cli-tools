@@ -17,37 +17,37 @@ if (!ini_get('date.timezone')) {
 /**
  * Set server defaults
  */
-if(!isset($_SERVER['HOME'])){
+if (!isset($_SERVER['HOME'])) {
     $_SERVER['HOME'] = '~';
 }
 
-if(!isset($_SERVER['USER'])){
+if (!isset($_SERVER['USER'])) {
     $_SERVER['USER'] = null;
 }
 
 /**
  * Windows compatibility
  */
-if(strstr(PHP_OS,'WIN')) {
-    if(PHP_WINDOWS_VERSION_MAJOR===10){
+if (strstr(PHP_OS, 'WIN')) {
+    if (PHP_WINDOWS_VERSION_MAJOR === 10) {
         //assuming that bash is available through Windows Substem for Linux
         //https://msdn.microsoft.com/en-us/commandline/wsl/install_guide
-        define('SHELL_WRAPPER','%%windir%%\Sysnative\bash.exe -c %s');
+        define('SHELL_WRAPPER', '%%windir%%\Sysnative\bash.exe -c %s');
     }
 }
 
 /**
- * This simple command checks if the SHELL_WRAPPER constant is defined and then renders the command using it.
+ * This simple command checks if the SHELL_WRAPPER constant is defined and then
+ * renders the command using it.
  *
  * @param $command
  * @return string
  */
-function deltacli_wrap_command(&$command){
-
-    if(defined('SHELL_WRAPPER')){
-        $command = sprintf(SHELL_WRAPPER,escapeshellarg($command));
+function deltacli_wrap_command(&$command)
+{
+    if (defined('SHELL_WRAPPER')) {
+        $command = sprintf(SHELL_WRAPPER, escapeshellarg($command));
     }
-
     return $command;
 }
 
@@ -111,4 +111,3 @@ try {
 
     exit(1);
 }
-
