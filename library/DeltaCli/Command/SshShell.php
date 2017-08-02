@@ -50,9 +50,6 @@ class SshShell extends Command
 
         $command = $tunnel->assembleSshCommand(null, '-t');
         Debug::log("Opening SSH shell with `{$command}`...");
-        if(defined('SHELL_WRAPPER')){
-            $command = sprintf(SHELL_WRAPPER,escapeshellcmd($command));
-        }
         deltacli_wrap_command($command);
         passthru($command);
 

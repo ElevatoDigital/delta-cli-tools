@@ -72,9 +72,6 @@ class GenerateDatabaseDiagram extends StepAbstract
         } else {
             unlink("/tmp/{$filename}.dot");
             $command = "open /tmp/{$filename}.pdf";
-            if(defined('SHELL_WRAPPER')){
-                $command = sprintf(SHELL_WRAPPER,escapeshellcmd($command));
-            }
             deltacli_wrap_command($command);
             passthru($command);
         }

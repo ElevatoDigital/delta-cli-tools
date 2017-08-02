@@ -19,7 +19,6 @@ class SshKeyGen extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
         if (!file_exists(getcwd() . '/ssh-keys')) {
             mkdir(getcwd() . '/ssh-keys');
         }
