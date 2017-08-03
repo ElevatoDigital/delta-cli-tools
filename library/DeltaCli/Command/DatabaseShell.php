@@ -73,6 +73,7 @@ class DatabaseShell extends Command
 
         $command = $tunnel->assembleSshCommand($database->getShellCommand(), '-t');
         Debug::log("Opening DB shell with `{$command}`...");
+        deltacli_wrap_command($command);
         passthru($command);
 
         $tunnel->tearDown();

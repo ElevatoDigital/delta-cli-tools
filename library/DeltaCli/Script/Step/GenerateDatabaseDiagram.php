@@ -71,8 +71,9 @@ class GenerateDatabaseDiagram extends StepAbstract
             return new Result($this, Result::FAILURE, $output);
         } else {
             unlink("/tmp/{$filename}.dot");
-
-            passthru("open /tmp/{$filename}.pdf");
+            $command = "open /tmp/{$filename}.pdf";
+            deltacli_wrap_command($command);
+            passthru($command);
         }
     }
 
