@@ -50,7 +50,7 @@ You can run the below commands in Powershell to install Delta CLI and its depend
 
 ```
 Set-ExecutionPolicy Bypass
-iex((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/bdelamatre/delta-cli-tools/master/bin/delta-install-windows.ps1'))
+iex((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/DeltaSystems/delta-cli-tools/master/bin/delta-install-windows.ps1'))
 ```
 
 After installation, you will need to configure Ubuntu. The first time you connect you will be prompted to setup a username and password. You must run bash 
