@@ -36,7 +36,8 @@ class WpCli extends EnvironmentHostsStepAbstract
         $wpCli = current($output);
 
         $cmd = sprintf(
-            '%s %s',
+            'cd %s; %s %s',
+            dirname($wpCli),
             $wpCli,
             implode(' ', $this->args)
         );
