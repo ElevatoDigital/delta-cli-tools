@@ -4,6 +4,10 @@ if (file_exists('httpdocs') && is_dir('httpdocs')) {
     chdir('httpdocs');
 }
 
+if (file_exists('src') && is_dir('src')) {
+    chdir('src');
+}
+
 if (wp_cli_is_installed()) {
     echo realpath('wp-cli.phar');
     exit;
