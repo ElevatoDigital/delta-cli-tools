@@ -85,8 +85,10 @@ class RsyncTest extends PHPUnit_Framework_TestCase
             ->exclude('one')
             ->exclude('two');
 
-        $this->expectedCommandFlagIsPresent("--exclude='one'");
-        $this->expectedCommandFlagIsPresent("--exclude='two'");
+        //$this->expectedCommandFlagIsPresent("--exclude='one'");
+        //$this->expectedCommandFlagIsPresent("--exclude='two'");
+        $this->expectedCommandFlagIsPresent("--exclude=".escapeshellarg('one'));
+        $this->expectedCommandFlagIsPresent("--exclude=".escapeshellarg('two'));
     }
 
     public function testDryRunAddsDryRunFlag()
