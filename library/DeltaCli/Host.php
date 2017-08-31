@@ -2,6 +2,9 @@
 
 namespace DeltaCli;
 
+use DeltaCli\Exception\SshKeyPermissionsAreIncorrectAndCouldNotBeFixed;
+use DeltaCli\Script\Step\FixSshKeyPermissions;
+
 class Host
 {
     /**
@@ -162,6 +165,12 @@ class Host
     public function getSshTunnel()
     {
         if (!$this->sshTunnel) {
+            $fixSshKeyPermissions = new FixSshKeyPermissions();
+
+            if ($fixSshKeyPermissions->run()->isFailure()) {
+                throw new SshKeyPermissionsAreIncorrectAndCouldNotBeFixed();
+            }
+
             $this->sshTunnel = new SshTunnel($this);
         }
 
