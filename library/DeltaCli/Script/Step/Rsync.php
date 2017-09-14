@@ -63,7 +63,7 @@ class Rsync extends EnvironmentHostsStepAbstract implements DryRunInterface
     /**
      * @var string
      */
-    private $flags = '-az --no-p';
+    private $flags = '-az --no-p --no-t';
 
     /**
      * @var Slugify
