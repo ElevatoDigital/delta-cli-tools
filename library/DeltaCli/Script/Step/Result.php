@@ -145,6 +145,11 @@ class Result
         return implode(PHP_EOL, $output);
     }
 
+    public function isSuccess()
+    {
+        return self::SUCCESS === $this->status;
+    }
+
     public function isFailure()
     {
         return self::INVALID === $this->status || self::FAILURE === $this->status;
