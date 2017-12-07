@@ -69,7 +69,7 @@ class RsyncTest extends PHPUnit_Framework_TestCase
 
     public function testDefaultFlagsArePresent()
     {
-        $this->expectedCommandFlagIsPresent('-az --no-p');
+        $this->expectedCommandFlagIsPresent('-acz --no-p');
     }
 
     public function testCanSetCustomFlags()
