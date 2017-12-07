@@ -89,7 +89,7 @@ class Fsevents implements FileWatcherInterface
         $childProcess->stdout->on(
             'data',
             function ($processOutput)  {
-                $path = rtrim(trim($processOutput), '/');
+                $path = rtrim(realpath(trim($processOutput)), '/');
 
                 foreach ($this->watches as $watch) {
                     if (in_array($path, $watch['paths'])) {
