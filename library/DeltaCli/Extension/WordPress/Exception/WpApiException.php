@@ -1,6 +1,6 @@
 <?php
 
-namespace DeltaCli\WordPress\Exception;
+namespace DeltaCli\Extension\WordPress\Exception;
 
 use Exception;
 
