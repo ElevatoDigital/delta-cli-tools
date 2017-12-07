@@ -91,7 +91,7 @@ class File implements LogInterface
 
         $this->childProcess->on(
             'exit',
-            function () use ($output) {
+            function () {
             }
         );
 
