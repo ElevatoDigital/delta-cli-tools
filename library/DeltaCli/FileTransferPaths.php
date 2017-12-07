@@ -10,6 +10,21 @@ class FileTransferPaths
 
     const UP = 'upload';
 
+    /**
+     * @var Path
+     */
+    private $localPath;
+
+    /**
+     * @var Path
+     */
+    private $remotePath;
+
+    /**
+     * @var string
+     */
+    private $direction;
+
     public function __construct(Project $project, $path1, $path2)
     {
         $path1 = new Path($project, $path1);

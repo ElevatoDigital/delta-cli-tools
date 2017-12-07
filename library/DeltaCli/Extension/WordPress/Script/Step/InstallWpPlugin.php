@@ -5,7 +5,7 @@ namespace DeltaCli\Extension\WordPress\Script\Step;
 use DeltaCli\Host;
 use DeltaCli\Script\Step\EnvironmentHostsStepAbstract;
 use DeltaCli\Script\Step\Result;
-use DeltaCli\WordPress\Exception\WpApiException;
+use DeltaCli\Extension\WordPress\Exception\WpApiException;
 
 class InstallWpPlugin extends EnvironmentHostsStepAbstract
 {
@@ -27,7 +27,7 @@ class InstallWpPlugin extends EnvironmentHostsStepAbstract
             return new Result($this, Result::FAILURE, $e->getMessage());
         }
 
-        
+
     }
 
     public function getName()
