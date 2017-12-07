@@ -1,3 +1,4 @@
 #!/usr/bin/env php
 <?php
-include('delta-bootstrap.php');
+
+include 'delta-bootstrap.php';
