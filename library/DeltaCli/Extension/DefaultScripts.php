@@ -39,7 +39,6 @@ class DefaultScripts implements ExtensionInterface
         $project->addScript(new EnvironmentCreateScript($project));
         $project->addScript(new EnvironmentNotebook($project));
         $project->addScript(new EnvironmentResourcesScript($project));
-        $project->addScript(new InstallFsevents($project));
         $project->addScript(new Log($project));
         $project->addScript(new RsyncScript($project));
         $project->addScript(new SshFixKeyPermissionsScript($project));
