@@ -5,6 +5,9 @@ namespace DeltaCli\FileWatcher;
 use DeltaCli\Exec;
 use DeltaCli\Script;
 use DeltaCli\Script\Step\Result;
+use React\ChildProcess\Process as ChildProcess;
+use React\EventLoop\Factory as EventLoopFactory;
+use React\EventLoop\Timer\TimerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -20,6 +23,11 @@ class Fsevents implements FileWatcherInterface
      */
     private $output;
 
+    /**
+     * @var array
+     */
+    private $watches = [];
+
     public function __construct(InputInterface $input, OutputInterface $output)
     {
         $this->input  = $input;
@@ -30,10 +38,15 @@ class Fsevents implements FileWatcherInterface
     {
         $callback = FileWatcherFactory::createWatchCallback($this, $script, $onlyNotifyOnFailure, $stopOnFailure);
 
-        foreach ($paths as $path) {
-            /* @noinspection PhpUndefinedFunctionInspection */
-            fsevents_add_watch($path, $callback);
-        }
+        $this->watches[] = [
+            'paths' => array_map(
+                function ($input) {
+                    return rtrim(realpath($input), '/');
+                },
+                $paths
+            ),
+            'callback' => $callback
+        ];
 
         return $this;
     }
@@ -59,8 +72,37 @@ class Fsevents implements FileWatcherInterface
 
     public function startLoop()
     {
-        /* @noinspection PhpUndefinedFunctionInspection */
-        fsevents_start();
+        $loop = EventLoopFactory::create();
+
+        exec(sprintf('chmod +x %s', escapeshellarg(__DIR__ . '/fsevents-util/fsevents')));
+
+        $childProcess = new ChildProcess($this->assembleFseventsCommand());
+
+        $childProcess->on(
+            'exit',
+            function () {
+            }
+        );
+
+        $childProcess->start($loop);
+
+        $childProcess->stdout->on(
+            'data',
+            function ($processOutput)  {
+                $path = rtrim(trim($processOutput), '/');
+
+                foreach ($this->watches as $watch) {
+                    if (in_array($path, $watch['paths'])) {
+                        /* @var callable $callback */
+                        $callback = $watch['callback'];
+                        $callback($path);
+                        break;
+                    }
+                }
+            }
+        );
+
+        $loop->run();
     }
 
     public function getInput()
@@ -71,5 +113,23 @@ class Fsevents implements FileWatcherInterface
     public function getOutput()
     {
         return $this->output;
+    }
+
+    private function assembleFseventsCommand()
+    {
+        $paths = [];
+
+        foreach ($this->watches as $watch) {
+            foreach ($watch['paths'] as $path) {
+                $paths[] = $path;
+            }
+        }
+
+        $paths = array_unique($paths);
+
+        return sprintf(
+            __DIR__ . '/fsevents-util/fsevents %s',
+            implode(' ', array_map('escapeshellarg', $paths))
+        );
     }
 }

@@ -12,7 +12,8 @@ class FileWatcherFactory
 {
     public static function factory(InputInterface $input, OutputInterface $output)
     {
-        if (extension_loaded('fsevents')) {
+        // We should get "Darwin" on any Mac OS install, indicating we can run the Fsevents watcher
+        if ('Darwin' === php_uname('s')) {
             return new Fsevents($input, $output);
         } else if (extension_loaded('inotify')) {
             return new Inotify($input, $output);
