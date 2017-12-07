@@ -58,7 +58,7 @@ class RestartServices extends Script
      */
     protected function attemptRestartUsingCandidateServiceNames($service, $candidateServiceNames)
     {
-        return function () use ($candidateServiceNames) {
+        return function () use ($candidateServiceNames, $service) {
             foreach ($candidateServiceNames as $serviceName) {
                 $step = $this->getProject()->ssh(
                     sprintf('sudo service %s restart', escapeshellarg($serviceName))
