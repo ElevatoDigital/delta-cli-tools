@@ -14,6 +14,11 @@ class StepFactory
      */
     private $input;
 
+    /**
+     * @var OutputInterface
+     */
+    private $output;
+
     public function __construct(InputInterface $input, OutputInterface $output)
     {
         $this->input  = $input;
@@ -59,7 +64,7 @@ class StepFactory
 
     protected function createPhpCallable(callable $callable, $name = null)
     {
-        $step = new PhpCallable($callable, $this->output);
+        $step = new PhpCallable($callable);
         $step->setName($name);
         return $step;
     }
