@@ -220,3 +220,10 @@ $project->createEnvironmentScript(
             throw new Exception('You must have authorized me to ruin everything.');
         }
     );
+
+$project->createScript(
+    'qa',
+    'Run some QA tools.'
+)
+    ->addStep('./vendor/bin/phpstan');
+

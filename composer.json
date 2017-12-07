@@ -21,6 +21,7 @@
     "require-dev" : {
         "phpunit/dbunit": "2.*",
         "phpunit/phpunit": "4.*",
-        "phpunit/phpunit-mock-objects": "2.*"
+        "phpunit/phpunit-mock-objects": "2.*",
+        "phpstan/phpstan": "^0.9.1"
     }
 }
