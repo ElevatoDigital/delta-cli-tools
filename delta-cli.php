@@ -155,13 +155,13 @@ $project->createEnvironmentScript('dry-runs-on-custom-steps', 'Custom steps can 
  * A script to run the unit tests that ship with Delta CLI.
  */
 $project->createScript('run-tests', 'Run PHPUnit tests.')
-    ->addStep('phpunit', 'phpunit -c tests/phpunit.xml tests/');
+    ->addStep('phpunit', './vendor/bin/phpunit -c tests/phpunit.xml tests/');
 
 /**
  * A script to run the same tests and generate a code coverage report.
  */
 $project->createScript('run-tests-with-coverage', 'Run PHPUnit tests.')
-    ->addStep('phpunit', 'phpunit --coverage-html=test-coverage -c tests/phpunit.xml tests/');
+    ->addStep('phpunit', './vendor/bin/phpunit --coverage-html=test-coverage -c tests/phpunit.xml tests/');
 
 /**
  * This is an example of a watch command.  The watch() step will run the script you pass to it
