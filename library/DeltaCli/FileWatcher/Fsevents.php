@@ -89,22 +89,26 @@ class Fsevents implements FileWatcherInterface
         $childProcess->stdout->on(
             'data',
             function ($processOutput)  {
-                $path = rtrim(realpath(trim($processOutput)), '/');
+                $paths = explode(PHP_EOL, $processOutput);
 
-                foreach ($this->watches as $watch) {
-                    $matches = false;
+                foreach ($paths as $path) {
+                    $path = rtrim(realpath(trim($path)), '/');
 
-                    foreach ($watch['paths'] as $watchPath) {
-                        if (0 === strpos($path, $watchPath)) {
-                            $matches = true;
-                            break;
+                    foreach ($this->watches as $watch) {
+                        $matches = false;
+
+                        foreach ($watch['paths'] as $watchPath) {
+                            if (0 === strpos($path, $watchPath)) {
+                                $matches = true;
+                                break;
+                            }
                         }
-                    }
 
-                    if ($matches) {
-                        /* @var callable $callback */
-                        $callback = $watch['callback'];
-                        $callback($path);
+                        if ($matches) {
+                            /* @var callable $callback */
+                            $callback = $watch['callback'];
+                            $callback($path);
+                        }
                     }
                 }
             }
