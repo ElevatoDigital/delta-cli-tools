@@ -8,13 +8,6 @@
 #include <sys/ioctl.h>
 #include <CoreServices/CoreServices.h>
 
-bool starts_with(const char *str, const char *pre)
-{
-    size_t lenpre = strlen(pre),
-           lenstr = strlen(str);
-    return lenstr < lenpre ? false : strncmp(pre, str, lenpre) == 0;
-}
-
 void handle_events(
     ConstFSEventStreamRef         stream_ref,
     void                          *client_callback_info,
