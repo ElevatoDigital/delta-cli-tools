@@ -35,6 +35,11 @@ abstract class AbstractDatabaseSelectionError extends Exception implements Conso
 
     protected $databaseType;
 
+    /**
+     * @var OutputInterface
+     */
+    protected $output;
+
     public function setEnvironment(Environment $environment)
     {
         $this->environment = $environment;
