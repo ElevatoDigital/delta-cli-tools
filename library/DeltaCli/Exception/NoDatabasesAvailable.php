@@ -43,7 +43,7 @@ class NoDatabasesAvailable extends Exception implements ConsoleOutputInterface
                 '    use DeltaCli\Config\Database\DatabaseFactory as Db;',
                 '',
                 '    $project->getEnvironment(\'' . $this->environment->getName() . '\')->getManualConfig()',
-                '        ->addDatabase(Db::createInstance(\'mysql\', \'dbname\', \'username\', \'password\'));'
+                '        ->addDatabase(Db::createInstance(\'mysql\', \'dbname\', \'username\', \'password\', \'host\'));'
             ]
         );
     }
