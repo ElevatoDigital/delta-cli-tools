@@ -75,3 +75,5 @@ until they are wrapped with deltacli_wrap_command().
 sudo apt-get install -y composer php-zip unzip
 sudo composer global require deltasystems/delta-cli
 ```
+
+To enable code inspections in PHPStorm, in the PHP section of Languages & Frameworks settings add `~/.composer/vendor` to your include paths
