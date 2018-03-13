@@ -4,6 +4,7 @@ namespace DeltaCli\Extension\Vagrant\Script;
 
 use DeltaCli\Console\Output\Banner;
 use DeltaCli\Extension\Vagrant\Exception\VirtualHostConfigurationAlreadyExists;
+use DeltaCli\Extension\Vagrant\Exception\VirtualHostConfigurationCannotBeSaved;
 use DeltaCli\FileTemplate;
 use DeltaCli\Project;
 use DeltaCli\Script;
@@ -114,6 +115,12 @@ class CreateVhost extends Script
                         ->assign('docRoot', $this->documentRoot)
                         ->assign('applicationEnv', $this->applicationEnv);
                     $template->write($apachePath);
+
+                    if (!file_exists($apachePath)) {
+                        throw new VirtualHostConfigurationCannotBeSaved(
+                            "delta-cli was unable to save virtual host configuration at {$apachePath}. Check your privilidges?"
+                        );
+                    }
                 }
             )
             ->addStep(
@@ -124,6 +131,12 @@ class CreateVhost extends Script
                         ->assign('hostname', $this->hostname)
                         ->assign('docRoot', $this->documentRoot);
                     $template->write($nginxPath);
+
+                    if (!file_exists($nginxPath)) {
+                        throw new VirtualHostConfigurationCannotBeSaved(
+                            "delta-cli was unable to save virtual host configuration at {$nginxPath}. Check your privilidges?"
+                        );
+                    }
                 }
             )
             ->addStep(
