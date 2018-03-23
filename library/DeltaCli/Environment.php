@@ -38,7 +38,7 @@ class Environment
     private $sshPrivateKey;
 
     /**
-     * @var array
+     * @var Host[]
      */
     private $hosts = [];
 
@@ -210,9 +210,15 @@ class Environment
             if (!$userInput) {
                 $hostCount = count($this->hosts);
 
+                $hostList = [];
+                foreach($this->hosts as $host) {
+                    $hostList[] = "--hostname=" . $host->getHostname();
+                }
+
                 throw new MustSpecifyHostnameForShell(
-                    "The {$this->getName()} environment has {$hostCount} hosts, so you must"
+                    "The {$this->getName()} environment has {$hostCount} hosts, so you must "
                     . "specify which host you'd like to shell into with the hostname option."
+                    . PHP_EOL . implode(PHP_EOL, $hostList)
                 );
             }
 
