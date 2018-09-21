@@ -156,6 +156,9 @@ class ConfigFactory
         $scp = new Scp($temporaryFilePath, $remotePath, FileTransferPaths::DOWN);
         $scp->runOnHostViaAlreadyConfiguredSshTunnel($tunnel, $host);
 
+        #make sure we can work with the file that we copied down
+        chmod($temporaryFilePath,0666);
+
         return $temporaryFilePath;
     }
 }
