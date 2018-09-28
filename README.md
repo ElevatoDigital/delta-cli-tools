@@ -34,46 +34,22 @@ that is run within the root directory of the project and enables inspection of t
 
     $ vendor/bin/phpunit tests/ &>phpunit.out ; less phpunit.out
 
+## Docker / Windows Support
 
-## Windows (Experimental)
+For Windows users (or any OS), there is a Docker environment and commands available to run Delta CLI from your environment.
 
-Note: Windows compatibility is not fully supported yet. It is recommended that after your perform the Windows install that you switch to bash, 
-install delta-cli in bash and use bash for the time being.
-
-Delta CLI executes a number of shell commands that are dependent on common Linux programs which are not available out
-of box on Windows. Shell commands can be wrapped by defining a [sprintf](http://php.net/sprintf) compatible string for the SHELL_WRAPPER constant*.
-By default, commands ran on Windows are wrapped with `bash -c "%s"`. This will execute shell commands against the
-[Windows Subsystem for Linux](https://blogs.msdn.microsoft.com/wsl/) available on Windows 10 installations with the
-[Creators Update](https://www.microsoft.com/en-us/software-download/windows10) installed. If you are using Windows 10
-and have the Creators Update (major version 1703) installed([how to verify](https://www.microsoft.com/en-us/software-download/windows10)).
-You can run the below commands in Powershell to install Delta CLI and its dependencies:
+To get started, you need to have Docker installed, with both the `docker` and `docker-compose` commands available. 
+You also need to make sure that your source files are shared for mounting and that you are signed into the Docker Store. 
+Once those are prerequisites are met, simply execute delta in your Windows environment.
 
 ```
-Set-ExecutionPolicy Bypass
-iex((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/DeltaSystems/delta-cli-tools/master/bin/delta-install-windows.ps1'))
+delta
 ```
 
-After installation, you will need to configure Ubuntu. The first time you connect you will be prompted to setup a username and password. You must run bash 
-from a PowerShell instance with administrative permissions:
+On Windows, `delta` executes `delta.bat` which passes through to `delta.ps1`, a specialised script that uses `docker run` to execute your delta-cli commands.
 
-```
-bash
-```
+Note: when you first execute `delta` on Windows it will init a build of the delta-cli docker container. Subsequent runs won't have this overhead.
 
-Once you are connected, run the following commands:
-
-```
-sudo apt-get update
-sudo apt-get upgrade -y
-sudo apt-get install -y mysql-client
-```
-
-(Recommended) If you want to use Delta CLI from within bash you will also need to install Bash here. This is necessary to run the majority of functions
-until they are wrapped with deltacli_wrap_command().
-
-```
-sudo apt-get install -y composer php-zip unzip
-sudo composer global require deltasystems/delta-cli
-```
+## PHP Storm
 
 To enable code inspections in PHPStorm, in the PHP section of Languages & Frameworks settings add `~/.composer/vendor` to your include paths

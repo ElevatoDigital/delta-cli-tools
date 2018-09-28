@@ -1,0 +1,1 @@
+docker run --rm --interactive --tty --volume "$pwd/.:/app" delta-cli delta ssh:generate-keys

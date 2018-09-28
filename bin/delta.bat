@@ -1,4 +1,1 @@
-@echo off
-
-if "%PHPBIN%" == "" set PHPBIN="php"
-"%PHPBIN%" "delta-bootstrap.php"
+Powershell.exe -executionpolicy remotesigned -File  "%~dp0delta.ps1" %*
