@@ -1,0 +1,1 @@
+Powershell.exe -executionpolicy remotesigned -File  "%~dp0delta-docker-generate-ssh-key.ps1" %*

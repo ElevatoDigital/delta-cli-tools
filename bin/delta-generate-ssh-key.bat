@@ -1,1 +1,0 @@
-Powershell.exe -executionpolicy remotesigned -File  "%~dp0delta-generate-ssh-key.ps1" %*
