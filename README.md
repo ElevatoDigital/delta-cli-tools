@@ -39,14 +39,16 @@ that is run within the root directory of the project and enables inspection of t
 For Windows users (or any OS), there is a Docker environment and commands available to run Delta CLI from your environment.
 
 To get started, you need to have Docker installed, with both the `docker` and `docker-compose` commands available. 
-You also need to make sure that your source files are shared for mounting and that you are signed into the Docker Store. 
+You also need to make sure that your source files are shared for mounting and that you are signed into the Docker Store.
+It is also necessary to add the ./bin-docker folder to your local OS PATH variable to
+access the docker commands once installed (even in a global installation).
 Once those are prerequisites are met, simply execute delta in your Windows environment.
 
 ```
-delta
+delta-docker
 ```
 
-On Windows, `delta` executes `delta.bat` which passes through to `delta.ps1`, a specialised script that uses `docker run` to execute your delta-cli commands.
+On Windows, `delta-docker` executes `delta-docker.bat` which passes through to `delta-docker.ps1`, a specialised script that uses `docker run` to execute your delta-cli commands.
 
 Note: when you first execute `delta` on Windows it will init a build of the delta-cli docker container. Subsequent runs won't have this overhead.
 

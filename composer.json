@@ -1,15 +1,7 @@
 {
     "name": "deltasystems/delta-cli",
     "bin": [
-        "bin/delta",
-        "bin/delta-docker.bat",
-        "bin/delta-docker.ps1",
-        "bin/delta-docker-build.bat",
-        "bin/delta-docker-build.ps1",
-        "bin/delta-docker-rebuild.bat",
-        "bin/delta-docker-rebuild.ps1",
-        "bin/delta-docker-generate-ssh-key.bat",
-        "bin/delta-docker-generate-ssh-key.ps1"
+        "bin/delta"
     ],
     "autoload": {
         "psr-4": {
