@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Extension\Vagrant\Script;
 
+use DeltaCli\Cache;
 use DeltaCli\Exec;
 use DeltaCli\Extension\Vagrant\Exception;
 use DeltaCli\Project;
@@ -11,12 +12,19 @@ use DeltaCli\SshTunnel;
 class CheckEnvironment extends Script
 {
     /**
-     * @var SshTunnel
+    * @var Cache
+     */
+    private $cache;
+
+    /**
+    * @var SshTunnel
      */
     private $sshTunnel;
 
-    public function __construct(Project $project)
+    public function __construct(Project $project, Cache $cache)
     {
+        $this->cache = $cache;
+
         parent::__construct(
             $project,
             'vagrant:check-environment',
@@ -30,15 +38,24 @@ class CheckEnvironment extends Script
             ->addStep(
                 'vagrant-delta-folder-exists',
                 function () {
-                    if (!file_exists('/delta') || !is_dir('/delta')) {
-                        throw new Exception('/delta folder does not exist.');
+                    $defaultDirLocation = '/delta';
+                    $dirLocation = $this->cache->fetch('synced-dir-path') ? $this->cache->fetch('synced-dir-path') : $defaultDirLocation;
+
+                    if (!file_exists($dirLocation) || !is_dir($dirLocation)) {
+                        throw new Exception(
+                            sprintf('Designated synced directory (%s) does not exist. Default is %s',
+                            $dirLocation,
+                            $defaultDirLocation
+                        ));
+                    } else {
+                        $this->cache->store('synced-dir-path', $dirLocation);
                     }
                 }
             )
             ->addStep(
                 'vagrant-vhosts-folder-exists',
                 function () {
-                    if (!file_exists('/delta/vhost.d') || !is_dir('/delta/vhost.d')) {
+                    if (!file_exists($this->cache->fetch('synced-dir-path') . '/vhost.d') || !is_dir($this->cache->fetch('synced-dir-path') . '/vhost.d')) {
                         throw new Exception('vhost.d folder does not exist.');
                     }
                 }

@@ -79,7 +79,7 @@ class Vagrant implements ExtensionInterface
     private function addScripts(Project $project)
     {
         $project->addScript(new BackupDbs($project));
-        $project->addScript(new CheckEnvironment($project));
+        $project->addScript(new CheckEnvironment($project, $this->cache));
         $project->addScript(new RestartServices($project));
         $project->addScript(new CreateVhost($project));
         $project->addScript(new CreatePostgres($project));
