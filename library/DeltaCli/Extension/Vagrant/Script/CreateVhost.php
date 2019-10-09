@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Extension\Vagrant\Script;
 
+use DeltaCli\Cache;
 use DeltaCli\Console\Output\Banner;
 use DeltaCli\Extension\Vagrant\Exception\VirtualHostConfigurationAlreadyExists;
 use DeltaCli\Extension\Vagrant\Exception\VirtualHostConfigurationCannotBeSaved;
@@ -13,6 +14,8 @@ use Symfony\Component\Console\Input\InputOption;
 
 class CreateVhost extends Script
 {
+    private $cache;
+
     private $path;
 
     private $hostname;
@@ -21,7 +24,7 @@ class CreateVhost extends Script
 
     private $applicationEnv = 'development';
 
-    public function __construct(Project $project, $path = null)
+    public function __construct(Project $project, Cache $cache, $path = null)
     {
         parent::__construct(
             $project,
@@ -29,8 +32,10 @@ class CreateVhost extends Script
             'Create virtual host configuration files for Apache and nginx.'
         );
 
+        $this->cache = $cache;
+
         if (null === $path) {
-            $this->path = '/delta/vhost.d';
+            $this->path = $this->cache->fetch('synced-dir-path') . '/vhost.d';
         } else {
             $this->path = rtrim($path, '/');
         }

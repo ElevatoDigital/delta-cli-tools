@@ -81,7 +81,7 @@ class Vagrant implements ExtensionInterface
         $project->addScript(new BackupDbs($project));
         $project->addScript(new CheckEnvironment($project, $this->cache));
         $project->addScript(new RestartServices($project));
-        $project->addScript(new CreateVhost($project));
+        $project->addScript(new CreateVhost($project, $this->cache));
         $project->addScript(new CreatePostgres($project));
         $project->addScript(new CreateMysql($project));
 	$project->addScript(new SetPath($project));
