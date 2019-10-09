@@ -32,7 +32,9 @@ Testing is facilitated by [PHPUnit](https://phpunit.de/), and the test suite can
 that is run within the root directory of the project and enables inspection of the results with
 [less](http://www.greenwoodsoftware.com/less/):
 
-    $ vendor/bin/phpunit tests/ &>phpunit.out ; less phpunit.out
+    $ vendor/bin/phpunit --bootstrap 'tests/bootstrap.php' tests/ &>phpunit.out ; less phpunit.out
+
+You will need to run `composer install` in order to pass all tests.
 
 ## Docker / Windows Support
 
