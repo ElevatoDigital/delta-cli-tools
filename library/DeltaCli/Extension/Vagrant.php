@@ -11,6 +11,7 @@ use DeltaCli\Extension\Vagrant\Script\Mysql\Create as CreateMysql;
 use DeltaCli\Extension\Vagrant\Script\Postgres\Create as CreatePostgres;
 use DeltaCli\Extension\Vagrant\Script\RestartServices;
 use DeltaCli\Extension\Vagrant\Script\SetPath;
+use DeltaCli\Extension\Vagrant\Script\SetSyncedDirPath;
 use DeltaCli\Project;
 use DeltaCli\VagrantFinder;
 use Symfony\Component\Console\Helper\QuestionHelper;
@@ -83,6 +84,8 @@ class Vagrant implements ExtensionInterface
         $project->addScript(new CreateVhost($project));
         $project->addScript(new CreatePostgres($project));
         $project->addScript(new CreateMysql($project));
+	$project->addScript(new SetPath($project));
+	$project->addScript(new SetSyncedDirPath($project));
     }
 
     private function createEnvironment(Project $project, $vagrantPrivateKeyPath, $cwd)
