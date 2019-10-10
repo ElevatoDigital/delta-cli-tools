@@ -123,7 +123,7 @@ class CreateVhost extends Script
 
                     if (!file_exists($apachePath)) {
                         throw new VirtualHostConfigurationCannotBeSaved(
-                            "delta-cli was unable to save virtual host configuration at {$apachePath}. Check your privilidges?"
+                            "delta-cli was unable to save virtual host configuration at {$apachePath}. Check your privileges?"
                         );
                     }
                 }
@@ -139,7 +139,7 @@ class CreateVhost extends Script
 
                     if (!file_exists($nginxPath)) {
                         throw new VirtualHostConfigurationCannotBeSaved(
-                            "delta-cli was unable to save virtual host configuration at {$nginxPath}. Check your privilidges?"
+                            "delta-cli was unable to save virtual host configuration at {$nginxPath}. Check your privileges?"
                         );
                     }
                 }
