@@ -43,7 +43,7 @@ class CheckEnvironment extends Script
 
                     if (!file_exists($dirLocation) || !is_dir($dirLocation)) {
                         throw new Exception(
-                            sprintf('Designated synced directory (%s) does not exist. Default is %s',
+                            sprintf('Designated synced directory (%s) does not exist. Default is %s. Use vagrant:set-synced-dir-path for custom implementation.',
                             $dirLocation,
                             $defaultDirLocation
                         ));
