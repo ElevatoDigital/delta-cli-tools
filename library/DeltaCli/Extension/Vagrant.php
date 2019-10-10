@@ -78,7 +78,7 @@ class Vagrant implements ExtensionInterface
 
     private function addScripts(Project $project)
     {
-        $project->addScript(new BackupDbs($project));
+        $project->addScript(new BackupDbs($project, $this->cache));
         $project->addScript(new CheckEnvironment($project, $this->cache));
         $project->addScript(new RestartServices($project));
         $project->addScript(new CreateVhost($project, $this->cache));
@@ -110,10 +110,10 @@ class Vagrant implements ExtensionInterface
             $environment->setSshPrivateKey($vagrantPrivateKeyPath);
         }
 
-        if ('/delta' === $cwd || 0 === strpos($cwd, '/delta/')) {
+        if ($this->cache->fetch('delta-synced-dir') === $cwd || 0 === strpos($cwd, $this->cache->fetch('delta-synced-dir'))) {
             $homeFolder = $cwd;
         } else {
-            $homeFolder = '/delta';
+            $homeFolder = $this->cache->fetch('delta-synced-dir');
         }
 
         $environment->getHost('127.0.0.1')
@@ -130,7 +130,7 @@ class Vagrant implements ExtensionInterface
                 ]
             );
 
-        $environment->setManualConfig(new Config($environment->getHost('127.0.0.1')));
+        $environment->setManualConfig(new Config($environment->getHost('127.0.0.1'), $this->cache));
     }
 
     private function findVagrantPath()

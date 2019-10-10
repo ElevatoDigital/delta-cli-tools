@@ -2,17 +2,25 @@
 
 namespace DeltaCli\Extension\Vagrant\Script;
 
+use DeltaCli\Cache;
 use DeltaCli\Project;
 use DeltaCli\Script;
 
 class BackupDbs extends Script
 {
-    public function __construct(Project $project)
+    /**
+     * @var Cache
+     */
+    private $cache;
+
+    public function __construct(Project $project, Cache $cache)
     {
+        $this->cache = $cache;
+
         parent::__construct(
             $project,
             'vagrant:backup-dbs',
-            'Backup all MySQL and Postgres databases to the /delta folder.'
+            'Backup all MySQL and Postgres databases to the synced delta folder.'
         );
     }
 
@@ -21,16 +29,30 @@ class BackupDbs extends Script
         $this
             ->addStep(
                 'backup-mysql',
-                $this->getProject()->ssh('mysqldump -A --user=root --password=delta > /delta/mysql.sql')
+                $this->getProject()->ssh(
+                    sprintf(
+                        'mysqldump -A --user=root --password=delta > %s/mysql.sql',
+                        $this->cache->fetch('delta-synced-dir')
+                    )
+                )
             )
             ->addStep(
                 'backup-postgres',
-                $this->getProject()->ssh('pg_dumpall -U postgres > /delta/postgres.sql')
+                $this->getProject()->ssh(
+                    sprintf(
+                        'pg_dumpall -U postgres > %s/postgres.sql',
+                        $this->cache->fetch('delta-synced-dir')
+                    )
+                )
             )
             ->addStep(
                 'output-status',
                 function () {
-                    echo 'Postgres databases are in /delta/postgres.sql.  MySQL databases are in /delta/mysql.sql.';
+                    echo sprintf(
+                        'Postgres databases are in %s/postgres.sql.  MySQL databases are in %s/mysql.sql.',
+                        $this->cache->fetch('delta-synced-dir'),
+                        $this->cache->fetch('delta-synced-dir')
+                    );
                 }
             );
     }

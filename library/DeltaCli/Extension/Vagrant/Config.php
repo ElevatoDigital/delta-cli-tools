@@ -2,6 +2,7 @@
 
 namespace DeltaCli\Extension\Vagrant;
 
+use DeltaCli\Cache;
 use DeltaCli\Config\Config as BaseConfig;
 use DeltaCli\Exec;
 use DeltaCli\Host;
@@ -12,13 +13,19 @@ class Config extends BaseConfig
     private $detectionPerformed = false;
 
     /**
+    * @var Cache
+    */
+    private $cache;
+
+    /**
      * @var Host
      */
     private $host;
 
-    public function __construct(Host $host)
+    public function __construct(Host $host, Cache $cache)
     {
-        $this->host = $host;
+        $this->host     = $host;
+        $this->cache    = $cache;
     }
 
     public function hasBrowserUrl()
@@ -68,7 +75,12 @@ class Config extends BaseConfig
     private function getVhostConfigs(SshTunnel $sshTunnel)
     {
         Exec::run(
-            $sshTunnel->assembleSshCommand('grep -R DocumentRoot /delta/vhost.d'),
+            $sshTunnel->assembleSshCommand(
+                sprintf(
+                    'grep -R DocumentRoot %s/vhost.d',
+                    $this->cache->fetch('delta-synced-dir')
+                )
+            ),
             $output,
             $exitStatus
         );
