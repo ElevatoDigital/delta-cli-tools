@@ -111,7 +111,7 @@ class Vagrant implements ExtensionInterface
         }
 
         if ($this->cache->fetch('synced-dir-path') === $cwd || 0 === strpos($cwd, $this->cache->fetch('synced-dir-path'))) {
-            $homeFolder = $cwd;
+            $homeFolder = '/delta' . substr($cwd, strlen($this->cache->fetch('synced-dir-path')));
         } else {
             $homeFolder = $this->cache->fetch('synced-dir-path');
         }
