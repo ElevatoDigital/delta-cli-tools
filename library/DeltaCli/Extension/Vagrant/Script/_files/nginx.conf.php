@@ -22,7 +22,7 @@ server {
             proxy_pass http://127.0.0.1:81;
         }
 
-        root <?php echo $this->docRoot;?>;
+        root /delta/<?php echo $this->docRoot;?>;
         index index.php index.html index.htm;
         try_files $uri $uri/ @fallback;
     }
