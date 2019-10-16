@@ -110,10 +110,10 @@ class Vagrant implements ExtensionInterface
             $environment->setSshPrivateKey($vagrantPrivateKeyPath);
         }
 
-        if ($this->cache->fetch('delta-synced-dir') === $cwd || 0 === strpos($cwd, $this->cache->fetch('delta-synced-dir'))) {
+        if ($this->cache->fetch('synced-dir-path') === $cwd || 0 === strpos($cwd, $this->cache->fetch('synced-dir-path'))) {
             $homeFolder = $cwd;
         } else {
-            $homeFolder = $this->cache->fetch('delta-synced-dir');
+            $homeFolder = $this->cache->fetch('synced-dir-path');
         }
 
         $environment->getHost('127.0.0.1')

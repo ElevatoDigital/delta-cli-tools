@@ -32,7 +32,7 @@ class BackupDbs extends Script
                 $this->getProject()->ssh(
                     sprintf(
                         'mysqldump -A --user=root --password=delta > %s/mysql.sql',
-                        $this->cache->fetch('delta-synced-dir')
+                        $this->cache->fetch('synced-dir-path')
                     )
                 )
             )
@@ -41,7 +41,7 @@ class BackupDbs extends Script
                 $this->getProject()->ssh(
                     sprintf(
                         'pg_dumpall -U postgres > %s/postgres.sql',
-                        $this->cache->fetch('delta-synced-dir')
+                        $this->cache->fetch('synced-dir-path')
                     )
                 )
             )
@@ -50,8 +50,8 @@ class BackupDbs extends Script
                 function () {
                     echo sprintf(
                         'Postgres databases are in %s/postgres.sql.  MySQL databases are in %s/mysql.sql.',
-                        $this->cache->fetch('delta-synced-dir'),
-                        $this->cache->fetch('delta-synced-dir')
+                        $this->cache->fetch('synced-dir-path'),
+                        $this->cache->fetch('synced-dir-path')
                     );
                 }
             );
