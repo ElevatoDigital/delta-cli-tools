@@ -13,19 +13,13 @@ class Config extends BaseConfig
     private $detectionPerformed = false;
 
     /**
-    * @var Cache
-    */
-    private $cache;
-
-    /**
      * @var Host
      */
     private $host;
 
-    public function __construct(Host $host, Cache $cache)
+    public function __construct(Host $host)
     {
         $this->host     = $host;
-        $this->cache    = $cache;
     }
 
     public function hasBrowserUrl()
@@ -75,12 +69,7 @@ class Config extends BaseConfig
     private function getVhostConfigs(SshTunnel $sshTunnel)
     {
         Exec::run(
-            $sshTunnel->assembleSshCommand(
-                sprintf(
-                    'grep -R DocumentRoot %s/vhost.d',
-                    $this->cache->fetch('delta-synced-dir')
-                )
-            ),
+            $sshTunnel->assembleSshCommand('grep -R DocumentRoot /delta/vhost.d'),
             $output,
             $exitStatus
         );

@@ -130,7 +130,7 @@ class Vagrant implements ExtensionInterface
                 ]
             );
 
-        $environment->setManualConfig(new Config($environment->getHost('127.0.0.1'), $this->cache));
+        $environment->setManualConfig(new Config($environment->getHost('127.0.0.1')));
     }
 
     private function findVagrantPath()
