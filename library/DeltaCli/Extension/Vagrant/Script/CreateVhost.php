@@ -54,7 +54,7 @@ class CreateVhost extends Script
 
     public function setDocumentRoot($documentRoot)
     {
-        $this->documentRoot = realpath($documentRoot);
+        $this->documentRoot = $documentRoot;
 
         return $this;
     }
@@ -79,7 +79,7 @@ class CreateVhost extends Script
             ->addSetterArgument(
                 'document-root',
                 InputArgument::REQUIRED,
-                'The root folder to serve for this host. (Typically a www or public folder.)'
+                'The root folder to serve for this host, typically a www or public folder. This should be relative to your synced dir (e.g., "delta-cli-tools/www").'
             )
             ->addSetterOption('application-env', null, InputOption::VALUE_OPTIONAL);
     }
