@@ -19,6 +19,7 @@ class DetectorSet
 
         $this->detectors[] = new ApacheErrorLog();
         $this->detectors[] = new ApacheAccessLog();
+        $this->detectors[] = new PhpFpmErrorLog();
         $this->detectors[] = new DewdropMonolog();
         $this->detectors[] = new NginxAccessLog();
         $this->detectors[] = new NginxErrorLog();
