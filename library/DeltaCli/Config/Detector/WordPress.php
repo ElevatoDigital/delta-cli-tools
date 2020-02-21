@@ -17,7 +17,8 @@ class WordPress implements DetectorInterface
     {
         return [
             'wp-config.php',
-            'src/wp-config.php'
+            'src/wp-config.php',
+            'src/httpdocs/wp-config.php'
         ];
     }
 
