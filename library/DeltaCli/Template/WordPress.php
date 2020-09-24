@@ -106,7 +106,7 @@ class WordPress implements TemplateInterface
 
             $deployScript->prependStep(
                 'backup',
-                $project->ssh('backup')->setEnvironments([$environment])
+                $project->ssh('tripoint_backup')->setEnvironments([$environment])
             );
         }
     }
